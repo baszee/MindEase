@@ -70,11 +70,9 @@ class JournalFragment : Fragment() {
     }
 
     private fun observeJournals() {
-        // FIX: The property name 'allJournals' is correct from the ViewModel
         viewModel.allJournals.observe(viewLifecycleOwner) { journals ->
             journalAdapter.submitList(journals)
             // Tampilkan atau sembunyikan empty state
-            // FIX: Using is not empty extension
             binding.tvEmptyState.visibility = if (journals.isEmpty()) View.VISIBLE else View.GONE
         }
     }

@@ -1,4 +1,3 @@
-// app/src/main/java/com/mindease/mindeaseapp/ui/home/DashboardViewModel.kt
 package com.mindease.mindeaseapp.ui.home
 
 import androidx.lifecycle.LiveData
@@ -30,8 +29,6 @@ class DashboardViewModel(private val repository: MoodRepository) : ViewModel() {
      */
     fun saveMood(mood: MoodEntry) {
         viewModelScope.launch {
-            // FIX: Mengubah insertMood() menjadi insert() sesuai repository
-            repository.insert(mood)
             // Setelah disimpan, perbarui tampilan mood hari ini
             _currentDayMood.value = mood
         }

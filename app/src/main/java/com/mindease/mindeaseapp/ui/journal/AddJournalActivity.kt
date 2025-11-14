@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.children
 import androidx.lifecycle.ViewModelProvider
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.AppDatabase
@@ -49,7 +48,6 @@ class AddJournalActivity : AppCompatActivity() {
 
         // Membuat ViewModel menggunakan Factory
         val factory = JournalViewModelFactory(repository)
-        // FIX: Re-pasting the line to resolve the reference issue.
         viewModel = ViewModelProvider(this, factory)[JournalViewModel::class.java]
     }
 
@@ -125,7 +123,6 @@ class AddJournalActivity : AppCompatActivity() {
             timestamp = Date().time
         )
 
-        // FIX: The function call is correct based on the ViewModel code.
         viewModel.insertJournalEntry(newJournalEntry)
 
         Toast.makeText(this, "Jurnal berhasil disimpan!", Toast.LENGTH_SHORT).show()

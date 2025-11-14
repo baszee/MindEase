@@ -7,12 +7,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MindEase">
 
         <activity
-            android:name=".ui.common.SplashActivity"
-            android:exported="true"
-            android:theme="@style/Theme.MindEase.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -20,27 +16,7 @@
         </activity>
 
         <activity
-            android:name=".ui.auth.LoginActivity"
             android:exported="false"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.MindEase.NoActionBar"/>
-
-        <activity
-            android:name=".ui.home.MainActivity"
-            android:exported="false"
-            android:label="@string/app_name"/>
-
-        <activity
-            android:name=".ui.journal.AddJournalActivity"
-            android:exported="false"
-            android:label="Add Journal"
-            android:parentActivityName=".ui.home.MainActivity"/>
-
-        <activity
-            android:name=".ui.journal.MoodHistoryActivity"
-            android:exported="false"
-            android:label="Mood History"
-            android:parentActivityName=".ui.home.MainActivity"/>
 
     </application>
 </manifest>
