@@ -2,12 +2,15 @@ package com.mindease.mindeaseapp.ui.journal
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import com.mindease.mindeaseapp.data.model.JournalEntry // <-- FIX: Import ini yang hilang
 import com.mindease.mindeaseapp.data.repository.JournalRepository
+import kotlinx.coroutines.launch
 
 /**
  * ViewModel untuk JournalFragment.
- * Menyediakan akses ke daftar jurnal yang tersimpan.
  */
+class JournalViewModel(private val repository: JournalRepository) : ViewModel() {
 
     // Daftar semua jurnal, dikonversi dari Flow ke LiveData
     val allJournals = repository.allJournals.asLiveData()

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children // <-- FIX: Import ini yang hilang
 import androidx.lifecycle.ViewModelProvider
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.AppDatabase
@@ -85,11 +86,11 @@ class AddJournalActivity : AppCompatActivity() {
 
     /**
      * Mengatur ulang alpha semua ikon mood menjadi 0.5 (belum dipilih).
-     * MENGGUNAKAN: androidx.core.view.children
      */
     private fun resetMoodSelection() {
+        // FIX: children dan alpha sekarang akan dikenali karena import
         binding.moodSelectionContainer.children.filterIsInstance<ImageView>().forEach { imageView ->
-            imageView.alpha = 0.5f // <-- PERBAIKAN 2: Menggunakan nama yang jelas 'imageView'
+            imageView.alpha = 0.5f
         }
     }
 
@@ -118,7 +119,6 @@ class AddJournalActivity : AppCompatActivity() {
             moodScore = selectedMoodScore,
             moodName = selectedMoodName,
             content = content,
-            // PERBAIKAN 3: Menggunakan 'imagePath' bukan 'imageUrl'
             imagePath = null,
             timestamp = Date().time
         )
