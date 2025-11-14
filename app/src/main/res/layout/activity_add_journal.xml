@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9F5F1"
+    tools:context=".ui.journal.AddJournalActivity">
+
+    <!-- Toolbar/Header -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:title="Add Journal"
+        app:titleTextColor="@android:color/black"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toTopOf="@id/btn_save_journal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp">
+
+            <!-- Pertanyaan Mood -->
+            <TextView
+                android:id="@+id/tv_mood_prompt"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="How are you feeling today?"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Pilihan Emoji Mood (5 Pilihan) -->
+            <LinearLayout
+                android:id="@+id/mood_selection_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_mood_prompt"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <!-- Tag digunakan untuk menyimpan skor mood di Kotlin -->
+                <ImageView android:id="@+id/iv_mood_happy_extreme" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_happy_extreme" android:tag="5" android:contentDescription="Very Happy Mood"/>
+                <ImageView android:id="@+id/iv_mood_happy" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_happy" android:tag="4" android:contentDescription="Happy Mood"/>
+                <ImageView android:id="@+id/iv_mood_neutral" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_neutral" android:tag="3" android:contentDescription="Neutral Mood"/>
+                <ImageView android:id="@+id/iv_mood_sad" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_sad" android:tag="2" android:contentDescription="Sad Mood"/>
+                <ImageView android:id="@+id/iv_mood_sad_extreme" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_sad_extreme" android:tag="1" android:contentDescription="Very Sad Mood"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_mood_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pilih Mood"
+                android:textSize="14sp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/mood_selection_container"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <!-- Area Input Jurnal -->
+            <TextView
+                android:id="@+id/tv_write_prompt"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Write a Little Bit About Your Day...."
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_mood_name"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <EditText
+                android:id="@+id/et_journal_content"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:background="@drawable/bg_rounded_border"
+                android:gravity="top"
+                android:hint="Mulai mengetik di sini..."
+                android:padding="12dp"
+                android:inputType="textMultiLine"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_write_prompt"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:autofillHints="none" />
+
+            <!-- Tombol Tambah Gambar -->
+            <Button
+                android:id="@+id/btn_add_picture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Pictures (Optional)"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                app:icon="@drawable/ic_add_image"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/et_journal_content"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <!-- Tempat Preview Gambar -->
+            <ImageView
+                android:id="@+id/iv_image_preview"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/btn_add_picture"
+                app:layout_constraintStart_toStartOf="parent"
+                android:contentDescription="Gambar yang ditambahkan" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <!-- Tombol Save -->
+    <Button
+        android:id="@+id/btn_save_journal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Save Journal"
+        android:textSize="18sp"
+        android:paddingVertical="12dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

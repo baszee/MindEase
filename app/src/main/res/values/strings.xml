@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MindEase</string>
+    <!-- Tambahan untuk Dashboard -->
+    <string name="placeholder_quote">"The Less Harshly we judge Ourselves, the more accepting we become of others."</string>
+</resources>
