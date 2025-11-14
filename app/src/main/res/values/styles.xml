@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Gaya khusus untuk ikon mood di Add Journal Activity -->
+    <style name="MoodIconStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:alpha">0.5</item>
+        <item name="android:padding">4dp</item>
+    </style>
+</resources>

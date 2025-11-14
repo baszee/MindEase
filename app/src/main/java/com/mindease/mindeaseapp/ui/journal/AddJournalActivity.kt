@@ -1,0 +1,136 @@
+package com.mindease.mindeaseapp.ui.journal
+
+import android.os.Bundle
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
+import androidx.lifecycle.ViewModelProvider
+import com.mindease.mindeaseapp.R
+import com.mindease.mindeaseapp.data.model.AppDatabase
+import com.mindease.mindeaseapp.data.model.JournalEntry
+import com.mindease.mindeaseapp.data.repository.JournalRepository
+import com.mindease.mindeaseapp.databinding.ActivityAddJournalBinding
+import java.util.Date
+
+class AddJournalActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityAddJournalBinding
+    private lateinit var viewModel: JournalViewModel
+    private var selectedMoodScore: Int = 0
+    private var selectedMoodName: String = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityAddJournalBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setupViewModel()
+
+        // 2. Setup Toolbar (Tombol Back)
+        binding.toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
+
+        // 3. Setup Listeners
+        setupMoodListeners()
+        binding.btnSaveJournal.setOnClickListener {
+            showSaveConfirmationDialog()
+        }
+        binding.btnAddPicture.setOnClickListener {
+            Toast.makeText(this, "Fitur Tambah Gambar akan diimplementasikan nanti", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupViewModel() {
+        // Mendapatkan DAO dan Repository
+        val journalDao = AppDatabase.getDatabase(applicationContext).journalDao()
+        val repository = JournalRepository(journalDao)
+
+        // Membuat ViewModel menggunakan Factory
+        val factory = JournalViewModelFactory(repository)
+        // FIX: Re-pasting the line to resolve the reference issue.
+        viewModel = ViewModelProvider(this, factory)[JournalViewModel::class.java]
+    }
+
+    private fun setupMoodListeners() {
+        val moodIcons = listOf(
+            binding.ivMoodHappyExtreme, binding.ivMoodHappy, binding.ivMoodNeutral,
+            binding.ivMoodSad, binding.ivMoodSadExtreme
+        )
+
+        moodIcons.forEach { imageView ->
+            imageView.setOnClickListener { view ->
+                val score = view.tag.toString().toIntOrNull() ?: return@setOnClickListener
+
+                onMoodSelected(score, view as ImageView)
+            }
+        }
+    }
+
+    private fun onMoodSelected(score: Int, selectedView: ImageView) {
+        resetMoodSelection()
+
+        selectedView.alpha = 1.0f
+
+        selectedMoodScore = score
+        selectedMoodName = when (score) {
+            5 -> "Very Happy"
+            4 -> "Happy"
+            3 -> "Neutral"
+            2 -> "Sad"
+            1 -> "Very Sad"
+            else -> ""
+        }
+        binding.tvMoodName.text = selectedMoodName
+    }
+
+    /**
+     * Mengatur ulang alpha semua ikon mood menjadi 0.5 (belum dipilih).
+     * MENGGUNAKAN: androidx.core.view.children
+     */
+    private fun resetMoodSelection() {
+        binding.moodSelectionContainer.children.filterIsInstance<ImageView>().forEach { imageView ->
+            imageView.alpha = 0.5f // <-- PERBAIKAN 2: Menggunakan nama yang jelas 'imageView'
+        }
+    }
+
+    private fun showSaveConfirmationDialog() {
+        val content = binding.etJournalContent.text.toString()
+
+        if (selectedMoodScore == 0) {
+            Toast.makeText(this, "Mohon pilih Mood Anda hari ini.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (content.isBlank()) {
+            Toast.makeText(this, "Tuliskan sedikit tentang hari Anda.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        Toast.makeText(this, "Menyimpan Jurnal...", Toast.LENGTH_LONG).show()
+        saveJournalEntry(content)
+    }
+
+    /**
+     * Menyimpan data Jurnal ke Room Database.
+     */
+    private fun saveJournalEntry(content: String) {
+        val newJournalEntry = JournalEntry(
+            moodScore = selectedMoodScore,
+            moodName = selectedMoodName,
+            content = content,
+            // PERBAIKAN 3: Menggunakan 'imagePath' bukan 'imageUrl'
+            imagePath = null,
+            timestamp = Date().time
+        )
+
+        // FIX: The function call is correct based on the ViewModel code.
+        viewModel.insertJournalEntry(newJournalEntry)
+
+        Toast.makeText(this, "Jurnal berhasil disimpan!", Toast.LENGTH_SHORT).show()
+
+        // Tutup Activity
+        finish()
+    }
+}

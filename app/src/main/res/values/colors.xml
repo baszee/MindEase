@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Warna Dasar Android Studio Default -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Warna Primer dan Sekunder yang digunakan di activity_login.xml -->
+    <color name="design_default_color_primary">#6200EE</color>
+    <color name="design_default_color_primary_dark">#3700B3</color>
+    <color name="design_default_color_secondary">#03DAC6</color>
+
+    <!-- Tambahkan warna kustom MindEase di sini nanti -->
+    <color name="mindease_primary">#4CAF50</color>
+    <color name="mindease_secondary">#FFC107</color>
+</resources>

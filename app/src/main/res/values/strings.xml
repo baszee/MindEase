@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MindEase</string>
+    <string name="placeholder_quote">"The Less Harshly we judge Ourselves, the more accepting we become of others."</string>
+
+    <string name="average_mood_score">Rata-rata Skor Mood: %s/5.0</string>
+    <string name="most_common_mood">Mood Paling Umum Minggu Ini: %s</string>
+</resources>

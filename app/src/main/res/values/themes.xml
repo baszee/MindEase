@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.MindEase" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/mindease_primary</item>
+        <item name="colorSecondary">@color/mindease_secondary</item>
+    </style>
+
+    <style name="Theme.MindEase" parent="Base.Theme.MindEase" />
+
+    <style name="Theme.MindEase.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>
