@@ -1,7 +1,3 @@
-// settings.gradle.kts
-
-import java.net.URI // <-- Add this import statement at the top
-
 pluginManagement {
     repositories {
         google {
@@ -21,10 +17,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // Corrected line: Use uri() to convert the String to a URI
+        // Jitpack untuk MPAndroidChart
         maven { url = uri("https://jitpack.io") }
     }
 }
 
-rootProject.name = "MindEase"
+rootProject.name = "MindEaseApp"
 include(":app")

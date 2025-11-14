@@ -52,15 +52,16 @@ class JournalFragment : Fragment() {
         val journalDao = AppDatabase.getDatabase(requireContext()).journalDao()
         val repository = JournalRepository(journalDao)
         val factory = JournalViewModelFactory(repository)
-        // FIX: Re-pasting the line to resolve the reference issue.
         viewModel = ViewModelProvider(this, factory)[JournalViewModel::class.java]
     }
 
     private fun setupRecyclerView() {
-        // Callback saat item di klik (saat ini hanya placeholder)
+        // FIX: Implementasi Callback untuk membuka DetailJournalActivity
         journalAdapter = JournalAdapter { journalEntry ->
-            // TODO: Arahkan ke layar detail jurnal
-            // Toast.makeText(requireContext(), "Detail Jurnal: ${journalEntry.content}", Toast.LENGTH_SHORT).show()
+            val intent = Intent(requireContext(), DetailJournalActivity::class.java).apply {
+                putExtra(DetailJournalActivity.EXTRA_JOURNAL_ID, journalEntry.id)
+            }
+            startActivity(intent)
         }
 
         binding.rvJournalList.apply {

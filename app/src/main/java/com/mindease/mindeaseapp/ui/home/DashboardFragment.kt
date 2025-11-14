@@ -1,5 +1,6 @@
 package com.mindease.mindeaseapp.ui.home
 
+import android.content.Intent // FIX: Tambahkan import Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import com.mindease.mindeaseapp.data.model.AppDatabase
 import com.mindease.mindeaseapp.data.model.MoodEntry
 import com.mindease.mindeaseapp.data.repository.MoodRepository
 import com.mindease.mindeaseapp.databinding.FragmentDashboardBinding
+import com.mindease.mindeaseapp.ui.journal.MoodHistoryActivity // FIX: Tambahkan import MoodHistoryActivity
 import java.util.Calendar
 import androidx.core.view.children
 
@@ -49,8 +51,9 @@ class DashboardFragment : Fragment() {
 
         // Listener untuk Mood History
         binding.tvMoodHistoryLink.setOnClickListener {
-            // TODO: Pindah ke MoodHistoryActivity (Langkah 18)
-            Toast.makeText(requireContext(), "Membuka Riwayat Mood...", Toast.LENGTH_SHORT).show()
+            // FIX: Mengganti Toast dengan Intent untuk navigasi ke MoodHistoryActivity
+            val intent = Intent(requireContext(), MoodHistoryActivity::class.java)
+            startActivity(intent)
         }
     }
 

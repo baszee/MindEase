@@ -1,14 +1,13 @@
 package com.mindease.mindeaseapp.ui.journal
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-// FIX: Hapus IndexAxisFormatter. Gunakan ValueFormatter saja.
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.AppDatabase
@@ -23,7 +22,6 @@ class MoodHistoryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMoodHistoryBinding
 
-    // FIX: Menggunakan delegasi viewModels yang benar (sekarang harus berhasil menemukan ViewModel dan Factory)
     private val viewModel: MoodHistoryViewModel by viewModels {
         val moodDao = AppDatabase.getDatabase(applicationContext).moodDao()
         val repository = MoodRepository(moodDao)
@@ -60,13 +58,15 @@ class MoodHistoryActivity : AppCompatActivity() {
             Entry(index.toFloat(), moodEntry.score.toFloat())
         }
 
-        // 2. Membuat Data Set
+        // 2. Membuat Data Set - FIX: Gunakan Color.parseColor atau resources.getColor dengan R.color yang ada
+        val primaryColor = Color.parseColor("#6200EE") // Atau gunakan warna primary Anda
+
         val dataSet = LineDataSet(entries, "Mood Score Harian").apply {
-            color = resources.getColor(R.color.design_default_color_primary, theme)
-            valueTextColor = resources.getColor(R.color.design_default_color_primary, theme)
+            color = primaryColor
+            valueTextColor = primaryColor
             lineWidth = 2f
             setDrawCircles(true)
-            setCircleColor(resources.getColor(R.color.design_default_color_primary, theme))
+            setCircleColor(primaryColor)
             circleRadius = 4f
             valueTextSize = 10f
             valueFormatter = MoodValueFormatter()
@@ -80,7 +80,6 @@ class MoodHistoryActivity : AppCompatActivity() {
             position = XAxis.XAxisPosition.BOTTOM
             granularity = 1f
             setDrawGridLines(false)
-            // FIX: Menggunakan MoodDateFormatter (extends ValueFormatter)
             valueFormatter = MoodDateFormatter(sortedMoods)
             labelCount = 7
         }
@@ -116,7 +115,6 @@ class MoodHistoryActivity : AppCompatActivity() {
 
     /**
      * Formatter untuk menampilkan tanggal pada Axis X Grafik.
-     * FIX: Menggunakan ValueFormatter (solusi yang lebih kompatibel)
      */
     private class MoodDateFormatter(private val moods: List<MoodEntry>) : ValueFormatter() {
         private val dateFormat = SimpleDateFormat("EEE", Locale.getDefault())

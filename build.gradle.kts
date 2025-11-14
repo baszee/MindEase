@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android) apply false
 
     // Plugin Google Services (Wajib untuk Firebase)
-    id("com.google.gms.google-services") version "4.4.0" apply true
+    id("com.google.gms.google-services") version "4.4.0" apply false
 
     // Plugin Kotlin Kapt untuk Room (Database Lokal)
     alias(libs.plugins.kotlin.kapt) apply false

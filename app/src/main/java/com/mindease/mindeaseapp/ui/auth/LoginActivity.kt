@@ -3,92 +3,136 @@ package com.mindease.mindeaseapp.ui.auth
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.mindease.mindeaseapp.R
+import com.mindease.mindeaseapp.data.repository.AuthRepository
 import com.mindease.mindeaseapp.databinding.ActivityLoginBinding
-import com.mindease.mindeaseapp.ui.home.MainActivity // <-- IMPORT DITAMBAHKAN
-// Anda akan membutuhkan RegisterActivity.kt nanti
+import com.mindease.mindeaseapp.ui.home.MainActivity
+import com.mindease.mindeaseapp.utils.AuthResult
 
 class LoginActivity : AppCompatActivity() {
 
-    // Variable binding untuk mengakses komponen UI
     private lateinit var binding: ActivityLoginBinding
+    private lateinit var authViewModel: AuthViewModel
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Inisialisasi View Binding
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Panggil fungsi untuk menyiapkan semua listener
-        setupListeners()
+        // 1. Inisialisasi ViewModel
+        val authRepository = AuthRepository(Firebase.auth)
+        val factory = AuthViewModelFactory(authRepository)
+        authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
-        // TODO: Inisialisasi GoogleSignInClient dan Firebase Auth di sini
+        // 2. Inisialisasi Google Sign-In Options dan Client
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken("45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com") // GANTI INI dengan Web Client ID dari Firebase Console
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        // 3. Inisialisasi Activity Result Launcher
+        googleSignInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            val data: Intent? = result.data
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)!!
+                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                authViewModel.signInWithGoogleCredential(credential)
+
+            } catch (e: ApiException) {
+                Toast.makeText(this, "Google Sign-In Gagal: ${e.statusCode}", Toast.LENGTH_LONG).show()
+
+            } catch (e: Exception) {
+                Toast.makeText(this, "Login Firebase Gagal: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        setupListeners()
+        observeViewModel()
+    }
+
+    private fun signInWithGoogle() {
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
     }
 
     private fun setupListeners() {
-        // Listener untuk tombol Login utama
+        // Login dengan Email/Password
         binding.btnLogin.setOnClickListener {
-            performManualLogin()
+            val email = binding.etUsername.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+
+            if (email.isNotEmpty() && password.isNotEmpty()) {
+                authViewModel.login(email, password)
+            } else {
+                Toast.makeText(this, "Email dan password tidak boleh kosong", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        // Listener untuk tombol Google Sign-In (akan diimplementasikan nanti)
+        // Google Sign-In
         binding.btnGoogleSignIn.setOnClickListener {
-            // signInWithGoogle() // TODO: Implementasi sign-in Google
-            Toast.makeText(this, "Membuka Login Google...", Toast.LENGTH_SHORT).show()
+            signInWithGoogle()
         }
 
-        // Listener untuk Guest Login
+        // Login Tamu (Guest)
         binding.btnGuestLogin.setOnClickListener {
-            performGuestLogin()
+            authViewModel.loginAsGuest()
         }
 
-        // Listener untuk Sign Up
+        // Pendaftaran
         binding.tvSignUp.setOnClickListener {
-            // TODO: Pindah ke RegisterActivity
-            Toast.makeText(this, "Pindah ke halaman Sign Up", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Pendaftaran (TODO)", Toast.LENGTH_SHORT).show()
         }
 
-        // Listener untuk Forgot Password
+        // Forgot Password
         binding.tvForgotPassword.setOnClickListener {
-            // TODO: Implementasi Forgot Password
-            Toast.makeText(this, "Membuka form Forgot Password", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Membuka form Forgot Password (TODO)", Toast.LENGTH_SHORT).show()
         }
     }
 
-    /**
-     * Menangani proses login menggunakan Username/Password.
-     */
-    private fun performManualLogin() {
-        val username = binding.etUsername.text.toString()
-        val password = binding.etPassword.text.toString()
-
-        if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Username dan Password harus diisi!", Toast.LENGTH_SHORT).show()
-            return
+    private fun observeViewModel() {
+        authViewModel.loginResult.observe(this) { result ->
+            when (result) {
+                is AuthResult.Loading -> {
+                    binding.btnLogin.isEnabled = false
+                    binding.btnGuestLogin.isEnabled = false
+                    binding.btnGoogleSignIn.isEnabled = false
+                }
+                is AuthResult.Success -> {
+                    binding.btnLogin.isEnabled = true
+                    binding.btnGuestLogin.isEnabled = true
+                    binding.btnGoogleSignIn.isEnabled = true
+                    Toast.makeText(this, "Autentikasi Sukses! Selamat datang.", Toast.LENGTH_SHORT).show()
+                    goToMainActivity()
+                }
+                is AuthResult.Error -> {
+                    binding.btnLogin.isEnabled = true
+                    binding.btnGuestLogin.isEnabled = true
+                    binding.btnGoogleSignIn.isEnabled = true
+                    Toast.makeText(this, "Gagal: ${result.exception.message}", Toast.LENGTH_LONG).show()
+                }
+                else -> {}
+            }
         }
-
-        // TODO: Logika Otentikasi (Panggil AuthRepository)
-
-        // Logika sementara: anggap sukses
-        Toast.makeText(this, "Login Berhasil! Mengarahkan ke Home...", Toast.LENGTH_LONG).show()
-        goToMainActivity() // <-- AKTIFKAN TRANSISI
     }
 
-    /**
-     * Menangani proses masuk sebagai Guest.
-     */
-    private fun performGuestLogin() {
-        // TODO: Simpan status Guest di SharedPreferences (user isGuest = true)
-        Toast.makeText(this, "Masuk sebagai Guest. Beberapa fitur akan terbatas.", Toast.LENGTH_LONG).show()
-        goToMainActivity() // <-- AKTIFKAN TRANSISI
-    }
-
-    /**
-     * Fungsi helper untuk pindah ke MainActivity.
-     */
     private fun goToMainActivity() {
-        // Pastikan Anda sudah membuat file MainActivity.kt
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()

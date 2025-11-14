@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9F5F1"
+    tools:context=".ui.breathing.BreathingSessionActivity">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:title="Breathing Session"
+        app:titleTextColor="@android:color/black"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Area Animasi / Indikator -->
+    <FrameLayout
+        android:id="@+id/animation_container"
+        android:layout_width="0dp"
+        android:layout_height="350dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tv_instruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ready? Inhale..."
+            android:layout_gravity="center"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/mindease_primary"/>
+
+        <TextView
+            android:id="@+id/tv_cycle_counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cycle 1/10"
+            android:layout_gravity="top|end"
+            android:layout_margin="16dp"
+            android:textSize="14sp"
+            tools:visibility="visible"/>
+
+    </FrameLayout>
+
+    <!-- Kontrol Sesi -->
+    <LinearLayout
+        android:id="@+id/session_controls"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Durasi Sesi -->
+        <TextView
+            android:id="@+id/tv_session_duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Session Duration: 5 Minutes"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Tombol Start Session -->
+        <Button
+            android:id="@+id/btn_start_session"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Session"
+            android:textSize="18sp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Opsi Feedback -->
+        <Switch
+            android:id="@+id/switch_sound"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sound Guidance"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
+            android:checked="true"/>
+
+        <Switch
+            android:id="@+id/switch_haptic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Haptic Feedback"
+            android:textSize="16sp"
+            android:checked="false"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

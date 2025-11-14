@@ -1,41 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MindEase"> <activity
-        android:name=".ui.common.SplashActivity"
-        android:exported="true"
-        android:theme="@style/Theme.MindEase.NoActionBar"> <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-    </intent-filter>
-    </activity>
+        android:theme="@style/Theme.MindEaseApp"
+        tools:targetApi="31">
 
+        <!-- Splash Screen Activity - LAUNCHER -->
+        <activity
+            android:name=".ui.common.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MindEaseApp.Fullscreen"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Login Activity -->
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="false"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.MindEase.NoActionBar"/> <activity
+            android:label="@string/login"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <!-- Register Activity (jika ada) -->
+        <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:exported="false"
+            android:label="@string/register"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <!-- Main Activity -->
+        <activity
             android:name=".ui.home.MainActivity"
             android:exported="false"
-            android:label="@string/app_name"/>
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MindEaseApp"
+            android:screenOrientation="portrait"/>
 
+        <!-- Journal Activities -->
         <activity
             android:name=".ui.journal.AddJournalActivity"
             android:exported="false"
-            android:label="Add Journal"
-            android:parentActivityName=".ui.home.MainActivity"/>
+            android:label="@string/add_journal"
+            android:theme="@style/Theme.MindEaseApp"
+            android:parentActivityName=".ui.home.MainActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.home.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".ui.journal.DetailJournalActivity"
+            android:exported="false"
+            android:label="@string/journal_detail"
+            android:theme="@style/Theme.MindEaseApp"
+            android:parentActivityName=".ui.home.MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.home.MainActivity" />
+        </activity>
 
         <activity
             android:name=".ui.journal.MoodHistoryActivity"
             android:exported="false"
-            android:label="Mood History"
-            android:parentActivityName=".ui.home.MainActivity"/>
+            android:label="@string/mood_history"
+            android:theme="@style/Theme.MindEaseApp"
+            android:parentActivityName=".ui.home.MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.home.MainActivity" />
+        </activity>
+
+        <!-- Breathing Session Activity -->
+        <activity
+            android:name=".ui.breathing.BreathingSessionActivity"
+            android:exported="false"
+            android:label="@string/breathing_exercise"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.home.MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.home.MainActivity" />
+        </activity>
+
+        <!-- Profile/Settings Activity (jika ada) -->
+        <activity
+            android:name=".ui.profile.ProfileActivity"
+            android:exported="false"
+            android:label="@string/profile"
+            android:theme="@style/Theme.MindEaseApp"
+            android:parentActivityName=".ui.home.MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.home.MainActivity" />
+        </activity>
+
+        <!-- FileProvider untuk share/upload gambar -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
+
 </manifest>

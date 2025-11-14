@@ -1,11 +1,13 @@
 package com.mindease.mindeaseapp.ui.journal
 
+import android.net.Uri // Import untuk URI gambar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide // FIX: Import Glide
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.JournalEntry
 import com.mindease.mindeaseapp.databinding.ItemJournalEntryBinding
@@ -13,11 +15,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/**
- * Adapter untuk menampilkan daftar JournalEntry di RecyclerView.
- */
 class JournalAdapter(private val onItemClicked: (JournalEntry) -> Unit) :
     ListAdapter<JournalEntry, JournalAdapter.JournalViewHolder>(JournalDiffCallback()) {
+    // ... (onCreateViewHolder dan onBindViewHolder tetap sama)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JournalViewHolder {
         val binding = ItemJournalEntryBinding.inflate(
@@ -36,27 +36,26 @@ class JournalAdapter(private val onItemClicked: (JournalEntry) -> Unit) :
         }
     }
 
+
     inner class JournalViewHolder(private val binding: ItemJournalEntryBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(journal: JournalEntry) {
             binding.apply {
-                // 1. Tanggal
+                // ... (Kode Jurnal lainnya)
                 tvDate.text = formatDate(journal.timestamp)
-
-                // 2. Mood Name
                 tvMoodName.text = journal.moodName
-
-                // 3. Ringkasan Konten
                 tvContentSummary.text = journal.content
-
-                // 4. Ikon Mood
                 ivMoodIcon.setImageResource(getMoodIconResource(journal.moodScore))
 
-                // 5. Gambar Preview (Jika ada)
+                // FIX: Logika untuk memuat gambar (Thumbnail)
                 if (journal.imagePath != null && journal.imagePath.isNotEmpty()) {
-                    // TODO: Gunakan library seperti Glide atau Coil untuk memuat gambar
                     ivJournalImagePreview.visibility = View.VISIBLE
+                    Glide.with(itemView.context)
+                        .load(Uri.parse(journal.imagePath)) // Muat dari URI yang tersimpan
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_add_image) // Placeholder saat memuat
+                        .into(ivJournalImagePreview)
                 } else {
                     ivJournalImagePreview.visibility = View.GONE
                 }
@@ -64,7 +63,9 @@ class JournalAdapter(private val onItemClicked: (JournalEntry) -> Unit) :
         }
 
         private fun formatDate(timestamp: Long): String {
-            val sdf = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+            // Menggunakan Locale Builder yang sudah diperbaiki
+            val locale = Locale.Builder().setLanguage("id").setRegion("ID").build()
+            val sdf = SimpleDateFormat("dd MMMM yyyy", locale)
             return sdf.format(Date(timestamp))
         }
 
@@ -80,7 +81,6 @@ class JournalAdapter(private val onItemClicked: (JournalEntry) -> Unit) :
         }
     }
 
-    /** Digunakan untuk menentukan perubahan item secara efisien saat memperbarui daftar. */
     class JournalDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
         override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
             return oldItem.id == newItem.id
