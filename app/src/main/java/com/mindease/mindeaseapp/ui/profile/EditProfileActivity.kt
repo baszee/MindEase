@@ -20,16 +20,23 @@ class EditProfileActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val user = Firebase.auth.currentUser
+
+        // FIX: Blokir akses Edit Profile jika user adalah Guest
+        if (user == null || user.isAnonymous) {
+            Toast.makeText(this, "Mohon maaf, Akun Tamu tidak dapat mengubah profil.", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
 
         // Setup ViewModel
         val authRepository = AuthRepository(Firebase.auth)
         val factory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
-        // Setup Toolbar
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         loadCurrentUserProfile()
@@ -37,12 +44,10 @@ class EditProfileActivity : AppCompatActivity() {
         observeViewModel()
     }
 
-    /**
-     * Memuat nama dan email pengguna saat ini ke UI.
-     */
     private fun loadCurrentUserProfile() {
         val user = Firebase.auth.currentUser
-        binding.tvUserEmail.text = user?.email ?: "Guest Session"
+        // Email tidak akan null jika sudah melewati cek di onCreate
+        binding.tvUserEmail.text = user?.email ?: "No Email (Signed In)"
         binding.etUsername.setText(user?.displayName ?: "")
     }
 
@@ -55,22 +60,16 @@ class EditProfileActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // PENTING: Periksa sesi sebelum memanggil ViewModel/Repository
             if (Firebase.auth.currentUser == null) {
                 Toast.makeText(this, "Sesi pengguna tidak valid. Silakan login ulang.", Toast.LENGTH_LONG).show()
-                // Jika null, jangan panggil ViewModel, cukup kembali.
                 finish()
                 return@setOnClickListener
             }
 
-            // Panggil fungsi update profile di ViewModel
             authViewModel.updateProfileName(newName)
         }
     }
 
-    /**
-     * Mengamati hasil dari update profile menggunakan LiveData.observe.
-     */
     private fun observeViewModel() {
         authViewModel.loginResult.observe(this) { result ->
             when (result) {
@@ -82,13 +81,12 @@ class EditProfileActivity : AppCompatActivity() {
                     binding.btnSave.isEnabled = true
                     binding.btnSave.text = getString(R.string.save)
                     Toast.makeText(this, getString(R.string.profile_updated_successfully), Toast.LENGTH_SHORT).show()
-                    finish() // Tutup activity dan kembali ke ProfileFragment
+                    finish()
                 }
                 is AuthResult.Error -> {
                     binding.btnSave.isEnabled = true
                     binding.btnSave.text = getString(R.string.save)
-                    // Menampilkan pesan error yang lebih detail dari Firebase
-                    Toast.makeText(this, "Gagal memperbarui: ${result.exception.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Gagal: ${result.exception.message}", Toast.LENGTH_LONG).show()
                 }
                 else -> {}
             }

@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.AppDatabase
 import com.mindease.mindeaseapp.data.model.MoodEntry
-import com.mindease.mindeaseapp.data.repository.MoodRepository // BENAR // BENAR // FIX: Tambahkan import ini
+import com.mindease.mindeaseapp.data.repository.MoodRepository
 import com.mindease.mindeaseapp.databinding.FragmentDashboardBinding
 import com.mindease.mindeaseapp.ui.journal.MoodHistoryActivity
 import java.util.Calendar
@@ -22,6 +22,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlin.collections.mapOf
 import kotlin.collections.forEach
+import com.google.firebase.firestore.FirebaseFirestore // FIX: Import Firestore
+import com.mindease.mindeaseapp.data.repository.MoodCloudRepository // FIX: Import Cloud Repository
 
 class DashboardFragment : Fragment() {
 
@@ -44,12 +46,14 @@ class DashboardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 1. Inisialisasi Database dan ViewModel
-        val moodDao = AppDatabase.getDatabase(requireContext()).moodDao()
-        val repository = MoodRepository(moodDao) // FIX: MoodRepository sekarang dikenali
+        // FIX: Hapus MoodDao karena sudah tidak dipakai, ganti ke Cloud Repository
+        val firestore = FirebaseFirestore.getInstance()
+        val auth = Firebase.auth
+        val repository = MoodCloudRepository(firestore, auth) // FIX: MoodCloudRepository
         val factory = DashboardViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[DashboardViewModel::class.java]
 
-        // 2. Siapkan Listener
+        // 2. Siapkan Listener (FIX: Fungsi sekarang dikenali)
         setupMoodListeners()
         setupObservers()
         setupGreeting()
@@ -60,6 +64,10 @@ class DashboardFragment : Fragment() {
             startActivity(intent)
         }
     }
+
+    // ==========================================================
+    // FIX: Implementasi fungsi yang sebelumnya 'unresolved'
+    // ==========================================================
 
     private fun setupGreeting() {
         val user = Firebase.auth.currentUser
@@ -139,6 +147,7 @@ class DashboardFragment : Fragment() {
             moodName = moodName,
             timestamp = System.currentTimeMillis()
         )
+        // FIX: saveMood sekarang memanggil Cloud Repository
         viewModel.saveMood(newMoodEntry)
         Toast.makeText(requireContext(), "Mood Hari Ini Dicatat: $moodName", Toast.LENGTH_SHORT).show()
     }
@@ -223,6 +232,7 @@ class DashboardFragment : Fragment() {
         }
     }
 
+    // ... (fungsi onResume dan onDestroyView tetap sama)
     override fun onResume() {
         super.onResume()
         // Panggil ulang greeting saat fragment kembali (misal setelah Edit Profile)

@@ -2,17 +2,17 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
-    alias(libs.plugins.kotlin.ksp)  // GANTI dari kapt ke ksp
+    alias(libs.plugins.kotlin.ksp)  // FIX: Menggunakan KSP
 }
 
 android {
     namespace = "com.mindease.mindeaseapp"
-    compileSdk = 35  // Diturunkan dari 36 (36 masih preview)
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.mindease.mindeaseapp"
         minSdk = 24
-        targetSdk = 35  // Sesuaikan dengan compileSdk
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -39,6 +39,7 @@ android {
         }
     }
 
+    // FIX KRITIS: Menangani duplikasi file META-INF
     packaging {
         resources {
             excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
@@ -51,18 +52,18 @@ android {
 }
 
 dependencies {
-    // ==================== FIREBASE BOM ====================
+    // ==================== FIREBASE BOM (STABIL VERSION) ====================
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
 
     // ==================== CORE ANDROID ====================
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation("androidx.fragment:fragment-ktx:1.8.5")
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation("androidx.fragment:fragment-ktx:1.8.5")
 
     // Material Components
-    implementation(libs.material)
+    implementation("com.google.android.material:material:1.11.0")
 
     // ==================== GRAFIK ====================
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
@@ -71,8 +72,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
     // ==================== FIREBASE ====================
     implementation("com.google.firebase:firebase-auth-ktx")
@@ -87,11 +88,11 @@ dependencies {
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
-    ksp("androidx.room:room-compiler:$roomVersion")  // GANTI kapt ke ksp
+    ksp("androidx.room:room-compiler:$roomVersion") // FIX: Menggunakan KSP
 
     // ==================== IMAGE LOADING ====================
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    ksp("com.github.bumptech.glide:compiler:4.16.0")  // GANTI kapt ke ksp
+    ksp("com.github.bumptech.glide:compiler:4.16.0") // FIX: Menggunakan KSP
 
     // ==================== NETWORKING ====================
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -100,8 +101,13 @@ dependencies {
 
     // ==================== TESTING ====================
     testImplementation(libs.junit)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Room testing
     testImplementation("androidx.room:room-testing:$roomVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+
+    // Coroutines testing
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }

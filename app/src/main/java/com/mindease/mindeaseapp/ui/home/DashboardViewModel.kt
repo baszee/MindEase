@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindease.mindeaseapp.data.model.MoodEntry
-import com.mindease.mindeaseapp.data.repository.MoodRepository
+import com.mindease.mindeaseapp.data.repository.MoodCloudRepository // FIX: Ganti ke Cloud Repository
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -13,7 +13,7 @@ import java.util.Calendar
  * ViewModel untuk DashboardFragment (Home).
  * Menangani logika tampilan mood harian dan penyimpanan mood baru.
  */
-class DashboardViewModel(private val repository: MoodRepository) : ViewModel() {
+class DashboardViewModel(private val repository: MoodCloudRepository) : ViewModel() { // FIX: Menggunakan MoodCloudRepository
 
     // LiveData untuk menyimpan mood yang terakhir dicatat hari ini
     private val _currentDayMood = MutableLiveData<MoodEntry?>()
@@ -25,12 +25,12 @@ class DashboardViewModel(private val repository: MoodRepository) : ViewModel() {
     }
 
     /**
-     * Menyimpan MoodEntry baru ke database dan memperbarui LiveData.
+     * Menyimpan MoodEntry baru ke Cloud (Firestore) dan memperbarui LiveData.
      */
     fun saveMood(mood: MoodEntry) {
         viewModelScope.launch {
-            // Setelah disimpan, perbarui tampilan mood hari ini
-            _currentDayMood.value = mood
+            val savedMood = repository.saveMood(mood) // Simpan ke Cloud
+            _currentDayMood.value = savedMood
         }
     }
 
@@ -54,7 +54,7 @@ class DashboardViewModel(private val repository: MoodRepository) : ViewModel() {
             calendar.add(Calendar.DAY_OF_YEAR, 1)
             val endOfDay = calendar.timeInMillis
 
-            // Panggil repository untuk mendapatkan mood hari ini
+            // Panggil repository Cloud untuk mendapatkan mood hari ini
             val mood = repository.getMoodForToday(startOfDay, endOfDay)
             _currentDayMood.postValue(mood)
         }

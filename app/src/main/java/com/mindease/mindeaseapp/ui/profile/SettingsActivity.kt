@@ -32,6 +32,12 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Navigasi ke Change Password
+        binding.tvChangePassword.setOnClickListener {
+            val intent = Intent(this, ChangePasswordActivity::class.java)
+            startActivity(intent)
+        }
+
         // Navigasi ke Themes (Sudah dibuat di langkah sebelumnya)
         binding.tvThemes.setOnClickListener {
             val intent = Intent(this, ThemesActivity::class.java)
@@ -50,11 +56,10 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // TODO: Tambahkan listener untuk Change Password dan opsi lainnya
-        binding.tvChangePassword.setOnClickListener {
-            // val intent = Intent(this, ChangePasswordActivity::class.java)
-            // startActivity(intent)
-            // Untuk saat ini bisa diabaikan atau tampilkan Toast jika Activity belum dibuat.
+        // BARU: Navigasi ke Delete Account
+        binding.tvDeleteAccount.setOnClickListener {
+            val intent = Intent(this, DeleteAccountActivity::class.java)
+            startActivity(intent)
         }
     }
 }

@@ -9,7 +9,7 @@ import com.mindease.mindeaseapp.data.model.JournalEntry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.channels.awaitClose // <<< FIX: IMPORT YANG HILANG
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
@@ -22,7 +22,7 @@ class JournalCloudRepository(
     private val auth: FirebaseAuth
 ) {
 
-    private val journalCollection = firestore.collection("journals")
+    val journalCollection = firestore.collection("journals") // FIX: DIUBAH MENJADI VAL PUBLIK
     private val storageReference = storage.reference.child("journal_images")
 
     private fun getCurrentUserId(): String {
@@ -39,19 +39,19 @@ class JournalCloudRepository(
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error) // Menutup Flow dengan error
+                    close(error)
                     return@addSnapshotListener
                 }
 
                 val journals = snapshot?.toObjects(JournalEntry::class.java) ?: emptyList()
-                trySend(journals) // Mengirim data ke Flow
+                trySend(journals)
             }
 
         // Cleanup listener saat Flow dibatalkan
-        awaitClose { listenerRegistration.remove() } // FIX: awaitClose sekarang dikenali
+        awaitClose { listenerRegistration.remove() }
     }.catch { e ->
         e.printStackTrace()
-        emit(emptyList()) // Emit empty list jika ada error flow (e.g. user ID null)
+        emit(emptyList())
     }
 
     /**
