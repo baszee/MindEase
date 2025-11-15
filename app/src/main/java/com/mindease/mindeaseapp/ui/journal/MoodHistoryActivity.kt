@@ -12,23 +12,27 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.tabs.TabLayout
 import com.mindease.mindeaseapp.R
-import com.mindease.mindeaseapp.data.model.AppDatabase
 import com.mindease.mindeaseapp.data.model.MoodEntry
-import com.mindease.mindeaseapp.data.repository.MoodRepository
 import com.mindease.mindeaseapp.databinding.ActivityMoodHistoryBinding
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.core.content.ContextCompat
+import com.google.firebase.auth.ktx.auth // Tambahkan import
+import com.google.firebase.ktx.Firebase // Tambahkan import
+import com.google.firebase.firestore.FirebaseFirestore // Tambahkan import
+import com.mindease.mindeaseapp.data.repository.MoodCloudRepository // Tambahkan import
 
 class MoodHistoryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMoodHistoryBinding
 
+    // FIX: Mengubah inisialisasi ViewModel untuk menggunakan MoodCloudRepository
     private val viewModel: MoodHistoryViewModel by viewModels {
-        val moodDao = AppDatabase.getDatabase(applicationContext).moodDao()
-        val repository = MoodRepository(moodDao)
-        MoodHistoryViewModelFactory(repository)
+        val firestore = FirebaseFirestore.getInstance()
+        val auth = Firebase.auth
+        val repository = MoodCloudRepository(firestore, auth) // Menggunakan Cloud Repository
+        MoodHistoryViewModelFactory(repository) // Menggunakan Factory yang sudah diperbarui
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,10 +57,12 @@ class MoodHistoryActivity : AppCompatActivity() {
 
         setupTabLayout()
 
+        // PENTING: Panggil setFilter untuk memicu pemuatan data awal
         binding.tabFilter.selectTab(binding.tabFilter.getTabAt(0))
     }
 
     private fun setupTabLayout() {
+        // ... (Tidak ada perubahan, fungsi ini tetap sama)
         binding.tabFilter.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val filter = when (tab?.position) {
@@ -77,7 +83,9 @@ class MoodHistoryActivity : AppCompatActivity() {
 
     private fun setupChart(moods: List<MoodEntry>) {
         val chart = binding.moodLineChart
-        val sortedMoods = moods
+        // Data dari Cloud Repository sudah terurut DESCENDING,
+        // tapi untuk chart kita butuh urutan ASCENDING (dari kiri ke kanan)
+        val sortedMoods = moods.sortedBy { it.timestamp }
 
         val entries: List<Entry> = sortedMoods.mapIndexed { index, moodEntry ->
             Entry(index.toFloat(), moodEntry.score.toFloat())
@@ -103,7 +111,8 @@ class MoodHistoryActivity : AppCompatActivity() {
             granularity = 1f
             setDrawGridLines(false)
             valueFormatter = MoodDateFormatter(sortedMoods)
-            labelCount = if (viewModel.filter.value == MoodFilter.WEEK || sortedMoods.size <= 7) sortedMoods.size.coerceAtMost(7) else 10
+            // Tampilkan maks 7 label hari di bawah grafik
+            labelCount = sortedMoods.size.coerceAtMost(7)
             isGranularityEnabled = true
         }
 
@@ -122,6 +131,7 @@ class MoodHistoryActivity : AppCompatActivity() {
     }
 
     private fun updateStatistics(moods: List<MoodEntry>) {
+        // ... (Tidak ada perubahan, fungsi ini tetap sama)
         if (moods.isEmpty()) {
             binding.tvAverageScore.text = getString(R.string.average_mood_score, "N/A")
             binding.tvMostCommonMood.text = getString(R.string.most_common_mood, "N/A")
@@ -134,9 +144,11 @@ class MoodHistoryActivity : AppCompatActivity() {
         binding.tvAverageScore.text = getString(R.string.average_mood_score, String.format(Locale.getDefault(), "%.1f", averageScore))
 
         val moodCounts = moods.groupingBy { it.moodName }.eachCount()
+        // Menggunakan maxByOrNull dengan perbandingan nilai untuk menemukan yang paling sering
         val mostCommonMood = moodCounts.maxByOrNull { it.value }?.key ?: "Netral"
         binding.tvMostCommonMood.text = getString(R.string.most_common_mood, mostCommonMood)
 
+        // Catatan: Teks good/rough day ini masih hardcoded seperti di file lama.
         binding.tvGoodDay.visibility = View.VISIBLE
         binding.tvRoughDay.visibility = View.VISIBLE
         binding.tvGoodDay.text = "You're having a good day on: Sunday & Saturday"
@@ -147,7 +159,6 @@ class MoodHistoryActivity : AppCompatActivity() {
      * Formatter untuk menampilkan tanggal pada Axis X Grafik.
      */
     private class MoodDateFormatter(private val moods: List<MoodEntry>) : ValueFormatter() {
-        // FIX: Menggunakan Locale.Builder() yang modern untuk menghindari Deprecation Warning
         private val dateFormat = SimpleDateFormat("EEE", Locale.Builder().setLanguage("en").build())
 
         override fun getFormattedValue(value: Float): String {

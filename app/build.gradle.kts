@@ -80,6 +80,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
+    // 🔥 FIX: MENAMBAHKAN DEPENDENSI REMOTE CONFIG 🔥
+    implementation("com.google.firebase:firebase-config-ktx")
 
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.2.0")

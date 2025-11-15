@@ -10,9 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.mindease.mindeaseapp.R
-import com.mindease.mindeaseapp.data.model.AppDatabase
 import com.mindease.mindeaseapp.data.model.MoodEntry
-import com.mindease.mindeaseapp.data.repository.MoodRepository
 import com.mindease.mindeaseapp.databinding.FragmentDashboardBinding
 import com.mindease.mindeaseapp.ui.journal.MoodHistoryActivity
 import java.util.Calendar
@@ -20,10 +18,9 @@ import androidx.core.widget.ImageViewCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlin.collections.mapOf
-import kotlin.collections.forEach
-import com.google.firebase.firestore.FirebaseFirestore // FIX: Import Firestore
-import com.mindease.mindeaseapp.data.repository.MoodCloudRepository // FIX: Import Cloud Repository
+import com.google.firebase.firestore.FirebaseFirestore
+import com.mindease.mindeaseapp.data.repository.MoodCloudRepository
+import com.mindease.mindeaseapp.data.repository.QuoteRepository // BARU: Import Quote Repository
 
 class DashboardFragment : Fragment() {
 
@@ -45,15 +42,19 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Inisialisasi Database dan ViewModel
-        // FIX: Hapus MoodDao karena sudah tidak dipakai, ganti ke Cloud Repository
+        // 1. Inisialisasi Database dan ViewModel (FIXED untuk menggunakan Cloud + Quotes)
         val firestore = FirebaseFirestore.getInstance()
         val auth = Firebase.auth
-        val repository = MoodCloudRepository(firestore, auth) // FIX: MoodCloudRepository
-        val factory = DashboardViewModelFactory(repository)
+
+        // Buat instance dari kedua repository
+        val moodRepository = MoodCloudRepository(firestore, auth)
+        val quoteRepository = QuoteRepository(firestore) // BARU: Inisialisasi Quote Repository
+
+        // Berikan kedua repository ke Factory
+        val factory = DashboardViewModelFactory(moodRepository, quoteRepository) // FIX: Mengganti parameter factory
         viewModel = ViewModelProvider(this, factory)[DashboardViewModel::class.java]
 
-        // 2. Siapkan Listener (FIX: Fungsi sekarang dikenali)
+        // 2. Siapkan Listener
         setupMoodListeners()
         setupObservers()
         setupGreeting()
@@ -65,10 +66,9 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    // ==========================================================
-    // FIX: Implementasi fungsi yang sebelumnya 'unresolved'
-    // ==========================================================
-
+    /**
+     * Menampilkan sapaan dinamis berdasarkan waktu dan nama pengguna.
+     */
     private fun setupGreeting() {
         val user = Firebase.auth.currentUser
         val userName = user?.displayName ?: "User MindEase"
@@ -199,9 +199,10 @@ class DashboardFragment : Fragment() {
 
 
     /**
-     * Mengamati LiveData dari ViewModel dan memperbarui tampilan mood hari ini.
+     * Mengamati LiveData dari ViewModel dan memperbarui tampilan mood hari ini dan quotes.
      */
     private fun setupObservers() {
+        // Observer untuk Mood Harian
         viewModel.currentDayMood.observe(viewLifecycleOwner) { mood ->
             if (mood != null) {
                 // Ada mood yang dicatat hari ini, set tampilan
@@ -230,6 +231,12 @@ class DashboardFragment : Fragment() {
                 resetMoodSelection() // Pastikan semua di-reset
             }
         }
+
+        // BARU: Observer untuk Quote
+        viewModel.currentQuote.observe(viewLifecycleOwner) { quote ->
+            binding.tvQuoteText.text = "\"${quote.text}\"" // Tampilkan teks quote
+            binding.tvQuoteAuthor.text = "— ${quote.author}" // Tampilkan penulis
+        }
     }
 
     // ... (fungsi onResume dan onDestroyView tetap sama)
@@ -237,6 +244,8 @@ class DashboardFragment : Fragment() {
         super.onResume()
         // Panggil ulang greeting saat fragment kembali (misal setelah Edit Profile)
         setupGreeting()
+        // Panggil ulang loadRandomQuote untuk mendapatkan quote baru
+        viewModel.loadRandomQuote()
     }
 
     override fun onDestroyView() {

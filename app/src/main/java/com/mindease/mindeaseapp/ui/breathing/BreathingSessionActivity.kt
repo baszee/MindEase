@@ -16,11 +16,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.mindease.mindeaseapp.databinding.ActivityBreathingSessionBinding
 import com.mindease.mindeaseapp.R
+import com.mindease.mindeaseapp.data.model.UserSettings // BARU: Import Model Setting
+import com.mindease.mindeaseapp.data.repository.SettingsRepository // BARU: Import Repository Setting
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
+import androidx.lifecycle.lifecycleScope // BARU: Import lifecycleScope untuk coroutines di Activity
+import kotlinx.coroutines.launch
 import kotlin.math.floor
 
 class BreathingSessionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBreathingSessionBinding
+    private lateinit var settingsRepository: SettingsRepository // BARU: Repository untuk Settings
     private lateinit var exerciseType: String
     private var isRunning = false
     private var currentPhaseIndex = 0
@@ -69,6 +77,11 @@ class BreathingSessionActivity : AppCompatActivity() {
         binding = ActivityBreathingSessionBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // BARU: Inisialisasi Repository Settings
+        val firestore = FirebaseFirestore.getInstance()
+        val auth = Firebase.auth
+        settingsRepository = SettingsRepository(firestore, auth)
+
         exerciseType = intent.getStringExtra(EXTRA_EXERCISE_TYPE) ?: "Box Breathing (4-4-4-4)"
 
         // FIX: Suppress warning VIBRATOR_SERVICE
@@ -78,14 +91,63 @@ class BreathingSessionActivity : AppCompatActivity() {
         binding.toolbar.title = exerciseType
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
+        loadSettings() // BARU: Muat pengaturan dari Firestore
         calculateTotalCycles()
         updateUIForExercise(exerciseType)
         setupListeners()
     }
 
+    // ==========================================================
+    // BARU: FUNGSI UNTUK MENGELOLA SETTINGS
+    // ==========================================================
+
+    /**
+     * Memuat pengaturan sesi pernapasan dari Firestore (atau default).
+     */
+    private fun loadSettings() {
+        lifecycleScope.launch {
+            try {
+                val settings = settingsRepository.getSettings()
+                // Update UI dengan nilai dari Firestore
+                binding.switchSound.isChecked = settings.isSoundEnabled
+                binding.switchHaptic.isChecked = settings.isHapticEnabled
+            } catch (e: IllegalStateException) {
+                // Tangani Guest user/Not logged in (biarkan default)
+                // Menonaktifkan switch agar Guest tidak mencoba menyimpan data
+                binding.switchSound.isEnabled = false
+                binding.switchHaptic.isEnabled = false
+                Toast.makeText(this@BreathingSessionActivity, "Fitur pengaturan persisten dinonaktifkan untuk Guest/belum Login.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /**
+     * Menyimpan pengaturan sesi pernapasan ke Firestore.
+     */
+    private fun saveSettings(isSoundEnabled: Boolean, isHapticEnabled: Boolean) {
+        // Jangan simpan jika sesi sedang berjalan
+        if (isRunning) return
+
+        lifecycleScope.launch {
+            try {
+                val settings = UserSettings(
+                    isSoundEnabled = isSoundEnabled,
+                    isHapticEnabled = isHapticEnabled
+                )
+                settingsRepository.saveSettings(settings)
+            } catch (e: IllegalStateException) {
+                // Tangani Guest user/Not logged in (do nothing, switch sudah dinonaktifkan)
+            } catch (e: Exception) {
+                // Tangani error penyimpanan
+                Toast.makeText(this@BreathingSessionActivity, "Gagal menyimpan pengaturan: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
     private fun formatDurationSeconds(totalSeconds: Int): String {
         val minutes = totalSeconds / 60
-        val seconds = totalSeconds % 60
+        val seconds = totalSeconds / 60
         return String.format("%d.%02d", minutes, seconds)
     }
 
@@ -113,6 +175,21 @@ class BreathingSessionActivity : AppCompatActivity() {
                 sessionDurationSeconds -= DURATION_STEP_SECONDS
                 calculateTotalCycles()
                 updateUIForExercise(exerciseType)
+            }
+        }
+
+        // BARU: Listeners untuk Switch (Save ke Firebase)
+        binding.switchSound.setOnCheckedChangeListener { _, isChecked ->
+            // Pastikan switch tidak dinonaktifkan (bukan Guest/logged in)
+            if (binding.switchSound.isEnabled) {
+                saveSettings(isChecked, binding.switchHaptic.isChecked)
+            }
+        }
+
+        binding.switchHaptic.setOnCheckedChangeListener { _, isChecked ->
+            // Pastikan switch tidak dinonaktifkan (bukan Guest/logged in)
+            if (binding.switchHaptic.isEnabled) {
+                saveSettings(binding.switchSound.isChecked, isChecked)
             }
         }
     }
@@ -156,7 +233,8 @@ class BreathingSessionActivity : AppCompatActivity() {
         binding.tvCycleTop.visibility = if (showCycleArrows) View.VISIBLE else View.GONE
         binding.tvCycleLeft.visibility = if (showCycleArrows) View.VISIBLE else View.GONE
         binding.tvCycleRight.visibility = if (showCycleArrows) View.VISIBLE else View.GONE
-        binding.tvCycleBottom.visibility = if (showCycleArrows) View.VISIBLE else View.GONE
+        // FIX: Menyembunyikan panah bawah untuk 4-7-8
+        binding.tvCycleBottom.visibility = if (showCycleArrows && type != "4-7-8 Breathing") View.VISIBLE else View.GONE
 
         // Update Teks Panah
         if (type == "Box Breathing (4-4-4-4)") {
@@ -168,7 +246,7 @@ class BreathingSessionActivity : AppCompatActivity() {
             binding.tvCycleTop.text = "Inhale 4s →"
             binding.tvCycleLeft.text = "↑ Hold 7s"
             binding.tvCycleRight.text = "↓ Exhale 8s"
-            binding.tvCycleBottom.visibility = View.GONE
+            // tvCycleBottom.visibility sudah diatur
         }
 
         // Teks Durasi
@@ -188,6 +266,13 @@ class BreathingSessionActivity : AppCompatActivity() {
         binding.tvSessionDuration.visibility = durationControlsVisibility
 
         (binding.layoutDurationControl as? ViewGroup)?.getChildAt(0)?.visibility = durationControlsVisibility
+
+        // Nonaktifkan switch saat sesi berjalan (agar tidak ada saveSettings saat sesi aktif)
+        // Kita juga pastikan tidak menimpa status disabled untuk Guest/belum login
+        if (Firebase.auth.currentUser != null && !Firebase.auth.currentUser!!.isAnonymous) {
+            binding.switchSound.isEnabled = !isRunning
+            binding.switchHaptic.isEnabled = !isRunning
+        }
     }
 
     private fun startSession() {
@@ -255,6 +340,11 @@ class BreathingSessionActivity : AppCompatActivity() {
 
         if (binding.switchHaptic.isChecked && !phaseName.contains("Hold", ignoreCase = true)) {
             triggerHapticFeedback()
+        }
+
+        // PENTING: Jika Sound Guidance ON, di sini Anda akan memanggil fungsi memainkan suara.
+        if (binding.switchSound.isChecked) {
+            // TODO: Implement Sound Guidance playback logic here
         }
 
         startVisualAnimation(phaseName, phaseDurationMs)
@@ -364,14 +454,12 @@ class BreathingSessionActivity : AppCompatActivity() {
     }
 
     private fun triggerHapticFeedback() {
-        if (binding.switchHaptic.isChecked) {
-            if (vibrator.hasVibrator()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(HAPTIC_FEEDBACK_DURATION, VibrationEffect.DEFAULT_AMPLITUDE))
-                } else {
-                    @Suppress("DEPRECATION")
-                    vibrator.vibrate(HAPTIC_FEEDBACK_DURATION)
-                }
+        if (vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(HAPTIC_FEEDBACK_DURATION, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(HAPTIC_FEEDBACK_DURATION)
             }
         }
     }
@@ -396,7 +484,7 @@ class BreathingSessionActivity : AppCompatActivity() {
         currentCycle = 1
         currentPhaseIndex = 0
         calculateTotalCycles()
-        updateUIForExercise(exerciseType)
+        updateUIForExercise(exerciseType) // Panggil lagi untuk mengaktifkan switch
     }
 
     private fun Int.dpToPx(): Int {

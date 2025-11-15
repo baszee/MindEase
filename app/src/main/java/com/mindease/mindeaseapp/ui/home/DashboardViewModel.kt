@@ -5,23 +5,42 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindease.mindeaseapp.data.model.MoodEntry
-import com.mindease.mindeaseapp.data.repository.MoodCloudRepository // FIX: Ganti ke Cloud Repository
+import com.mindease.mindeaseapp.data.model.Quote // Import Model Quote
+import com.mindease.mindeaseapp.data.repository.MoodCloudRepository
+import com.mindease.mindeaseapp.data.repository.QuoteRepository // Import Repository Quote
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
 /**
  * ViewModel untuk DashboardFragment (Home).
- * Menangani logika tampilan mood harian dan penyimpanan mood baru.
+ * Menangani logika tampilan mood harian dan penyimpanan mood baru, serta memuat Quote.
  */
-class DashboardViewModel(private val repository: MoodCloudRepository) : ViewModel() { // FIX: Menggunakan MoodCloudRepository
+class DashboardViewModel(
+    private val moodRepository: MoodCloudRepository,
+    private val quoteRepository: QuoteRepository // Tambahkan QuoteRepository di konstruktor
+) : ViewModel() {
 
     // LiveData untuk menyimpan mood yang terakhir dicatat hari ini
     private val _currentDayMood = MutableLiveData<MoodEntry?>()
     val currentDayMood: LiveData<MoodEntry?> = _currentDayMood
 
+    // BARU: LiveData untuk menyimpan kutipan harian
+    private val _currentQuote = MutableLiveData<Quote>()
+    val currentQuote: LiveData<Quote> = _currentQuote
+
     init {
         // Coba muat mood hari ini saat ViewModel pertama kali dibuat
         loadMoodForToday()
+        // BARU: Muat kutipan saat ViewModel dibuat
+        loadRandomQuote()
+    }
+
+    // BARU: Fungsi untuk memuat kutipan acak dari Repository
+    fun loadRandomQuote() {
+        viewModelScope.launch {
+            val quote = quoteRepository.getRandomQuote()
+            _currentQuote.postValue(quote)
+        }
     }
 
     /**
@@ -29,7 +48,7 @@ class DashboardViewModel(private val repository: MoodCloudRepository) : ViewMode
      */
     fun saveMood(mood: MoodEntry) {
         viewModelScope.launch {
-            val savedMood = repository.saveMood(mood) // Simpan ke Cloud
+            val savedMood = moodRepository.saveMood(mood) // Simpan ke Cloud
             _currentDayMood.value = savedMood
         }
     }
@@ -55,7 +74,7 @@ class DashboardViewModel(private val repository: MoodCloudRepository) : ViewMode
             val endOfDay = calendar.timeInMillis
 
             // Panggil repository Cloud untuk mendapatkan mood hari ini
-            val mood = repository.getMoodForToday(startOfDay, endOfDay)
+            val mood = moodRepository.getMoodForToday(startOfDay, endOfDay)
             _currentDayMood.postValue(mood)
         }
     }
