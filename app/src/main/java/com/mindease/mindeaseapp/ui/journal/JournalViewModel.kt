@@ -3,7 +3,7 @@ package com.mindease.mindeaseapp.ui.journal
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.mindease.mindeaseapp.data.model.JournalEntry // <-- FIX: Import ini yang hilang
+import com.mindease.mindeaseapp.data.model.JournalEntry
 import com.mindease.mindeaseapp.data.repository.JournalRepository
 import kotlinx.coroutines.launch
 
@@ -25,5 +25,21 @@ class JournalViewModel(private val repository: JournalRepository) : ViewModel() 
         }
     }
 
-    // TODO: Tambahkan fungsi untuk menghapus jurnal
+    /**
+     * Memperbarui entri jurnal yang sudah ada.
+     */
+    fun updateJournalEntry(journal: JournalEntry) {
+        viewModelScope.launch {
+            repository.update(journal)
+        }
+    }
+
+    /**
+     * Menghapus entri jurnal.
+     */
+    fun deleteJournalEntry(journal: JournalEntry) {
+        viewModelScope.launch {
+            repository.delete(journal)
+        }
+    }
 }

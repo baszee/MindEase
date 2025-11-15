@@ -2,6 +2,7 @@ package com.mindease.mindeaseapp.ui.journal
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.components.XAxis
@@ -9,6 +10,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.material.tabs.TabLayout
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.AppDatabase
 import com.mindease.mindeaseapp.data.model.MoodEntry
@@ -17,6 +19,7 @@ import com.mindease.mindeaseapp.databinding.ActivityMoodHistoryBinding
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.core.content.ContextCompat
 
 class MoodHistoryActivity : AppCompatActivity() {
 
@@ -33,33 +36,54 @@ class MoodHistoryActivity : AppCompatActivity() {
         binding = ActivityMoodHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Setup Toolbar
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener { finish() }
 
-        // Setup Observer untuk data Mood
-        viewModel.allMoods.observe(this) { moods ->
+        viewModel.filteredMoods.observe(this) { moods ->
             if (moods.isNotEmpty()) {
                 setupChart(moods)
                 updateStatistics(moods)
             } else {
-                binding.moodLineChart.setNoDataText("Belum ada data Mood yang tercatat.")
+                binding.moodLineChart.setNoDataText("Belum ada data Mood yang tercatat pada periode ini.")
+                binding.moodLineChart.invalidate()
+                updateStatistics(emptyList())
             }
         }
+
+        setupTabLayout()
+
+        binding.tabFilter.selectTab(binding.tabFilter.getTabAt(0))
     }
+
+    private fun setupTabLayout() {
+        binding.tabFilter.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                val filter = when (tab?.position) {
+                    0 -> MoodFilter.WEEK
+                    1 -> MoodFilter.MONTH
+                    2 -> MoodFilter.YEAR
+                    3 -> MoodFilter.ALL
+                    else -> MoodFilter.WEEK
+                }
+                viewModel.setFilter(filter)
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
+    }
+
 
     private fun setupChart(moods: List<MoodEntry>) {
         val chart = binding.moodLineChart
-        val sortedMoods = moods.sortedBy { it.timestamp }
+        val sortedMoods = moods
 
-        // 1. Membuat Entry Data
         val entries: List<Entry> = sortedMoods.mapIndexed { index, moodEntry ->
             Entry(index.toFloat(), moodEntry.score.toFloat())
         }
 
-        // 2. Membuat Data Set - FIX: Gunakan Color.parseColor atau resources.getColor dengan R.color yang ada
-        val primaryColor = Color.parseColor("#6200EE") // Atau gunakan warna primary Anda
+        val primaryColor = ContextCompat.getColor(this, R.color.mindease_primary)
 
         val dataSet = LineDataSet(entries, "Mood Score Harian").apply {
             color = primaryColor
@@ -72,19 +96,17 @@ class MoodHistoryActivity : AppCompatActivity() {
             valueFormatter = MoodValueFormatter()
         }
 
-        // 3. Mengatur Data Grafik
         chart.data = LineData(dataSet)
 
-        // 4. Mengatur Axis X (Tanggal)
         chart.xAxis.apply {
             position = XAxis.XAxisPosition.BOTTOM
             granularity = 1f
             setDrawGridLines(false)
             valueFormatter = MoodDateFormatter(sortedMoods)
-            labelCount = 7
+            labelCount = if (viewModel.filter.value == MoodFilter.WEEK || sortedMoods.size <= 7) sortedMoods.size.coerceAtMost(7) else 10
+            isGranularityEnabled = true
         }
 
-        // 5. Mengatur Axis Y (Score Mood)
         chart.axisLeft.apply {
             axisMinimum = 1f
             axisMaximum = 5f
@@ -94,30 +116,39 @@ class MoodHistoryActivity : AppCompatActivity() {
         }
         chart.axisRight.isEnabled = false
 
-        // 6. Pengaturan Tampilan Grafik
         chart.description.isEnabled = false
         chart.legend.isEnabled = false
         chart.invalidate()
     }
 
     private fun updateStatistics(moods: List<MoodEntry>) {
-        if (moods.isEmpty()) return
+        if (moods.isEmpty()) {
+            binding.tvAverageScore.text = getString(R.string.average_mood_score, "N/A")
+            binding.tvMostCommonMood.text = getString(R.string.most_common_mood, "N/A")
+            binding.tvGoodDay.visibility = View.GONE
+            binding.tvRoughDay.visibility = View.GONE
+            return
+        }
 
-        // 1. Hitung Rata-Rata
         val averageScore = moods.map { it.score }.average()
         binding.tvAverageScore.text = getString(R.string.average_mood_score, String.format(Locale.getDefault(), "%.1f", averageScore))
 
-        // 2. Hitung Mood Paling Umum
         val moodCounts = moods.groupingBy { it.moodName }.eachCount()
         val mostCommonMood = moodCounts.maxByOrNull { it.value }?.key ?: "Netral"
         binding.tvMostCommonMood.text = getString(R.string.most_common_mood, mostCommonMood)
+
+        binding.tvGoodDay.visibility = View.VISIBLE
+        binding.tvRoughDay.visibility = View.VISIBLE
+        binding.tvGoodDay.text = "You're having a good day on: Sunday & Saturday"
+        binding.tvRoughDay.text = "You're having a rough day on: Thursday"
     }
 
     /**
      * Formatter untuk menampilkan tanggal pada Axis X Grafik.
      */
     private class MoodDateFormatter(private val moods: List<MoodEntry>) : ValueFormatter() {
-        private val dateFormat = SimpleDateFormat("EEE", Locale.getDefault())
+        // FIX: Menggunakan Locale.Builder() yang modern untuk menghindari Deprecation Warning
+        private val dateFormat = SimpleDateFormat("EEE", Locale.Builder().setLanguage("en").build())
 
         override fun getFormattedValue(value: Float): String {
             val index = value.toInt()
@@ -130,15 +161,15 @@ class MoodHistoryActivity : AppCompatActivity() {
     }
 
     /**
-     * Formatter untuk Axis Y
+     * Formatter untuk Axis Y dan nilai data point.
      */
     private class MoodValueFormatter : ValueFormatter() {
         private val moodLabels = mapOf(
-            1f to "Sangat Buruk",
-            2f to "Buruk",
-            3f to "Netral",
-            4f to "Baik",
-            5f to "Sangat Baik"
+            1f to "Very Sad",
+            2f to "Sad",
+            3f to "Neutral",
+            4f to "Happy",
+            5f to "Very Happy"
         )
 
         override fun getFormattedValue(value: Float): String {

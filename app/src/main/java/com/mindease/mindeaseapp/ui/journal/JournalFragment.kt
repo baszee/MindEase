@@ -56,13 +56,8 @@ class JournalFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        // FIX: Implementasi Callback untuk membuka DetailJournalActivity
-        journalAdapter = JournalAdapter { journalEntry ->
-            val intent = Intent(requireContext(), DetailJournalActivity::class.java).apply {
-                putExtra(DetailJournalActivity.EXTRA_JOURNAL_ID, journalEntry.id)
-            }
-            startActivity(intent)
-        }
+        // Inisialisasi tanpa argumen
+        journalAdapter = JournalAdapter()
 
         binding.rvJournalList.apply {
             adapter = journalAdapter
@@ -83,6 +78,7 @@ class JournalFragment : Fragment() {
      */
     private fun navigateToAddJournal() {
         val intent = Intent(requireContext(), AddJournalActivity::class.java)
+            .apply { putExtra(AddJournalActivity.EXTRA_JOURNAL_ID, -1) } // Pastikan mode Add
         startActivity(intent)
     }
 

@@ -19,7 +19,9 @@ import com.mindease.mindeaseapp.data.repository.AuthRepository
 import com.mindease.mindeaseapp.databinding.ActivityLoginBinding
 import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.mindease.mindeaseapp.utils.AuthResult
+import com.mindease.mindeaseapp.ui.auth.ForgotPasswordActivity
 
+@Suppress("DEPRECATION") // FIX: Anotasi ini menghilangkan semua warnings Google Sign-In
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -97,12 +99,14 @@ class LoginActivity : AppCompatActivity() {
 
         // Pendaftaran
         binding.tvSignUp.setOnClickListener {
-            Toast.makeText(this, "Pendaftaran (TODO)", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
         }
 
         // Forgot Password
         binding.tvForgotPassword.setOnClickListener {
-            Toast.makeText(this, "Membuka form Forgot Password (TODO)", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, ForgotPasswordActivity::class.java)
+            startActivity(intent)
         }
     }
 

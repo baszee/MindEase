@@ -1,6 +1,6 @@
 package com.mindease.mindeaseapp.ui.home
 
-import android.content.Intent // FIX: Tambahkan import Intent
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,9 +14,11 @@ import com.mindease.mindeaseapp.data.model.AppDatabase
 import com.mindease.mindeaseapp.data.model.MoodEntry
 import com.mindease.mindeaseapp.data.repository.MoodRepository
 import com.mindease.mindeaseapp.databinding.FragmentDashboardBinding
-import com.mindease.mindeaseapp.ui.journal.MoodHistoryActivity // FIX: Tambahkan import MoodHistoryActivity
+import com.mindease.mindeaseapp.ui.journal.MoodHistoryActivity // FIX: Import MoodHistoryActivity
 import java.util.Calendar
 import androidx.core.view.children
+import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
 
 class DashboardFragment : Fragment() {
 
@@ -51,18 +53,15 @@ class DashboardFragment : Fragment() {
 
         // Listener untuk Mood History
         binding.tvMoodHistoryLink.setOnClickListener {
-            // FIX: Mengganti Toast dengan Intent untuk navigasi ke MoodHistoryActivity
             val intent = Intent(requireContext(), MoodHistoryActivity::class.java)
             startActivity(intent)
         }
     }
 
     private fun setupGreeting() {
-        // Mendapatkan waktu sekarang
         val calendar = Calendar.getInstance()
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
 
-        // Sapaan disesuaikan waktu
         val greeting = when (hour) {
             in 0..11 -> "Selamat Pagi, Astorias!"
             in 12..17 -> "Selamat Siang, Astorias!"
@@ -94,7 +93,6 @@ class DashboardFragment : Fragment() {
         // Reset tampilan semua emoji
         resetMoodSelection()
 
-        // Highlight emoji yang dipilih
         val selectedViewId = when (score) {
             5 -> R.id.iv_mood_happy_extreme
             4 -> R.id.iv_mood_happy
@@ -102,7 +100,13 @@ class DashboardFragment : Fragment() {
             2 -> R.id.iv_mood_sad
             else -> R.id.iv_mood_sad_extreme
         }
-        view?.findViewById<ImageView>(selectedViewId)?.alpha = 1.0f // Jadikan alpha penuh
+
+        val selectedView = view?.findViewById<ImageView>(selectedViewId)
+        if (selectedView != null) {
+            selectedView.alpha = 1.0f
+            val moodColor = getMoodColor(score)
+            ImageViewCompat.setImageTintList(selectedView, ContextCompat.getColorStateList(requireContext(), moodColor))
+        }
 
         // Simpan mood yang dipilih ke database
         selectedMoodScore = score
@@ -118,13 +122,50 @@ class DashboardFragment : Fragment() {
     }
 
     /**
-     * Mengatur ulang alpha semua ImageView mood ke 0.5f.
+     * Mengatur ulang alpha dan warna (tint) semua ImageView mood ke 0.5f dan warna MOOD ASLI.
      */
     private fun resetMoodSelection() {
-        val container = binding.moodSelectionContainer
-        // Menggunakan children untuk mengakses semua View di dalam LinearLayout
-        container.children.filterIsInstance<ImageView>().forEach { it.alpha = 0.5f }
+        val moodViewScores = mapOf(
+            binding.ivMoodHappyExtreme to 5,
+            binding.ivMoodHappy to 4,
+            binding.ivMoodNeutral to 3,
+            binding.ivMoodSad to 2,
+            binding.ivMoodSadExtreme to 1
+        )
+
+        moodViewScores.forEach { (imageView, score) ->
+            imageView.alpha = 0.5f
+            val moodColor = getMoodColor(score)
+            ImageViewCompat.setImageTintList(imageView, ContextCompat.getColorStateList(requireContext(), moodColor))
+        }
     }
+
+    /**
+     * Fungsi helper untuk mengonversi skor ke nama mood.
+     */
+    private fun getMoodName(score: Int): String {
+        return when (score) {
+            5 -> "Very Happy"
+            4 -> "Happy"
+            3 -> "Neutral"
+            2 -> "Sad"
+            else -> "Very Sad"
+        }
+    }
+
+    /**
+     * Fungsi helper untuk mengonversi skor ke resource ID warna.
+     */
+    private fun getMoodColor(score: Int): Int {
+        return when (score) {
+            5 -> R.color.mood_very_happy
+            4 -> R.color.mood_happy
+            3 -> R.color.mood_neutral
+            2 -> R.color.mood_sad
+            else -> R.color.mood_very_sad
+        }
+    }
+
 
     /**
      * Mengamati LiveData dari ViewModel dan memperbarui tampilan mood hari ini.
@@ -141,7 +182,13 @@ class DashboardFragment : Fragment() {
                     2 -> R.id.iv_mood_sad
                     else -> R.id.iv_mood_sad_extreme
                 }
-                view?.findViewById<ImageView>(selectedViewId)?.alpha = 1.0f
+                val selectedView = view?.findViewById<ImageView>(selectedViewId)
+                if (selectedView != null) {
+                    selectedView.alpha = 1.0f
+                    val moodColor = getMoodColor(mood.score)
+                    ImageViewCompat.setImageTintList(selectedView, ContextCompat.getColorStateList(requireContext(), moodColor))
+                }
+
                 selectedMoodName = mood.moodName
 
                 // Ganti prompt menjadi mood yang sudah dicatat
@@ -154,18 +201,6 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    /**
-     * Fungsi helper untuk mengonversi skor ke nama mood.
-     */
-    private fun getMoodName(score: Int): String {
-        return when (score) {
-            5 -> "Very Happy"
-            4 -> "Happy"
-            3 -> "Neutral"
-            2 -> "Sad"
-            else -> "Very Sad"
-        }
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()

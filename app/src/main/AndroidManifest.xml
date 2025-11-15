@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -21,7 +20,6 @@
         android:theme="@style/Theme.MindEaseApp"
         tools:targetApi="31">
 
-        <!-- Splash Screen Activity - LAUNCHER -->
         <activity
             android:name=".ui.common.SplashActivity"
             android:exported="true"
@@ -33,7 +31,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Login Activity -->
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="false"
@@ -42,29 +39,44 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize"/>
 
-        <!-- Register Activity (jika ada) -->
         <activity
             android:name=".ui.auth.RegisterActivity"
             android:exported="false"
             android:label="@string/register"
             android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.auth.LoginActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.auth.LoginActivity" />
+        </activity>
 
-        <!-- Main Activity -->
+        <activity
+            android:name=".ui.auth.ForgotPasswordActivity"
+            android:exported="false"
+            android:label="@string/forgot_password"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.auth.LoginActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.auth.LoginActivity" />
+        </activity>
+
         <activity
             android:name=".ui.home.MainActivity"
             android:exported="false"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MindEaseApp"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
             android:screenOrientation="portrait"/>
 
-        <!-- Journal Activities -->
         <activity
             android:name=".ui.journal.AddJournalActivity"
             android:exported="false"
             android:label="@string/add_journal"
-            android:theme="@style/Theme.MindEaseApp"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
             android:parentActivityName=".ui.home.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
@@ -77,7 +89,7 @@
             android:name=".ui.journal.DetailJournalActivity"
             android:exported="false"
             android:label="@string/journal_detail"
-            android:theme="@style/Theme.MindEaseApp"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
             android:parentActivityName=".ui.home.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
@@ -89,7 +101,7 @@
             android:name=".ui.journal.MoodHistoryActivity"
             android:exported="false"
             android:label="@string/mood_history"
-            android:theme="@style/Theme.MindEaseApp"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
             android:parentActivityName=".ui.home.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
@@ -97,7 +109,6 @@
                 android:value=".ui.home.MainActivity" />
         </activity>
 
-        <!-- Breathing Session Activity -->
         <activity
             android:name=".ui.breathing.BreathingSessionActivity"
             android:exported="false"
@@ -110,12 +121,11 @@
                 android:value=".ui.home.MainActivity" />
         </activity>
 
-        <!-- Profile/Settings Activity (jika ada) -->
         <activity
-            android:name=".ui.profile.ProfileActivity"
+            android:name=".ui.profile.ThemesActivity"
             android:exported="false"
-            android:label="@string/profile"
-            android:theme="@style/Theme.MindEaseApp"
+            android:label="@string/settings"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
             android:parentActivityName=".ui.home.MainActivity"
             android:screenOrientation="portrait">
             <meta-data
@@ -123,7 +133,30 @@
                 android:value=".ui.home.MainActivity" />
         </activity>
 
-        <!-- FileProvider untuk share/upload gambar -->
+        <activity
+            android:name=".ui.profile.SettingsActivity"
+            android:exported="false"
+            android:label="@string/settings"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.home.MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.home.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".ui.profile.AboutAppActivity"
+            android:exported="false"
+            android:label="@string/about"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.home.MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.home.MainActivity" />
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

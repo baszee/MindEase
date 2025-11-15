@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F9F5F1"
+    android:fitsSystemWindows="true"
     tools:context=".ui.journal.DetailJournalActivity">
 
-    <!-- Toolbar/Header -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -17,7 +17,31 @@
         app:title="Journal Detail"
         app:titleTextColor="@android:color/black"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" >
+
+        <ImageButton
+            android:id="@+id/btn_edit_journal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_edit"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Edit Journal"
+            app:tint="@android:color/black" />
+
+        <ImageButton
+            android:id="@+id/btn_delete_journal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_delete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Delete Journal"
+            app:tint="@android:color/black" />
+
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView
         android:layout_width="0dp"
@@ -33,7 +57,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- MOOD & TANGGAL -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -80,7 +103,6 @@
                 android:background="#E0E0E0"
                 android:layout_marginBottom="20dp"/>
 
-            <!-- AREA KONTEN JURNAL -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -97,15 +119,27 @@
                 android:textSize="16sp"
                 android:textColor="@android:color/black"
                 android:lineSpacingExtra="4dp"
-                tools:text="Today I feel more relieved after meditating and I found a cute cat on the street, which totally made my day much better." />
+                tools:text="Today I feel more relieved after meditating and I found a cute cat on the street, which totally made my day much better. (Teks panjang di sini, didukung oleh ScrollView di atas)" />
 
-            <!-- AREA GAMBAR (Opsional) -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Attached Image"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="24dp"
+                android:id="@+id/tv_image_label"
+                android:visibility="gone"/>
+
             <ImageView
                 android:id="@+id/iv_journal_image_detail"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:scaleType="centerCrop"
-                android:layout_marginTop="24dp"
+                android:layout_height="wrap_content"
+                android:maxHeight="350dp" android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"
                 android:visibility="gone"
                 android:background="@drawable/bg_rounded_border"
                 app:srcCompat="@drawable/ic_add_image"

@@ -3,4 +3,10 @@
     <color name="mindease_primary">#6200EE</color>
     <color name="mindease_secondary">#03DAC5</color>
     <color name="bottom_nav_color">#6200EE</color>
+
+    <color name="mood_very_happy">#1B5E20</color>
+    <color name="mood_happy">#4CAF50</color>
+    <color name="mood_neutral">#A38933</color>
+    <color name="mood_sad">#FF9800</color>
+    <color name="mood_very_sad">#F44336</color>
 </resources>

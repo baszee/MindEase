@@ -1,52 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Base application theme -->
     <style name="Base.Theme.MindEaseApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color -->
         <item name="colorPrimary">#6200EE</item>
         <item name="colorPrimaryVariant">#3700B3</item>
         <item name="colorOnPrimary">#FFFFFF</item>
 
-        <!-- Secondary brand color -->
         <item name="colorSecondary">#03DAC5</item>
         <item name="colorSecondaryVariant">#018786</item>
         <item name="colorOnSecondary">#000000</item>
 
-        <!-- Status bar color -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
 
-        <!-- Error color -->
         <item name="colorError">#B00020</item>
         <item name="colorOnError">#FFFFFF</item>
 
-        <!-- Surface colors -->
         <item name="colorSurface">#FFFFFF</item>
         <item name="colorOnSurface">#000000</item>
 
-        <!-- Background colors -->
         <item name="android:colorBackground">#FFFFFF</item>
         <item name="colorOnBackground">#000000</item>
     </style>
 
-    <!-- Main app theme -->
     <style name="Theme.MindEaseApp" parent="Base.Theme.MindEaseApp" />
 
-    <!-- COMPATIBILITY: Support nama lama Theme.MindEase -->
     <style name="Theme.MindEase" parent="Theme.MindEaseApp" />
 
-    <!-- No ActionBar Theme -->
     <style name="Theme.MindEaseApp.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">#6200EE</item>
         <item name="colorPrimaryVariant">#3700B3</item>
         <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">@color/mindease_primary</item>
     </style>
 
-    <!-- COMPATIBILITY: Support nama lama -->
     <style name="Theme.MindEase.NoActionBar" parent="Theme.MindEaseApp.NoActionBar" />
 
-    <!-- FullScreen Theme untuk Splash -->
     <style name="Theme.MindEaseApp.Fullscreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -54,14 +42,12 @@
         <item name="android:statusBarColor">?attr/colorPrimary</item>
     </style>
 
-    <!-- TextInputLayout Style -->
     <style name="Widget.MindEaseApp.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">?attr/colorPrimary</item>
         <item name="hintTextColor">?attr/colorPrimary</item>
         <item name="boxStrokeWidth">2dp</item>
     </style>
 
-    <!-- Button Style -->
     <style name="Widget.MindEaseApp.Button" parent="Widget.MaterialComponents.Button">
         <item name="cornerRadius">8dp</item>
         <item name="android:textAllCaps">false</item>
@@ -69,14 +55,12 @@
         <item name="android:paddingBottom">12dp</item>
     </style>
 
-    <!-- Outlined Button -->
     <style name="Widget.MindEaseApp.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="cornerRadius">8dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="strokeWidth">2dp</item>
     </style>
 
-    <!-- CardView Style -->
     <style name="Widget.MindEaseApp.CardView" parent="Widget.MaterialComponents.CardView">
         <item name="cardCornerRadius">12dp</item>
         <item name="cardElevation">4dp</item>
@@ -84,17 +68,14 @@
         <item name="cardBackgroundColor">?attr/colorSurface</item>
     </style>
 
-    <!-- Toolbar Style -->
     <style name="Widget.MindEaseApp.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
         <item name="titleTextColor">?attr/colorOnPrimary</item>
         <item name="android:elevation">4dp</item>
     </style>
 
-    <!-- BottomNavigationView Style -->
     <style name="Widget.MindEaseApp.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
         <item name="itemIconTint">@color/bottom_nav_color</item>
         <item name="itemTextColor">@color/bottom_nav_color</item>
         <item name="android:elevation">8dp</item>
     </style>
-
 </resources>

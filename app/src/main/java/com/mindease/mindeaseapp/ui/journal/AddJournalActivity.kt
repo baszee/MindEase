@@ -1,5 +1,6 @@
 package com.mindease.mindeaseapp.ui.journal
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -10,23 +11,36 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.AppDatabase
 import com.mindease.mindeaseapp.data.model.JournalEntry
 import com.mindease.mindeaseapp.data.repository.JournalRepository
 import com.mindease.mindeaseapp.databinding.ActivityAddJournalBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
-import android.content.Intent // FIX: Wajib untuk FLAG
+import androidx.core.widget.ImageViewCompat
+import androidx.core.content.ContextCompat
 
 class AddJournalActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddJournalBinding
-    private lateinit var viewModel: JournalViewModel
+    private lateinit var viewModel: JournalViewModel // FIX: Class reference sudah benar
+    private lateinit var repository: JournalRepository
+
+    private var currentJournalId: Int? = null
     private var selectedMoodScore: Int = 0
     private var selectedMoodName: String = ""
-
     private var selectedImageUri: Uri? = null
+
     private lateinit var imagePickerLauncher: ActivityResultLauncher<String>
+
+    companion object {
+        const val EXTRA_JOURNAL_ID = "extra_journal_id_to_edit"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,12 +49,19 @@ class AddJournalActivity : AppCompatActivity() {
 
         setupViewModel()
 
-        // FIX: Inisialisasi Launcher dengan logika Izin Persisten
+        currentJournalId = intent.getIntExtra(EXTRA_JOURNAL_ID, -1).takeIf { it != -1 }
+
+        if (currentJournalId != null) {
+            loadExistingJournal(currentJournalId!!)
+            binding.toolbar.title = "Edit Journal"
+        } else {
+            binding.toolbar.title = "Add Journal"
+        }
+
         imagePickerLauncher = registerForActivityResult(
             ActivityResultContracts.GetContent()
         ) { uri: Uri? ->
             if (uri != null) {
-                // FIX: Ambil izin persisten agar URI dapat dibaca nanti
                 contentResolver.takePersistableUriPermission(
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -56,12 +77,10 @@ class AddJournalActivity : AppCompatActivity() {
         }
 
 
-        // 2. Setup Toolbar (Tombol Back)
         binding.toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        // 3. Setup Listeners
         setupMoodListeners()
         binding.btnSaveJournal.setOnClickListener {
             showSaveConfirmationDialog()
@@ -74,10 +93,45 @@ class AddJournalActivity : AppCompatActivity() {
 
     private fun setupViewModel() {
         val journalDao = AppDatabase.getDatabase(applicationContext).journalDao()
-        val repository = JournalRepository(journalDao)
+        val repo = JournalRepository(journalDao)
+        repository = repo
 
-        val factory = JournalViewModelFactory(repository)
-        viewModel = ViewModelProvider(this, factory)[JournalViewModel::class.java]
+        val factory = JournalViewModelFactory(repo)
+        // FIX: Menggunakan get(JournalViewModel::class.java)
+        viewModel = ViewModelProvider(this, factory).get(JournalViewModel::class.java)
+    }
+
+    private fun loadExistingJournal(id: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val journal = repository.getJournalById(id)
+            withContext(Dispatchers.Main) {
+                if (journal != null) {
+                    onMoodSelected(journal.moodScore, getMoodImageView(journal.moodScore))
+                    binding.etJournalContent.setText(journal.content)
+
+                    if (journal.imagePath != null && journal.imagePath.isNotEmpty()) {
+                        val uri = Uri.parse(journal.imagePath)
+                        selectedImageUri = uri
+                        binding.ivImagePreview.visibility = View.VISIBLE
+                        Glide.with(this@AddJournalActivity).load(uri).into(binding.ivImagePreview)
+                    }
+                } else {
+                    Toast.makeText(this@AddJournalActivity, "Gagal memuat jurnal.", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
+        }
+    }
+
+    private fun getMoodImageView(score: Int): ImageView? {
+        return when (score) {
+            5 -> binding.ivMoodHappyExtreme
+            4 -> binding.ivMoodHappy
+            3 -> binding.ivMoodNeutral
+            2 -> binding.ivMoodSad
+            1 -> binding.ivMoodSadExtreme
+            else -> null
+        }
     }
 
     private fun setupMoodListeners() {
@@ -89,16 +143,20 @@ class AddJournalActivity : AppCompatActivity() {
         moodIcons.forEach { imageView ->
             imageView.setOnClickListener { view ->
                 val score = view.tag.toString().toIntOrNull() ?: return@setOnClickListener
-
                 onMoodSelected(score, view as ImageView)
             }
         }
+        resetMoodSelection()
     }
 
-    private fun onMoodSelected(score: Int, selectedView: ImageView) {
+    private fun onMoodSelected(score: Int, selectedView: ImageView?) {
         resetMoodSelection()
 
-        selectedView.alpha = 1.0f
+        if (selectedView != null) {
+            selectedView.alpha = 1.0f
+            val moodColor = getMoodColor(score)
+            ImageViewCompat.setImageTintList(selectedView, ContextCompat.getColorStateList(this, moodColor))
+        }
 
         selectedMoodScore = score
         selectedMoodName = when (score) {
@@ -112,12 +170,29 @@ class AddJournalActivity : AppCompatActivity() {
         binding.tvMoodName.text = selectedMoodName
     }
 
-    /**
-     * Mengatur ulang alpha semua ikon mood menjadi 0.5 (belum dipilih).
-     */
     private fun resetMoodSelection() {
-        binding.moodSelectionContainer.children.filterIsInstance<ImageView>().forEach { imageView ->
+        val moodViewScores = mapOf(
+            binding.ivMoodHappyExtreme to 5,
+            binding.ivMoodHappy to 4,
+            binding.ivMoodNeutral to 3,
+            binding.ivMoodSad to 2,
+            binding.ivMoodSadExtreme to 1
+        )
+
+        moodViewScores.forEach { (imageView, score) ->
             imageView.alpha = 0.5f
+            val moodColor = getMoodColor(score)
+            ImageViewCompat.setImageTintList(imageView, ContextCompat.getColorStateList(this, moodColor))
+        }
+    }
+
+    private fun getMoodColor(score: Int): Int {
+        return when (score) {
+            5 -> R.color.mood_very_happy
+            4 -> R.color.mood_happy
+            3 -> R.color.mood_neutral
+            2 -> R.color.mood_sad
+            else -> R.color.mood_very_sad
         }
     }
 
@@ -134,28 +209,29 @@ class AddJournalActivity : AppCompatActivity() {
             return
         }
 
-        Toast.makeText(this, "Menyimpan Jurnal...", Toast.LENGTH_LONG).show()
-        saveJournalEntry(content)
+        val action = if (currentJournalId != null) "Memperbarui" else "Menyimpan"
+        Toast.makeText(this, "$action Jurnal...", Toast.LENGTH_LONG).show()
+        saveOrUpdateJournalEntry(content)
     }
 
-    /**
-     * Menyimpan data Jurnal ke Room Database.
-     */
-    private fun saveJournalEntry(content: String) {
-        val newJournalEntry = JournalEntry(
+    private fun saveOrUpdateJournalEntry(content: String) {
+        val entry = JournalEntry(
+            id = currentJournalId ?: 0,
             moodScore = selectedMoodScore,
             moodName = selectedMoodName,
             content = content,
-            // Menyimpan URI gambar sebagai String path di database
             imagePath = selectedImageUri?.toString(),
             timestamp = Date().time
         )
 
-        viewModel.insertJournalEntry(newJournalEntry)
+        if (currentJournalId != null) {
+            viewModel.updateJournalEntry(entry)
+            Toast.makeText(this, "Jurnal berhasil diperbarui!", Toast.LENGTH_SHORT).show()
+        } else {
+            viewModel.insertJournalEntry(entry)
+            Toast.makeText(this, "Jurnal berhasil disimpan!", Toast.LENGTH_SHORT).show()
+        }
 
-        Toast.makeText(this, "Jurnal berhasil disimpan!", Toast.LENGTH_SHORT).show()
-
-        // Tutup Activity
         finish()
     }
 }

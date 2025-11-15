@@ -21,6 +21,20 @@ class JournalRepository(private val journalDao: JournalDao) {
     }
 
     /**
+     * Memperbarui entri jurnal yang sudah ada. (BARU)
+     */
+    suspend fun update(journal: JournalEntry) {
+        journalDao.updateJournal(journal)
+    }
+
+    /**
+     * Menghapus entri jurnal dari database. (BARU)
+     */
+    suspend fun delete(journal: JournalEntry) {
+        journalDao.deleteJournal(journal)
+    }
+
+    /**
      * Mendapatkan jurnal berdasarkan ID.
      */
     suspend fun getJournalById(id: Int): JournalEntry? {

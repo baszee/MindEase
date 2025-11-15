@@ -12,6 +12,7 @@ class JournalViewModelFactory(private val repository: JournalRepository) : ViewM
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        // FIX: Memanggil kelas JournalViewModel yang sudah bersih
         if (modelClass.isAssignableFrom(JournalViewModel::class.java)) {
             return JournalViewModel(repository) as T
         }

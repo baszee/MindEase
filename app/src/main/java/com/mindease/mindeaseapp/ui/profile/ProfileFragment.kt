@@ -39,10 +39,19 @@ class ProfileFragment : Fragment() {
         displayUserProfile()
         setupLogoutListener()
 
-        // Listener dummy untuk opsi settings
-        binding.tvThemes.setOnClickListener { Toast.makeText(context, "Themes (TODO)", Toast.LENGTH_SHORT).show() }
-        binding.tvSettings.setOnClickListener { Toast.makeText(context, "Settings (TODO)", Toast.LENGTH_SHORT).show() }
-        binding.tvAboutApp.setOnClickListener { Toast.makeText(context, "About App (TODO)", Toast.LENGTH_SHORT).show() }
+        // Listener untuk opsi settings - FIX: Mengganti Toast dengan Intent
+        binding.tvThemes.setOnClickListener {
+            val intent = Intent(requireContext(), ThemesActivity::class.java)
+            startActivity(intent)
+        }
+        binding.tvSettings.setOnClickListener {
+            val intent = Intent(requireContext(), SettingsActivity::class.java)
+            startActivity(intent)
+        }
+        binding.tvAboutApp.setOnClickListener {
+            val intent = Intent(requireContext(), AboutAppActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     /**

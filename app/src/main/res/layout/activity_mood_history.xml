@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F9F5F1"
+    android:fitsSystemWindows="true"
     tools:context=".ui.journal.MoodHistoryActivity">
 
-    <!-- Toolbar/Header -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -19,7 +19,6 @@
         app:navigationIcon="@drawable/ic_arrow_back"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Tab Filter (Mingguan, Bulanan, Tahunan) -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_filter"
         android:layout_width="0dp"
@@ -53,7 +52,6 @@
 
     </com.google.android.material.tabs.TabLayout>
 
-    <!-- Area Konten yang Bisa Digulir -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -68,14 +66,12 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Area Grafik -->
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/mood_line_chart"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginBottom="24dp"/>
 
-            <!-- Card Statistik -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -130,7 +126,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Placeholder Quote (Dipastikan 100% valid dan kompak) -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
