@@ -9,13 +9,11 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.children
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.mindease.mindeaseapp.R
-import com.mindease.mindeaseapp.data.model.AppDatabase
 import com.mindease.mindeaseapp.data.model.JournalEntry
-import com.mindease.mindeaseapp.data.repository.JournalRepository
+import com.mindease.mindeaseapp.data.repository.JournalCloudRepository // GANTI INI
 import com.mindease.mindeaseapp.databinding.ActivityAddJournalBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,22 +22,26 @@ import kotlinx.coroutines.withContext
 import java.util.Date
 import androidx.core.widget.ImageViewCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.auth.FirebaseAuth // Tambahkan ini
+import com.google.firebase.firestore.FirebaseFirestore // Tambahkan ini
+import com.google.firebase.storage.FirebaseStorage // Tambahkan ini
 
 class AddJournalActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddJournalBinding
-    private lateinit var viewModel: JournalViewModel // FIX: Class reference sudah benar
-    private lateinit var repository: JournalRepository
+    private lateinit var viewModel: JournalViewModel
+    private lateinit var cloudRepository: JournalCloudRepository
 
-    private var currentJournalId: Int? = null
+    private var currentJournalDocumentId: String? = null // GANTI DARI ID INT KE DOC ID STRING
     private var selectedMoodScore: Int = 0
     private var selectedMoodName: String = ""
-    private var selectedImageUri: Uri? = null
+    private var selectedImageUri: Uri? = null // URI lokal baru yang akan diupload
+    private var existingImagePath: String? = null // URL cloud yang sudah ada
 
     private lateinit var imagePickerLauncher: ActivityResultLauncher<String>
 
     companion object {
-        const val EXTRA_JOURNAL_ID = "extra_journal_id_to_edit"
+        const val EXTRA_JOURNAL_ID = "extra_journal_document_id_to_edit" // GANTI NAMA EXTRA
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,10 +51,10 @@ class AddJournalActivity : AppCompatActivity() {
 
         setupViewModel()
 
-        currentJournalId = intent.getIntExtra(EXTRA_JOURNAL_ID, -1).takeIf { it != -1 }
+        currentJournalDocumentId = intent.getStringExtra(EXTRA_JOURNAL_ID)
 
-        if (currentJournalId != null) {
-            loadExistingJournal(currentJournalId!!)
+        if (currentJournalDocumentId != null) {
+            loadExistingJournal(currentJournalDocumentId!!)
             binding.toolbar.title = "Edit Journal"
         } else {
             binding.toolbar.title = "Add Journal"
@@ -72,7 +74,10 @@ class AddJournalActivity : AppCompatActivity() {
                 binding.ivImagePreview.visibility = View.VISIBLE
             } else {
                 selectedImageUri = null
-                binding.ivImagePreview.visibility = View.GONE
+                // Jika URI dibatalkan, kita tetap mempertahankan gambar yang sudah ada (jika ada)
+                if (existingImagePath == null) {
+                    binding.ivImagePreview.visibility = View.GONE
+                }
             }
         }
 
@@ -92,28 +97,36 @@ class AddJournalActivity : AppCompatActivity() {
     }
 
     private fun setupViewModel() {
-        val journalDao = AppDatabase.getDatabase(applicationContext).journalDao()
-        val repo = JournalRepository(journalDao)
-        repository = repo
+        // INISIALISASI CLOUD REPOSITORY
+        val firestore = FirebaseFirestore.getInstance()
+        val storage = FirebaseStorage.getInstance()
+        val auth = FirebaseAuth.getInstance()
+
+        val repo = JournalCloudRepository(firestore, storage, auth)
+        cloudRepository = repo
 
         val factory = JournalViewModelFactory(repo)
-        // FIX: Menggunakan get(JournalViewModel::class.java)
         viewModel = ViewModelProvider(this, factory).get(JournalViewModel::class.java)
     }
 
-    private fun loadExistingJournal(id: Int) {
+    private fun loadExistingJournal(documentId: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            val journal = repository.getJournalById(id)
+            val journal = cloudRepository.getJournalById(documentId)
             withContext(Dispatchers.Main) {
                 if (journal != null) {
+                    // Jurnal yang dimuat
                     onMoodSelected(journal.moodScore, getMoodImageView(journal.moodScore))
                     binding.etJournalContent.setText(journal.content)
 
                     if (journal.imagePath != null && journal.imagePath.isNotEmpty()) {
-                        val uri = Uri.parse(journal.imagePath)
-                        selectedImageUri = uri
+                        existingImagePath = journal.imagePath // Simpan URL cloud yang sudah ada
+
                         binding.ivImagePreview.visibility = View.VISIBLE
-                        Glide.with(this@AddJournalActivity).load(uri).into(binding.ivImagePreview)
+                        // Gunakan Glide untuk memuat dari URL cloud
+                        Glide.with(this@AddJournalActivity).load(journal.imagePath).into(binding.ivImagePreview)
+                    } else {
+                        existingImagePath = null
+                        binding.ivImagePreview.visibility = View.GONE
                     }
                 } else {
                     Toast.makeText(this@AddJournalActivity, "Gagal memuat jurnal.", Toast.LENGTH_SHORT).show()
@@ -209,29 +222,37 @@ class AddJournalActivity : AppCompatActivity() {
             return
         }
 
-        val action = if (currentJournalId != null) "Memperbarui" else "Menyimpan"
+        // Pastikan pengguna terautentikasi sebelum menyimpan
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            Toast.makeText(this, "Anda harus login untuk menyimpan jurnal.", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val action = if (currentJournalDocumentId != null) "Memperbarui" else "Menyimpan"
         Toast.makeText(this, "$action Jurnal...", Toast.LENGTH_LONG).show()
         saveOrUpdateJournalEntry(content)
     }
 
     private fun saveOrUpdateJournalEntry(content: String) {
+        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
+
         val entry = JournalEntry(
-            id = currentJournalId ?: 0,
+            documentId = currentJournalDocumentId, // Document ID dari Firestore
+            userId = currentUser.uid,
             moodScore = selectedMoodScore,
             moodName = selectedMoodName,
             content = content,
-            imagePath = selectedImageUri?.toString(),
+            // Jika ada gambar baru (selectedImageUri), akan di-upload.
+            // Jika tidak, path lama (existingImagePath) akan dipertahankan atau dihapus (jika dihapus di UI).
+            imagePath = existingImagePath,
             timestamp = Date().time
         )
 
-        if (currentJournalId != null) {
-            viewModel.updateJournalEntry(entry)
-            Toast.makeText(this, "Jurnal berhasil diperbarui!", Toast.LENGTH_SHORT).show()
-        } else {
-            viewModel.insertJournalEntry(entry)
-            Toast.makeText(this, "Jurnal berhasil disimpan!", Toast.LENGTH_SHORT).show()
-        }
+        // Panggil ViewModel untuk menyimpan ke Cloud, termasuk upload gambar
+        viewModel.saveJournalEntry(entry, selectedImageUri)
 
+        val actionMessage = if (currentJournalDocumentId != null) "diperbarui" else "disimpan"
+        Toast.makeText(this, "Jurnal berhasil $actionMessage!", Toast.LENGTH_SHORT).show()
         finish()
     }
 }

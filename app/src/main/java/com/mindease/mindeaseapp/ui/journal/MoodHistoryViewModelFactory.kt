@@ -12,7 +12,7 @@ class MoodHistoryViewModelFactory(private val repository: MoodRepository) : View
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MoodHistoryViewModel::class.java)) {
+        if ((modelClass.isAssignableFrom(MoodHistoryViewModel::class.java))) {
             return MoodHistoryViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

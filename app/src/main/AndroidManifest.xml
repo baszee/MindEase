@@ -157,6 +157,19 @@
                 android:value=".ui.home.MainActivity" />
         </activity>
 
+        <activity
+            android:name=".ui.profile.EditProfileActivity"
+            android:exported="false"
+            android:label="@string/edit_profile"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.profile.SettingsActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.profile.SettingsActivity" />
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

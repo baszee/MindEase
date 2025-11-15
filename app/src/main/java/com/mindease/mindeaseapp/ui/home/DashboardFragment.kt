@@ -12,13 +12,16 @@ import androidx.lifecycle.ViewModelProvider
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.AppDatabase
 import com.mindease.mindeaseapp.data.model.MoodEntry
-import com.mindease.mindeaseapp.data.repository.MoodRepository
+import com.mindease.mindeaseapp.data.repository.MoodRepository // BENAR // BENAR // FIX: Tambahkan import ini
 import com.mindease.mindeaseapp.databinding.FragmentDashboardBinding
-import com.mindease.mindeaseapp.ui.journal.MoodHistoryActivity // FIX: Import MoodHistoryActivity
+import com.mindease.mindeaseapp.ui.journal.MoodHistoryActivity
 import java.util.Calendar
-import androidx.core.view.children
-import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
+import androidx.core.content.ContextCompat
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlin.collections.mapOf
+import kotlin.collections.forEach
 
 class DashboardFragment : Fragment() {
 
@@ -42,7 +45,7 @@ class DashboardFragment : Fragment() {
 
         // 1. Inisialisasi Database dan ViewModel
         val moodDao = AppDatabase.getDatabase(requireContext()).moodDao()
-        val repository = MoodRepository(moodDao)
+        val repository = MoodRepository(moodDao) // FIX: MoodRepository sekarang dikenali
         val factory = DashboardViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[DashboardViewModel::class.java]
 
@@ -59,15 +62,34 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupGreeting() {
+        val user = Firebase.auth.currentUser
+        val userName = user?.displayName ?: "User MindEase"
+
         val calendar = Calendar.getInstance()
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
 
-        val greeting = when (hour) {
-            in 0..11 -> "Selamat Pagi, Astorias!"
-            in 12..17 -> "Selamat Siang, Astorias!"
-            else -> "Selamat Malam, Astorias!"
+        val greeting: String
+        val emoji: String
+
+        when (hour) {
+            in 5..11 -> {
+                greeting = getString(R.string.good_morning)
+                emoji = "🌤️"
+            }
+            in 12..17 -> {
+                greeting = getString(R.string.good_afternoon)
+                emoji = "☀️"
+            }
+            in 18..23 -> {
+                greeting = getString(R.string.good_evening)
+                emoji = "🌙"
+            }
+            else -> {
+                greeting = getString(R.string.good_night)
+                emoji = "🌌"
+            }
         }
-        binding.tvGreeting.text = greeting
+        binding.tvGreeting.text = "$greeting, $userName $emoji"
     }
 
     private fun setupMoodListeners() {
@@ -79,9 +101,9 @@ class DashboardFragment : Fragment() {
             binding.ivMoodSadExtreme to 1
         )
 
-        moodViews.forEach { (imageView, score) ->
-            imageView.setOnClickListener {
-                onMoodSelected(score, getMoodName(score))
+        moodViews.forEach { entry ->
+            entry.key.setOnClickListener {
+                onMoodSelected(entry.value, getMoodName(entry.value))
             }
         }
     }
@@ -133,10 +155,10 @@ class DashboardFragment : Fragment() {
             binding.ivMoodSadExtreme to 1
         )
 
-        moodViewScores.forEach { (imageView, score) ->
-            imageView.alpha = 0.5f
-            val moodColor = getMoodColor(score)
-            ImageViewCompat.setImageTintList(imageView, ContextCompat.getColorStateList(requireContext(), moodColor))
+        moodViewScores.forEach { entry ->
+            entry.key.alpha = 0.5f
+            val moodColor = getMoodColor(entry.value)
+            ImageViewCompat.setImageTintList(entry.key, ContextCompat.getColorStateList(requireContext(), moodColor))
         }
     }
 
@@ -201,6 +223,11 @@ class DashboardFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Panggil ulang greeting saat fragment kembali (misal setelah Edit Profile)
+        setupGreeting()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

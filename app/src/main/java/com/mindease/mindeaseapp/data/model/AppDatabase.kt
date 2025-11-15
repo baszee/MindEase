@@ -5,39 +5,28 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-/**
- * Kelas abstrak Room Database utama untuk aplikasi MindEase.
- * Versi diatur ke 2 karena penambahan tabel JournalEntry.
- */
 @Database(
-    entities = [MoodEntry::class, JournalEntry::class], // <-- TAMBAHAN: JournalEntry
-    version = 2, // <-- PERUBAHAN: Versi dinaikkan
+    entities = [MoodEntry::class, JournalEntry::class],
+    version = 3,  // ← UBAH INI ke 3 (atau 4, 5, dst setiap ada perubahan)
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    // Menyediakan akses ke DAO
     abstract fun moodDao(): MoodDao
-    abstract fun journalDao(): JournalDao // <-- TAMBAHAN: Journal DAO
+    abstract fun journalDao(): JournalDao
 
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        /**
-         * Mengembalikan instance AppDatabase.
-         */
         fun getDatabase(context: Context): AppDatabase {
-            // Menggunakan synchronized untuk memastikan hanya satu thread yang membuat instance
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "mindease_database"
                 )
-                    // PENTING: Menambahkan fallbackToDestructiveMigration karena perubahan versi
-                    // Ini akan menghapus data lama saat skema berubah (cocok untuk pengembangan awal)
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration()  // ← INI PENTING, sudah ada kan?
                     .build()
                 INSTANCE = instance
                 instance

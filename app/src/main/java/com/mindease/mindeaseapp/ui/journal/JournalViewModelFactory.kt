@@ -2,13 +2,13 @@ package com.mindease.mindeaseapp.ui.journal
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.mindease.mindeaseapp.data.repository.JournalRepository
+import com.mindease.mindeaseapp.data.repository.JournalCloudRepository // GANTI IMPORT INI
 import java.lang.IllegalArgumentException
 
 /**
- * Factory untuk membuat instance JournalViewModel dengan JournalRepository yang sudah ada.
+ * Factory untuk membuat instance JournalViewModel dengan JournalCloudRepository yang sudah ada.
  */
-class JournalViewModelFactory(private val repository: JournalRepository) : ViewModelProvider.Factory {
+class JournalViewModelFactory(private val repository: JournalCloudRepository) : ViewModelProvider.Factory { // GANTI TIPE REPOSITORY
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

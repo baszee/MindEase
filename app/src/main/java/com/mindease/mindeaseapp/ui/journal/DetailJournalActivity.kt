@@ -12,9 +12,8 @@ import androidx.core.widget.ImageViewCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.mindease.mindeaseapp.R
-import com.mindease.mindeaseapp.data.model.AppDatabase
 import com.mindease.mindeaseapp.data.model.JournalEntry
-import com.mindease.mindeaseapp.data.repository.JournalRepository
+import com.mindease.mindeaseapp.data.repository.JournalCloudRepository // FIX: Menggunakan Cloud Repo
 import com.mindease.mindeaseapp.databinding.ActivityDetailJournalBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,17 +22,20 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class DetailJournalActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailJournalBinding
-    private lateinit var repository: JournalRepository
+    private lateinit var cloudRepository: JournalCloudRepository
     private lateinit var viewModel: JournalViewModel
 
     private var currentJournal: JournalEntry? = null
 
     companion object {
-        const val EXTRA_JOURNAL_ID = "extra_journal_id"
+        const val EXTRA_JOURNAL_ID = "extra_journal_document_id" // GANTI NAMA EXTRA
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,18 +48,22 @@ class DetailJournalActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        // 1. Inisialisasi Repository dan ViewModel
-        val journalDao = AppDatabase.getDatabase(applicationContext).journalDao()
-        repository = JournalRepository(journalDao)
-        val factory = JournalViewModelFactory(repository)
-        // FIX: Menggunakan get(JournalViewModel::class.java)
+        // 1. Inisialisasi Repository dan ViewModel (MENGGUNAKAN CLOUD)
+        val firestore = FirebaseFirestore.getInstance()
+        val storage = FirebaseStorage.getInstance()
+        val auth = FirebaseAuth.getInstance()
+
+        val repo = JournalCloudRepository(firestore, storage, auth)
+        cloudRepository = repo
+
+        val factory = JournalViewModelFactory(repo)
         viewModel = ViewModelProvider(this, factory).get(JournalViewModel::class.java)
 
         // 2. Ambil ID dari Intent
-        val journalId = intent.getIntExtra(EXTRA_JOURNAL_ID, -1)
+        val documentId = intent.getStringExtra(EXTRA_JOURNAL_ID)
 
-        if (journalId != -1) {
-            loadJournalDetail(journalId)
+        if (documentId != null) {
+            loadJournalDetail(documentId)
         } else {
             Toast.makeText(this, "ID Jurnal tidak valid.", Toast.LENGTH_SHORT).show()
             finish()
@@ -76,12 +82,13 @@ class DetailJournalActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        currentJournal?.id?.let { loadJournalDetail(it) }
+        // FIX: Menggunakan documentId untuk reload
+        currentJournal?.documentId?.let { loadJournalDetail(it) }
     }
 
-    private fun loadJournalDetail(id: Int) {
+    private fun loadJournalDetail(documentId: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            val journal = repository.getJournalById(id)
+            val journal = cloudRepository.getJournalById(documentId)
             withContext(Dispatchers.Main) {
                 if (journal != null) {
                     currentJournal = journal
@@ -112,13 +119,13 @@ class DetailJournalActivity : AppCompatActivity() {
             val colorStateList = ContextCompat.getColorStateList(this@DetailJournalActivity, moodColor)
             ImageViewCompat.setImageTintList(ivMoodIconDetail, colorStateList)
 
-            // Memuat gambar penuh, mempertahankan rasio aspek
+            // Memuat gambar penuh DARI URL CLOUD
             if (journal.imagePath != null && journal.imagePath.isNotEmpty()) {
                 ivJournalImageDetail.visibility = View.VISIBLE
                 tvImageLabel.visibility = View.VISIBLE
 
                 Glide.with(this@DetailJournalActivity)
-                    .load(Uri.parse(journal.imagePath))
+                    .load(journal.imagePath) // Load langsung dari URL cloud
                     .placeholder(R.drawable.ic_add_image)
                     .into(ivJournalImageDetail)
             } else {
@@ -133,7 +140,7 @@ class DetailJournalActivity : AppCompatActivity() {
      */
     private fun navigateToEdit(journal: JournalEntry) {
         val intent = Intent(this, AddJournalActivity::class.java).apply {
-            putExtra(AddJournalActivity.EXTRA_JOURNAL_ID, journal.id)
+            putExtra(AddJournalActivity.EXTRA_JOURNAL_ID, journal.documentId) // KIRIM DOCUMENT ID
         }
         startActivity(intent)
     }

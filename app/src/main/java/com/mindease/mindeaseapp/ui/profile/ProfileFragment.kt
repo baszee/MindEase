@@ -10,10 +10,10 @@ import androidx.fragment.app.Fragment
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mindease.mindeaseapp.R
-import com.mindease.mindeaseapp.data.repository.AuthRepository // Wajib
-import com.mindease.mindeaseapp.databinding.FragmentProfileBinding // Wajib
-import com.mindease.mindeaseapp.ui.auth.LoginActivity // Wajib untuk Redirect
-import com.mindease.mindeaseapp.ui.common.SplashActivity // Wajib untuk Refresh
+import com.mindease.mindeaseapp.data.repository.AuthRepository
+import com.mindease.mindeaseapp.databinding.FragmentProfileBinding
+import com.mindease.mindeaseapp.ui.auth.LoginActivity
+import com.mindease.mindeaseapp.ui.common.SplashActivity
 
 class ProfileFragment : Fragment() {
 
@@ -36,6 +36,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Panggil di onViewCreated (untuk inisialisasi awal)
         displayUserProfile()
         setupLogoutListener()
 
@@ -55,14 +56,24 @@ class ProfileFragment : Fragment() {
     }
 
     /**
+     * Panggil ini setiap kali Fragment kembali terlihat (misalnya setelah EditProfileActivity ditutup).
+     */
+    override fun onResume() {
+        super.onResume()
+        displayUserProfile()
+    }
+
+
+    /**
      * Mengambil data pengguna dari Firebase dan menampilkannya di UI.
      */
     private fun displayUserProfile() {
+        // PENTING: Mendapatkan pengguna terbaru.
         val user = authRepository.currentUser
 
         if (user != null) {
             // Tampilkan nama atau email
-            binding.tvUserName.text = user.displayName ?: "User"
+            binding.tvUserName.text = user.displayName ?: "User MindEase"
 
             // Tampilkan email. Jika login Guest, tampilkan status Guest
             binding.tvUserEmail.text = if (user.isAnonymous) {
@@ -74,8 +85,9 @@ class ProfileFragment : Fragment() {
             // TODO: Tambahkan Glide untuk foto profil dari user.photoUrl jika ada.
 
         } else {
-            binding.tvUserName.text = "Error"
-            binding.tvUserEmail.text = "Not Authenticated"
+            // Ini akan terjadi jika sesi Firebase terputus
+            binding.tvUserName.text = "Sesi Berakhir"
+            binding.tvUserEmail.text = "Silakan login ulang"
         }
     }
 
@@ -92,7 +104,7 @@ class ProfileFragment : Fragment() {
         // 1. Panggil fungsi logout dari Repository
         authRepository.logout()
 
-        Toast.makeText(context, "Anda telah logout.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Anda telah keluar.", Toast.LENGTH_SHORT).show()
 
         // 2. Arahkan kembali ke Splash Activity (yang akan dialihkan ke Login Activity)
         val intent = Intent(activity, SplashActivity::class.java).apply {
