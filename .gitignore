@@ -13,3 +13,23 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# ============================================
+# TAMBAHAN PENTING - SENSITIVE FILES
+# ============================================
+# Google Services (Firebase config - JANGAN PUSH!)
+google-services.json
+app/google-services.json
+
+# Keystore files (untuk signing APK)
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# Build files
+*/build/
+build/
+
+# Log files
+*.log
