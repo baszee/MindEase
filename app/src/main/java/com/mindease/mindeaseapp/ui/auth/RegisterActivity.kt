@@ -8,9 +8,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mindease.mindeaseapp.data.repository.AuthRepository
-import com.mindease.mindeaseapp.databinding.ActivityRegisterBinding // Menggunakan binding yang sudah dibuat
-import com.mindease.mindeaseapp.ui.home.MainActivity // Untuk redirect setelah sukses
+import com.mindease.mindeaseapp.databinding.ActivityRegisterBinding
+import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.mindease.mindeaseapp.utils.AuthResult
+import com.mindease.mindeaseapp.utils.AnalyticsHelper // 🔥 IMPORT BARU
 
 /**
  * Activity untuk fitur Pendaftaran/Register.
@@ -81,6 +82,10 @@ class RegisterActivity : AppCompatActivity() {
                 }
                 is AuthResult.Success -> {
                     Toast.makeText(this, "Pendaftaran Berhasil! Selamat datang.", Toast.LENGTH_SHORT).show()
+
+                    // 🔥 ANALYTICS: Log Sign Up Sukses
+                    AnalyticsHelper.logSignUp("email_password")
+
                     goToMainActivity()
                 }
                 is AuthResult.Error -> {

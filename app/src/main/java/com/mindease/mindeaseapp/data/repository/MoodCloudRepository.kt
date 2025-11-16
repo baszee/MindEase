@@ -12,7 +12,6 @@ import java.util.Calendar
 
 /**
  * Repository untuk menangani operasi data Mood di Cloud (Firestore).
- * Menggantikan MoodRepository yang berbasis Room.
  */
 class MoodCloudRepository(
     private val firestore: FirebaseFirestore,
@@ -33,13 +32,14 @@ class MoodCloudRepository(
     suspend fun saveMood(mood: MoodEntry): MoodEntry {
         val userId = getCurrentUserId()
 
-        // 1. Tentukan Document ID
+        // 1. Tentukan Document ID: Gunakan yang sudah ada (untuk update) atau buat yang baru
         val documentId = mood.documentId ?: getUserMoodsCollection().document().id
 
         // 2. Buat objek baru dengan userId dan documentId yang benar
         val entryToSave = mood.copy(userId = userId, documentId = documentId)
 
-        // 3. Simpan ke Firestore
+        // 3. Simpan/Timpa ke Firestore menggunakan .set() dengan ID dokumen yang spesifik
+        // .set() dengan document() akan menimpa (overwrite) dokumen jika ID sudah ada.
         getUserMoodsCollection().document(documentId).set(entryToSave).await()
 
         return entryToSave
@@ -47,20 +47,26 @@ class MoodCloudRepository(
 
     /**
      * Mendapatkan semua moods pengguna saat ini secara real-time.
+     * 🔥 FIX CRASH: Memastikan awaitClose adalah instruksi terakhir di callbackFlow.
      */
     fun getAllMoods(): Flow<List<MoodEntry>> = callbackFlow {
         val listenerRegistration = getUserMoodsCollection()
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    close(error) // Menutup flow jika ada error
                     return@addSnapshotListener
                 }
 
-                val moods = snapshot?.toObjects(MoodEntry::class.java) ?: emptyList()
+                // FIX: Menambahkan documentId saat mapping (penting untuk edit/delete)
+                val moods = snapshot?.documents?.map { document ->
+                    document.toObject(MoodEntry::class.java)?.copy(documentId = document.id)
+                }?.filterNotNull() ?: emptyList()
+
                 trySend(moods)
             }
 
+        // ⚠️ INI HARUS MENJADI INSTRUKSI TERAKHIR UNTUK MENCEGAH CRASH!
         awaitClose { listenerRegistration.remove() }
     }
 

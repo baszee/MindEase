@@ -8,12 +8,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth // Tambahkan ini
-import com.google.firebase.firestore.FirebaseFirestore // Tambahkan ini
-import com.google.firebase.storage.FirebaseStorage // Tambahkan ini
-import com.mindease.mindeaseapp.R
-import com.mindease.mindeaseapp.data.model.AppDatabase
-import com.mindease.mindeaseapp.data.repository.JournalCloudRepository // GANTI IMPORT INI
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.mindease.mindeaseapp.data.repository.JournalCloudRepository
 import com.mindease.mindeaseapp.databinding.FragmentJournalBinding
 
 class JournalFragment : Fragment() {
@@ -30,13 +28,8 @@ class JournalFragment : Fragment() {
     ): View {
         _binding = FragmentJournalBinding.inflate(inflater, container, false)
 
-        // 1. Setup ViewModel
         setupViewModel()
-
-        // 2. Setup RecyclerView
         setupRecyclerView()
-
-        // 3. Observe Data
         observeJournals()
 
         return binding.root
@@ -52,19 +45,16 @@ class JournalFragment : Fragment() {
     }
 
     private fun setupViewModel() {
-        // INISIALISASI CLOUD REPOSITORY
         val firestore = FirebaseFirestore.getInstance()
         val storage = FirebaseStorage.getInstance()
         val auth = FirebaseAuth.getInstance()
 
-        // GANTI KE CLOUD REPOSITORY
         val repository = JournalCloudRepository(firestore, storage, auth)
         val factory = JournalViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[JournalViewModel::class.java]
     }
 
     private fun setupRecyclerView() {
-        // Inisialisasi tanpa argumen
         journalAdapter = JournalAdapter()
 
         binding.rvJournalList.apply {
@@ -86,7 +76,8 @@ class JournalFragment : Fragment() {
      */
     private fun navigateToAddJournal() {
         val intent = Intent(requireContext(), AddJournalActivity::class.java)
-            .apply { putExtra(AddJournalActivity.EXTRA_JOURNAL_ID, null as String?) } // Gunakan null untuk mode Add
+            // 🔥 FIX: Menggunakan konstanta EXTRA_JOURNAL_ID yang benar
+            .apply { putExtra(AddJournalActivity.EXTRA_JOURNAL_ID, null as String?) }
         startActivity(intent)
     }
 

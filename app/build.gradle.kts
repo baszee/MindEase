@@ -1,8 +1,13 @@
+// baszee/mindease/MindEase-4e8b5bcc941bcf8b2f040d5689f753109d558dca/app/build.gradle.kts
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
-    alias(libs.plugins.kotlin.ksp)  // FIX: Mengg
+    alias(libs.plugins.kotlin.ksp)
+    // 🔥 PLUGINS TAMBAHAN (GRATIS)
+    id("com.google.firebase.crashlytics")
+    id("com.google.firebase.firebase-perf")
 }
 
 android {
@@ -16,6 +21,7 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     buildTypes {
@@ -42,6 +48,7 @@ android {
     // FIX KRITIS: Menangani duplikasi file META-INF
     packaging {
         resources {
+
             excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
     }
@@ -68,6 +75,7 @@ dependencies {
     // ==================== GRAFIK ====================
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
+
     // ==================== LIFECYCLE & COROUTINES ====================
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
@@ -75,13 +83,16 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
-    // ==================== FIREBASE ====================
+    // ==================== FIREBASE (Semua di bawah ini GRATIS di Spark Plan) ====================
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
-    // 🔥 FIX: MENAMBAHKAN DEPENDENSI REMOTE CONFIG 🔥
     implementation("com.google.firebase:firebase-config-ktx")
+
+    // 🔥 ANALYTICS, CRASHLYTICS, PERF MONITORING (GRATIS)
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.firebase:firebase-perf-ktx")
 
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.2.0")
@@ -90,6 +101,7 @@ dependencies {
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
+
     ksp("androidx.room:room-compiler:$roomVersion") // FIX: Menggunakan KSP
 
     // ==================== IMAGE LOADING ====================
@@ -106,6 +118,9 @@ dependencies {
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // 🔥 Tambahkan Library Image Compressor 🔥
+    implementation("id.zelory:compressor:3.0.1")
 
     // Room testing
     testImplementation("androidx.room:room-testing:$roomVersion")

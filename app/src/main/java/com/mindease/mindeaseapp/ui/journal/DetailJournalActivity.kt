@@ -11,6 +11,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+// Imports untuk Base64
+import android.graphics.BitmapFactory
+import android.util.Base64
+import android.graphics.Bitmap
+// Imports lain
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.JournalEntry
 import com.mindease.mindeaseapp.data.repository.JournalCloudRepository
@@ -25,6 +30,7 @@ import java.util.Locale
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.mindease.mindeaseapp.utils.AnalyticsHelper
 
 class DetailJournalActivity : AppCompatActivity() {
 
@@ -54,7 +60,7 @@ class DetailJournalActivity : AppCompatActivity() {
         val auth = FirebaseAuth.getInstance()
 
         val repo = JournalCloudRepository(firestore, storage, auth)
-        cloudRepository = repo // Simpan referensi ke repo untuk loadJournalDetail
+        cloudRepository = repo
 
         val factory = JournalViewModelFactory(repo)
         viewModel = ViewModelProvider(this, factory).get(JournalViewModel::class.java)
@@ -84,6 +90,15 @@ class DetailJournalActivity : AppCompatActivity() {
         super.onResume()
         // Menggunakan documentId untuk reload
         currentJournal?.documentId?.let { loadJournalDetail(it) }
+    }
+
+    private fun base64ToBitmap(base64String: String): Bitmap? {
+        return try {
+            val decodedBytes = Base64.decode(base64String, Base64.DEFAULT)
+            BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun loadJournalDetail(documentId: String) {
@@ -120,13 +135,15 @@ class DetailJournalActivity : AppCompatActivity() {
             val colorStateList = ContextCompat.getColorStateList(this@DetailJournalActivity, moodColor)
             ImageViewCompat.setImageTintList(ivMoodIconDetail, colorStateList)
 
-            // Memuat gambar penuh DARI URL CLOUD
-            if (journal.imagePath != null && journal.imagePath.isNotEmpty()) {
+            // 🔥 FIX: Memuat gambar dari Base64 String
+            if (journal.imageBase64 != null && journal.imageBase64.isNotEmpty()) {
                 ivJournalImageDetail.visibility = View.VISIBLE
                 tvImageLabel.visibility = View.VISIBLE
 
+                val bitmap = base64ToBitmap(journal.imageBase64)
+
                 Glide.with(this@DetailJournalActivity)
-                    .load(journal.imagePath) // Load langsung dari URL cloud
+                    .load(bitmap) // Load Bitmap dari Base64
                     .placeholder(R.drawable.ic_add_image)
                     .into(ivJournalImageDetail)
             } else {
@@ -151,8 +168,9 @@ class DetailJournalActivity : AppCompatActivity() {
             .setTitle(getString(R.string.confirm_delete_title))
             .setMessage(getString(R.string.confirm_delete_message))
             .setPositiveButton(getString(R.string.delete)) { _, _ ->
-                // FIX: Memanggil fungsi ViewModel yang sekarang sudah didefinisikan (Memperbaiki Error 2)
                 viewModel.deleteJournalEntry(journal)
+                AnalyticsHelper.logJournalDeleted()
+
                 Toast.makeText(this, getString(R.string.deleted_successfully), Toast.LENGTH_SHORT).show()
                 finish()
             }

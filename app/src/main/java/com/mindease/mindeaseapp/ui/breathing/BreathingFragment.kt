@@ -50,6 +50,7 @@ class BreathingFragment : Fragment() {
      */
     private fun startBreathingSession(exerciseType: String) {
         val intent = Intent(requireContext(), BreathingSessionActivity::class.java).apply {
+            // ✅ FIX: Menggunakan konstanta yang benar dari BreathingSessionActivity
             putExtra(BreathingSessionActivity.EXTRA_EXERCISE_TYPE, exerciseType)
         }
         startActivity(intent)

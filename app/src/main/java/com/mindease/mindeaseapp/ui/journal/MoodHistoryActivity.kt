@@ -45,6 +45,8 @@ class MoodHistoryActivity : AppCompatActivity() {
         binding.toolbar.setNavigationOnClickListener { finish() }
 
         viewModel.filteredMoods.observe(this) { moods ->
+            // FIX: Hanya ambil satu mood per hari untuk ditampilkan di grafik
+            // Data dari Firestore sudah memiliki satu entri per hari berkat fix di ViewModel.
             if (moods.isNotEmpty()) {
                 setupChart(moods)
                 updateStatistics(moods)
@@ -131,7 +133,6 @@ class MoodHistoryActivity : AppCompatActivity() {
     }
 
     private fun updateStatistics(moods: List<MoodEntry>) {
-        // ... (Tidak ada perubahan, fungsi ini tetap sama)
         if (moods.isEmpty()) {
             binding.tvAverageScore.text = getString(R.string.average_mood_score, "N/A")
             binding.tvMostCommonMood.text = getString(R.string.most_common_mood, "N/A")
@@ -148,11 +149,10 @@ class MoodHistoryActivity : AppCompatActivity() {
         val mostCommonMood = moodCounts.maxByOrNull { it.value }?.key ?: "Netral"
         binding.tvMostCommonMood.text = getString(R.string.most_common_mood, mostCommonMood)
 
-        // Catatan: Teks good/rough day ini masih hardcoded seperti di file lama.
-        binding.tvGoodDay.visibility = View.VISIBLE
-        binding.tvRoughDay.visibility = View.VISIBLE
-        binding.tvGoodDay.text = "You're having a good day on: Sunday & Saturday"
-        binding.tvRoughDay.text = "You're having a rough day on: Thursday"
+        // 🔥 FIX: Sembunyikan/hilangkan teks hardcoded tentang hari baik/buruk
+        // Teks ini TIDAK dapat dihitung secara akurat tanpa logic bisnis yang kompleks.
+        binding.tvGoodDay.visibility = View.GONE
+        binding.tvRoughDay.visibility = View.GONE
     }
 
     /**

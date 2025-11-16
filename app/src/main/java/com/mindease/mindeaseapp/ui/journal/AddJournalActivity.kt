@@ -1,16 +1,26 @@
 package com.mindease.mindeaseapp.ui.journal
 
-import android.content.Intent
+import android.content.Context
+import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Base64
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.JournalEntry
 import com.mindease.mindeaseapp.data.repository.JournalCloudRepository
@@ -19,12 +29,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.util.Date
-import androidx.core.widget.ImageViewCompat
-import androidx.core.content.ContextCompat
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 
 class AddJournalActivity : AppCompatActivity() {
 
@@ -64,29 +72,23 @@ class AddJournalActivity : AppCompatActivity() {
             ActivityResultContracts.GetContent()
         ) { uri: Uri? ->
             if (uri != null) {
-                contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
-
                 selectedImageUri = uri
                 binding.ivImagePreview.setImageURI(uri)
                 binding.ivImagePreview.visibility = View.VISIBLE
             } else {
                 selectedImageUri = null
-                // Jika URI dibatalkan, kita tetap mempertahankan gambar yang sudah ada (jika ada)
                 if (existingImagePath == null) {
                     binding.ivImagePreview.visibility = View.GONE
                 }
             }
         }
 
-
         binding.toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
         setupMoodListeners()
+
         binding.btnSaveJournal.setOnClickListener {
             showSaveConfirmationDialog()
         }
@@ -97,13 +99,12 @@ class AddJournalActivity : AppCompatActivity() {
     }
 
     private fun setupViewModel() {
-        // INISIALISASI CLOUD REPOSITORY
         val firestore = FirebaseFirestore.getInstance()
         val storage = FirebaseStorage.getInstance()
         val auth = FirebaseAuth.getInstance()
 
         val repo = JournalCloudRepository(firestore, storage, auth)
-        cloudRepository = repo // Simpan referensi ke repo untuk fungsi loadExistingJournal
+        cloudRepository = repo
 
         val factory = JournalViewModelFactory(repo)
         viewModel = ViewModelProvider(this, factory).get(JournalViewModel::class.java)
@@ -111,26 +112,30 @@ class AddJournalActivity : AppCompatActivity() {
 
     private fun loadExistingJournal(documentId: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            // FIX: Menggunakan cloudRepository.getJournalById() yang suspend.
             val journal = cloudRepository.getJournalById(documentId)
             withContext(Dispatchers.Main) {
                 if (journal != null) {
-                    // Jurnal yang dimuat
                     onMoodSelected(journal.moodScore, getMoodImageView(journal.moodScore))
                     binding.etJournalContent.setText(journal.content)
 
-                    if (journal.imagePath != null && journal.imagePath.isNotEmpty()) {
-                        existingImagePath = journal.imagePath // Simpan URL cloud yang sudah ada
-
+                    if (journal.imageBase64 != null && journal.imageBase64.isNotEmpty()) {
+                        existingImagePath = journal.imageBase64
                         binding.ivImagePreview.visibility = View.VISIBLE
-                        // Gunakan Glide untuk memuat dari URL cloud
-                        Glide.with(this@AddJournalActivity).load(journal.imagePath).into(binding.ivImagePreview)
+
+                        val bitmap = base64ToBitmap(journal.imageBase64)
+                        Glide.with(this@AddJournalActivity)
+                            .load(bitmap)
+                            .into(binding.ivImagePreview)
                     } else {
                         existingImagePath = null
                         binding.ivImagePreview.visibility = View.GONE
                     }
                 } else {
-                    Toast.makeText(this@AddJournalActivity, "Gagal memuat jurnal.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@AddJournalActivity,
+                        "Gagal memuat jurnal.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     finish()
                 }
             }
@@ -148,16 +153,30 @@ class AddJournalActivity : AppCompatActivity() {
         }
     }
 
+    private fun base64ToBitmap(base64String: String): Bitmap? {
+        return try {
+            val decodedBytes = Base64.decode(base64String, Base64.DEFAULT)
+            BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     private fun setupMoodListeners() {
         val moodIcons = listOf(
-            binding.ivMoodHappyExtreme, binding.ivMoodHappy, binding.ivMoodNeutral,
-            binding.ivMoodSad, binding.ivMoodSadExtreme
+            binding.ivMoodHappyExtreme,
+            binding.ivMoodHappy,
+            binding.ivMoodNeutral,
+            binding.ivMoodSad,
+            binding.ivMoodSadExtreme
         )
 
-        moodIcons.forEach { imageView ->
+        moodIcons.forEachIndexed { index, imageView ->
+            val score = 5 - index // 5, 4, 3, 2, 1
+            imageView.tag = score.toString()
             imageView.setOnClickListener { view ->
-                val score = view.tag.toString().toIntOrNull() ?: return@setOnClickListener
-                onMoodSelected(score, view as ImageView)
+                val moodScore = view.tag.toString().toIntOrNull() ?: return@setOnClickListener
+                onMoodSelected(moodScore, view as ImageView)
             }
         }
         resetMoodSelection()
@@ -169,7 +188,10 @@ class AddJournalActivity : AppCompatActivity() {
         if (selectedView != null) {
             selectedView.alpha = 1.0f
             val moodColor = getMoodColor(score)
-            ImageViewCompat.setImageTintList(selectedView, ContextCompat.getColorStateList(this, moodColor))
+            ImageViewCompat.setImageTintList(
+                selectedView,
+                ContextCompat.getColorStateList(this, moodColor)
+            )
         }
 
         selectedMoodScore = score
@@ -196,7 +218,10 @@ class AddJournalActivity : AppCompatActivity() {
         moodViewScores.forEach { (imageView, score) ->
             imageView.alpha = 0.5f
             val moodColor = getMoodColor(score)
-            ImageViewCompat.setImageTintList(imageView, ContextCompat.getColorStateList(this, moodColor))
+            ImageViewCompat.setImageTintList(
+                imageView,
+                ContextCompat.getColorStateList(this, moodColor)
+            )
         }
     }
 
@@ -223,9 +248,12 @@ class AddJournalActivity : AppCompatActivity() {
             return
         }
 
-        // Pastikan pengguna terautentikasi sebelum menyimpan
         if (FirebaseAuth.getInstance().currentUser == null) {
-            Toast.makeText(this, "Anda harus login untuk menyimpan jurnal.", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                "Anda harus login untuk menyimpan jurnal.",
+                Toast.LENGTH_LONG
+            ).show()
             return
         }
 
@@ -237,23 +265,131 @@ class AddJournalActivity : AppCompatActivity() {
     private fun saveOrUpdateJournalEntry(content: String) {
         val currentUser = FirebaseAuth.getInstance().currentUser ?: return
 
-        val entry = JournalEntry(
-            documentId = currentJournalDocumentId, // Document ID dari Firestore
+        val baseJournal = JournalEntry(
+            documentId = currentJournalDocumentId,
             userId = currentUser.uid,
             moodScore = selectedMoodScore,
             moodName = selectedMoodName,
             content = content,
-            // Jika ada gambar baru (selectedImageUri), akan di-upload.
-            // Jika tidak, path lama (existingImagePath) akan dipertahankan atau dihapus (jika dihapus di UI).
-            imagePath = existingImagePath,
+            imageBase64 = existingImagePath,
             timestamp = Date().time
         )
 
-        // FIX: saveJournalEntry sekarang ada di ViewModel (Memperbaiki Error 1)
-        viewModel.saveJournalEntry(entry, selectedImageUri)
+        if (selectedImageUri != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val base64String = processImageToBase64(selectedImageUri!!)
+                withContext(Dispatchers.Main) {
+                    viewModel.saveJournalEntry(baseJournal.copy(imageBase64 = base64String), base64String)
+                    showSuccessToast(base64String != null)
+                }
+            }
+        } else {
+            viewModel.saveJournalEntry(baseJournal, existingImagePath)
+            showSuccessToast(existingImagePath != null)
+        }
+    }
 
+    /**
+     * COMPRESS & CONVERT KE BASE64 - MANUAL (TANPA LIBRARY COMPRESSOR)
+     * Lebih reliable karena tidak depend on external library
+     */
+    private suspend fun processImageToBase64(uri: Uri): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                // 1. Load bitmap dari URI
+                val inputStream = contentResolver.openInputStream(uri)
+                val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+
+                if (originalBitmap == null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@AddJournalActivity,
+                            "Gagal membaca gambar",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    return@withContext null
+                }
+
+                // 2. Resize gambar (compress resolusi)
+                val maxWidth = 800
+                val maxHeight = 600
+
+                val width = originalBitmap.width
+                val height = originalBitmap.height
+
+                val scale = minOf(
+                    maxWidth.toFloat() / width,
+                    maxHeight.toFloat() / height
+                )
+
+                val scaledWidth = (width * scale).toInt()
+                val scaledHeight = (height * scale).toInt()
+
+                val resizedBitmap = Bitmap.createScaledBitmap(
+                    originalBitmap,
+                    scaledWidth,
+                    scaledHeight,
+                    true
+                )
+
+                originalBitmap.recycle()
+
+                // 3. Compress quality & convert ke byte array
+                val byteArrayOutputStream = ByteArrayOutputStream()
+                var quality = 70
+                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream)
+
+                // Jika masih > 150KB, turunkan quality
+                while (byteArrayOutputStream.size() > 150_000 && quality > 20) {
+                    byteArrayOutputStream.reset()
+                    quality -= 10
+                    resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream)
+                }
+
+                resizedBitmap.recycle()
+
+                val byteArray = byteArrayOutputStream.toByteArray()
+                byteArrayOutputStream.close()
+
+                // 4. Convert ke Base64
+                val base64String = Base64.encodeToString(byteArray, Base64.DEFAULT)
+
+                // Log ukuran untuk debugging
+                val sizeKB = byteArray.size / 1024
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@AddJournalActivity,
+                        "Gambar di-compress: ${sizeKB}KB",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                base64String
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@AddJournalActivity,
+                        "Gagal memproses gambar: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                null
+            }
+        }
+    }
+
+    private fun showSuccessToast(hasImage: Boolean) {
         val actionMessage = if (currentJournalDocumentId != null) "diperbarui" else "disimpan"
-        Toast.makeText(this, "Jurnal berhasil $actionMessage!", Toast.LENGTH_SHORT).show()
+        val imageInfo = if (hasImage) "dengan Gambar (Base64)" else ""
+        Toast.makeText(
+            this,
+            "Jurnal berhasil $actionMessage! $imageInfo",
+            Toast.LENGTH_SHORT
+        ).show()
         finish()
     }
 }

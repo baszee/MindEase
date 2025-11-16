@@ -20,7 +20,11 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mindease.mindeaseapp.data.repository.MoodCloudRepository
-import com.mindease.mindeaseapp.data.repository.QuoteRepository // BARU: Import Quote Repository
+import com.mindease.mindeaseapp.data.repository.QuoteRepository
+import com.mindease.mindeaseapp.utils.AnalyticsHelper
+import com.mindease.mindeaseapp.data.repository.AuthRepository
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class DashboardFragment : Fragment() {
 
@@ -46,12 +50,13 @@ class DashboardFragment : Fragment() {
         val firestore = FirebaseFirestore.getInstance()
         val auth = Firebase.auth
 
-        // Buat instance dari kedua repository
+        // Buat instance dari semua Repository
         val moodRepository = MoodCloudRepository(firestore, auth)
-        val quoteRepository = QuoteRepository(firestore) // BARU: Inisialisasi Quote Repository
+        val quoteRepository = QuoteRepository(firestore)
+        val authRepository = AuthRepository(auth)
 
-        // Berikan kedua repository ke Factory
-        val factory = DashboardViewModelFactory(moodRepository, quoteRepository) // FIX: Mengganti parameter factory
+        // Berikan semua repository ke Factory
+        val factory = DashboardViewModelFactory(moodRepository, quoteRepository, authRepository)
         viewModel = ViewModelProvider(this, factory)[DashboardViewModel::class.java]
 
         // 2. Siapkan Listener
@@ -63,41 +68,46 @@ class DashboardFragment : Fragment() {
         binding.tvMoodHistoryLink.setOnClickListener {
             val intent = Intent(requireContext(), MoodHistoryActivity::class.java)
             startActivity(intent)
+            AnalyticsHelper.logScreenView("mood_history_activity", "MoodHistoryActivity")
         }
+
+        AnalyticsHelper.logScreenView("dashboard_fragment", "DashboardFragment")
     }
 
     /**
-     * Menampilkan sapaan dinamis berdasarkan waktu dan nama pengguna.
+     * Menampilkan sapaan dinamis berdasarkan waktu dan nama pengguna (dengan reload).
      */
     private fun setupGreeting() {
-        val user = Firebase.auth.currentUser
-        val userName = user?.displayName ?: "User MindEase"
+        // 🔥 FIX: Menggunakan coroutine untuk memanggil fungsi suspend (reload user)
+        viewLifecycleOwner.lifecycleScope.launch {
+            val userName = viewModel.getUpdatedUserName()
 
-        val calendar = Calendar.getInstance()
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val calendar = Calendar.getInstance()
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
 
-        val greeting: String
-        val emoji: String
+            val greeting: String
+            val emoji: String
 
-        when (hour) {
-            in 5..11 -> {
-                greeting = getString(R.string.good_morning)
-                emoji = "🌤️"
+            when (hour) {
+                in 5..11 -> {
+                    greeting = getString(R.string.good_morning)
+                    emoji = "🌤️"
+                }
+                in 12..17 -> {
+                    greeting = getString(R.string.good_afternoon)
+                    emoji = "☀️"
+                }
+                in 18..23 -> {
+                    greeting = getString(R.string.good_evening)
+                    emoji = "🌙"
+                }
+                else -> {
+                    greeting = getString(R.string.good_night)
+                    emoji = "🌌"
+                }
             }
-            in 12..17 -> {
-                greeting = getString(R.string.good_afternoon)
-                emoji = "☀️"
-            }
-            in 18..23 -> {
-                greeting = getString(R.string.good_evening)
-                emoji = "🌙"
-            }
-            else -> {
-                greeting = getString(R.string.good_night)
-                emoji = "🌌"
-            }
+            binding.tvGreeting.text = "$greeting, $userName $emoji"
         }
-        binding.tvGreeting.text = "$greeting, $userName $emoji"
     }
 
     private fun setupMoodListeners() {
@@ -120,23 +130,8 @@ class DashboardFragment : Fragment() {
      * Dipanggil saat pengguna mengklik salah satu emoji mood.
      */
     private fun onMoodSelected(score: Int, moodName: String) {
-        // Reset tampilan semua emoji
-        resetMoodSelection()
-
-        val selectedViewId = when (score) {
-            5 -> R.id.iv_mood_happy_extreme
-            4 -> R.id.iv_mood_happy
-            3 -> R.id.iv_mood_neutral
-            2 -> R.id.iv_mood_sad
-            else -> R.id.iv_mood_sad_extreme
-        }
-
-        val selectedView = view?.findViewById<ImageView>(selectedViewId)
-        if (selectedView != null) {
-            selectedView.alpha = 1.0f
-            val moodColor = getMoodColor(score)
-            ImageViewCompat.setImageTintList(selectedView, ContextCompat.getColorStateList(requireContext(), moodColor))
-        }
+        // 🔥 FIX GLITCH PART 2: HANYA MELAKUKAN LOGIKA DATA.
+        // Seluruh pembaruan UI (reset dan highlight) dipindahkan ke setupObservers.
 
         // Simpan mood yang dipilih ke database
         selectedMoodScore = score
@@ -147,9 +142,12 @@ class DashboardFragment : Fragment() {
             moodName = moodName,
             timestamp = System.currentTimeMillis()
         )
-        // FIX: saveMood sekarang memanggil Cloud Repository
         viewModel.saveMood(newMoodEntry)
-        Toast.makeText(requireContext(), "Mood Hari Ini Dicatat: $moodName", Toast.LENGTH_SHORT).show()
+
+        // 🔥 ANALYTICS: Log Mood Tracking
+        AnalyticsHelper.logMoodTracked(moodName, score)
+
+        Toast.makeText(requireContext(), "Mood Dicatat: $moodName", Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -200,13 +198,16 @@ class DashboardFragment : Fragment() {
 
     /**
      * Mengamati LiveData dari ViewModel dan memperbarui tampilan mood hari ini dan quotes.
+     * 🔥 FIX GLITCH PART 3: Semua update visual UI harus terjadi di sini, berdasarkan data yang dimuat.
      */
     private fun setupObservers() {
         // Observer untuk Mood Harian
         viewModel.currentDayMood.observe(viewLifecycleOwner) { mood ->
+            // Pastikan reset terjadi sebelum highlight
+            resetMoodSelection()
+
             if (mood != null) {
                 // Ada mood yang dicatat hari ini, set tampilan
-                resetMoodSelection()
                 val selectedViewId = when (mood.score) {
                     5 -> R.id.iv_mood_happy_extreme
                     4 -> R.id.iv_mood_happy
@@ -216,7 +217,7 @@ class DashboardFragment : Fragment() {
                 }
                 val selectedView = view?.findViewById<ImageView>(selectedViewId)
                 if (selectedView != null) {
-                    selectedView.alpha = 1.0f
+                    selectedView.alpha = 1.0f // Highlight
                     val moodColor = getMoodColor(mood.score)
                     ImageViewCompat.setImageTintList(selectedView, ContextCompat.getColorStateList(requireContext(), moodColor))
                 }
@@ -228,7 +229,7 @@ class DashboardFragment : Fragment() {
             } else {
                 // Belum ada mood, tampilkan prompt default
                 binding.tvMoodPrompt.text = "How are you feeling today?"
-                resetMoodSelection() // Pastikan semua di-reset
+                // resetMoodSelection() sudah dipanggil di awal observer
             }
         }
 
@@ -242,7 +243,7 @@ class DashboardFragment : Fragment() {
     // ... (fungsi onResume dan onDestroyView tetap sama)
     override fun onResume() {
         super.onResume()
-        // Panggil ulang greeting saat fragment kembali (misal setelah Edit Profile)
+        // 🔥 FIX: Panggil ulang greeting saat fragment kembali (untuk refresh nama dari Edit Profile)
         setupGreeting()
         // Panggil ulang loadRandomQuote untuk mendapatkan quote baru
         viewModel.loadRandomQuote()

@@ -7,7 +7,7 @@ import com.mindease.mindeaseapp.data.repository.JournalCloudRepository
 import com.mindease.mindeaseapp.data.model.JournalEntry
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import android.net.Uri // Diperlukan untuk saveJournalEntry
+import android.net.Uri
 
 /**
  * ViewModel untuk JournalFragment, AddJournalActivity, dan DetailJournalActivity.
@@ -17,26 +17,22 @@ class JournalViewModel(
 ) : ViewModel() {
 
     // Daftar semua jurnal, diambil secara real-time (Flow) dari Cloud Repository dan diubah ke LiveData
-    val allJournals: LiveData<List<JournalEntry>> = repository.getAllJournals().asLiveData()
+    val allJournals: LiveData<List<JournalEntry>> = repository.getAllJournals().asLiveData() // 🔥 FIX: Menggunakan repository.getAllJournals()
 
     /**
-     * Menyimpan atau mengupdate entri jurnal (digunakan di AddJournalActivity).
-     * FIX 1: Menggunakan nama 'saveJournalEntry' dan tipe 'Uri?' yang benar. (Memperbaiki error 3)
+     * Menyimpan atau mengupdate entri jurnal.
+     * FIX: Menerima base64String (String?) alih-alih imageUri.
      */
-    fun saveJournalEntry(journal: JournalEntry, imageUri: Uri? = null) {
+    fun saveJournalEntry(journal: JournalEntry, imageBase64: String? = null) {
         viewModelScope.launch {
-            repository.saveJournal(journal, imageUri)
+            // Kita harus membuat objek JournalEntry final di sini.
+            val finalJournal = journal.copy(imageBase64 = imageBase64)
+            repository.saveJournal(finalJournal) // Panggil repository yang sudah diupdate
         }
     }
 
-    // Catatan: Fungsi getJournalById di Repository adalah 'suspend fun',
-    // jadi sebaiknya dipanggil di coroutine scope Activity, bukan dibungkus LiveData di ViewModel.
-    // Oleh karena itu, kita HAPUS fungsi getJournalById yang bermasalah di sini.
-
-
     /**
-     * Menghapus entri jurnal dari Cloud (digunakan di DetailJournalActivity).
-     * FIX 2: Menambahkan fungsi yang sesuai dengan panggilan di DetailJournalActivity. (Memperbaiki error 2)
+     * Menghapus entri jurnal dari Cloud.
      */
     fun deleteJournalEntry(journal: JournalEntry) {
         viewModelScope.launch {

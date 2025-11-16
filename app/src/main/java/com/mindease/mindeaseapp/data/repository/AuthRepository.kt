@@ -11,6 +11,7 @@ import com.mindease.mindeaseapp.utils.AuthResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import android.util.Log // Import Log
 
 /**
  * Repository untuk menangani semua operasi Otentikasi (Login, Register, Logout, Guest).
@@ -19,6 +20,26 @@ class AuthRepository(val auth: FirebaseAuth = Firebase.auth) {
 
     val currentUser: FirebaseUser?
         get() = auth.currentUser
+
+    /**
+     * Mengambil nama pengguna saat ini (untuk digunakan setelah reload).
+     */
+    fun getCurrentUserName(): String? {
+        // Ambil nama dari objek currentUser yang sudah di-reload
+        return auth.currentUser?.displayName
+    }
+
+    /**
+     * Memaksa reload data pengguna dari server (PENTING untuk sinkronisasi nama).
+     */
+    suspend fun reloadCurrentUser() {
+        try {
+            auth.currentUser?.reload()?.await()
+            Log.d("AuthRepository", "FirebaseUser successfully reloaded from server.")
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error reloading user: ${e.message}")
+        }
+    }
 
     /**
      * Melakukan update nama tampilan (displayName) pengguna.
@@ -83,7 +104,7 @@ class AuthRepository(val auth: FirebaseAuth = Firebase.auth) {
     /**
      * Menghapus akun pengguna yang sudah terotentikasi.
      */
-    suspend fun deleteUserAccount(): AuthResult<Unit> { // FIX: Diubah menjadi block body
+    suspend fun deleteUserAccount(): AuthResult<Unit> {
         return try {
             val user = auth.currentUser
             if (user == null) {

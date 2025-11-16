@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION") // ← TAMBAHKAN INI DI PALING ATAS
+@file:Suppress("DEPRECATION") // 🔥 FIX: Menghilangkan semua warning GMS/GoogleSignIn
 
 package com.mindease.mindeaseapp.ui.auth
 
@@ -21,6 +21,7 @@ import com.mindease.mindeaseapp.data.repository.AuthRepository
 import com.mindease.mindeaseapp.databinding.ActivityLoginBinding
 import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.mindease.mindeaseapp.utils.AuthResult
+import com.mindease.mindeaseapp.utils.AnalyticsHelper
 
 class LoginActivity : AppCompatActivity() {
 
@@ -123,6 +124,16 @@ class LoginActivity : AppCompatActivity() {
                     binding.btnGuestLogin.isEnabled = true
                     binding.btnGoogleSignIn.isEnabled = true
                     Toast.makeText(this, "Autentikasi Sukses! Selamat datang.", Toast.LENGTH_SHORT).show()
+
+                    // 🔥 ANALYTICS: Log Login Sukses
+                    val user = Firebase.auth.currentUser
+                    val method = when {
+                        user?.isAnonymous == true -> "guest"
+                        user != null && user.providerData.any { it.providerId == "google.com" } -> "google"
+                        else -> "email_password"
+                    }
+                    AnalyticsHelper.logLogin(method)
+
                     goToMainActivity()
                 }
                 is AuthResult.Error -> {

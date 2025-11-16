@@ -35,9 +35,7 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalAdapter.JournalViewHolde
 
         fun bind(entry: JournalEntry) {
             binding.tvMoodName.text = entry.moodName
-
             binding.tvContentSummary.text = entry.content
-
             binding.tvDate.text = formatDate(entry.timestamp)
 
             // Pewarnaan Mood Icon
@@ -46,17 +44,17 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalAdapter.JournalViewHolde
             val colorStateList = ContextCompat.getColorStateList(binding.root.context, moodColor)
             ImageViewCompat.setImageTintList(binding.ivMoodIcon, colorStateList)
 
+            // FIX: Kirim documentId (String), bukan id (Integer)
             binding.root.setOnClickListener {
                 val context = binding.root.context
                 val intent = Intent(context, DetailJournalActivity::class.java).apply {
-                    putExtra(DetailJournalActivity.EXTRA_JOURNAL_ID, entry.id)
+                    putExtra(DetailJournalActivity.EXTRA_JOURNAL_ID, entry.documentId) // ✅ FIXED!
                 }
                 context.startActivity(intent)
             }
         }
 
         private fun formatDate(timestamp: Long): String {
-            // FIX: Menggunakan Locale.Builder() yang modern
             val locale = Locale.Builder().setLanguage("id").setRegion("ID").build()
             val sdf = SimpleDateFormat("dd MMMM yyyy", locale)
             return sdf.format(Date(timestamp))
@@ -87,7 +85,8 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalAdapter.JournalViewHolde
 
 class JournalDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
     override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
-        return oldItem.id == newItem.id
+        // FIX: Compare documentId (String), bukan id (Integer)
+        return oldItem.documentId == newItem.documentId
     }
 
     override fun areContentsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
