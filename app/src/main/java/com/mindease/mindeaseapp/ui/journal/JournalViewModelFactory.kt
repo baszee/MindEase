@@ -2,18 +2,21 @@ package com.mindease.mindeaseapp.ui.journal
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.mindease.mindeaseapp.data.repository.JournalCloudRepository // GANTI IMPORT INI
-import java.lang.IllegalArgumentException
+// FIX: Menggunakan import untuk Cloud Repository
+import com.mindease.mindeaseapp.data.repository.JournalCloudRepository
 
 /**
- * Factory untuk membuat instance JournalViewModel dengan JournalCloudRepository yang sudah ada.
+ * Factory untuk membuat instance JournalViewModel.
+ * FIX: Sekarang menggunakan JournalCloudRepository
  */
-class JournalViewModelFactory(private val repository: JournalCloudRepository) : ViewModelProvider.Factory { // GANTI TIPE REPOSITORY
+class JournalViewModelFactory(
+    private val repository: JournalCloudRepository // FIX: Mengganti tipe Repository
+) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        // FIX: Memanggil kelas JournalViewModel yang sudah bersih
-        if (modelClass.isAssignableFrom(JournalViewModel::class.java)) {
+        if ((modelClass.isAssignableFrom(JournalViewModel::class.java))) {
+            // Memberikan instance Cloud Repository ke ViewModel
             return JournalViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

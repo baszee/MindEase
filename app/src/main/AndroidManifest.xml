@@ -195,6 +195,18 @@
                 android:value=".ui.profile.SettingsActivity" />
         </activity>
 
+        <activity
+            android:name=".ui.profile.PrivacyPolicyActivity"
+            android:exported="false"
+            android:label="@string/privacy_policy"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.profile.SettingsActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.profile.SettingsActivity" />
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.JournalEntry
-import com.mindease.mindeaseapp.data.repository.JournalCloudRepository // GANTI INI
+import com.mindease.mindeaseapp.data.repository.JournalCloudRepository
 import com.mindease.mindeaseapp.databinding.ActivityAddJournalBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,9 +22,9 @@ import kotlinx.coroutines.withContext
 import java.util.Date
 import androidx.core.widget.ImageViewCompat
 import androidx.core.content.ContextCompat
-import com.google.firebase.auth.FirebaseAuth // Tambahkan ini
-import com.google.firebase.firestore.FirebaseFirestore // Tambahkan ini
-import com.google.firebase.storage.FirebaseStorage // Tambahkan ini
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class AddJournalActivity : AppCompatActivity() {
 
@@ -32,16 +32,16 @@ class AddJournalActivity : AppCompatActivity() {
     private lateinit var viewModel: JournalViewModel
     private lateinit var cloudRepository: JournalCloudRepository
 
-    private var currentJournalDocumentId: String? = null // GANTI DARI ID INT KE DOC ID STRING
+    private var currentJournalDocumentId: String? = null
     private var selectedMoodScore: Int = 0
     private var selectedMoodName: String = ""
-    private var selectedImageUri: Uri? = null // URI lokal baru yang akan diupload
-    private var existingImagePath: String? = null // URL cloud yang sudah ada
+    private var selectedImageUri: Uri? = null
+    private var existingImagePath: String? = null
 
     private lateinit var imagePickerLauncher: ActivityResultLauncher<String>
 
     companion object {
-        const val EXTRA_JOURNAL_ID = "extra_journal_document_id_to_edit" // GANTI NAMA EXTRA
+        const val EXTRA_JOURNAL_ID = "extra_journal_document_id_to_edit"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,7 +103,7 @@ class AddJournalActivity : AppCompatActivity() {
         val auth = FirebaseAuth.getInstance()
 
         val repo = JournalCloudRepository(firestore, storage, auth)
-        cloudRepository = repo
+        cloudRepository = repo // Simpan referensi ke repo untuk fungsi loadExistingJournal
 
         val factory = JournalViewModelFactory(repo)
         viewModel = ViewModelProvider(this, factory).get(JournalViewModel::class.java)
@@ -111,6 +111,7 @@ class AddJournalActivity : AppCompatActivity() {
 
     private fun loadExistingJournal(documentId: String) {
         CoroutineScope(Dispatchers.IO).launch {
+            // FIX: Menggunakan cloudRepository.getJournalById() yang suspend.
             val journal = cloudRepository.getJournalById(documentId)
             withContext(Dispatchers.Main) {
                 if (journal != null) {
@@ -248,7 +249,7 @@ class AddJournalActivity : AppCompatActivity() {
             timestamp = Date().time
         )
 
-        // Panggil ViewModel untuk menyimpan ke Cloud, termasuk upload gambar
+        // FIX: saveJournalEntry sekarang ada di ViewModel (Memperbaiki Error 1)
         viewModel.saveJournalEntry(entry, selectedImageUri)
 
         val actionMessage = if (currentJournalDocumentId != null) "diperbarui" else "disimpan"

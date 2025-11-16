@@ -22,7 +22,7 @@ class JournalCloudRepository(
     private val auth: FirebaseAuth
 ) {
 
-    val journalCollection = firestore.collection("journals") // FIX: DIUBAH MENJADI VAL PUBLIK
+    val journalCollection = firestore.collection("journals")
     private val storageReference = storage.reference.child("journal_images")
 
     private fun getCurrentUserId(): String {
@@ -43,7 +43,11 @@ class JournalCloudRepository(
                     return@addSnapshotListener
                 }
 
-                val journals = snapshot?.toObjects(JournalEntry::class.java) ?: emptyList()
+                // FIX: Menambahkan documentId saat mapping (penting untuk edit/delete)
+                val journals = snapshot?.documents?.map { document ->
+                    document.toObject(JournalEntry::class.java)?.copy(documentId = document.id)
+                }?.filterNotNull() ?: emptyList()
+
                 trySend(journals)
             }
 
@@ -59,29 +63,29 @@ class JournalCloudRepository(
      */
     suspend fun saveJournal(entry: JournalEntry, imageUri: Uri?): JournalEntry {
         val userId = getCurrentUserId()
-        var updatedEntry = entry.copy(userId = userId)
+        var updatedEntry = entry.copy(userId = userId) // Pastikan userId selalu di-set
 
         // 1. Proses Upload/Pembaruan Gambar
         if (imageUri != null) {
-            // Ada gambar baru untuk di-upload
             val downloadUrl = uploadImage(userId, imageUri)
             updatedEntry = updatedEntry.copy(imagePath = downloadUrl)
             // TODO: Hapus gambar lama (untuk versi mendatang)
-        } else if (entry.imagePath.isNullOrEmpty() && entry.documentId != null) {
-            // Pengguna menghapus gambar dari jurnal yang sudah ada
-            updatedEntry = updatedEntry.copy(imagePath = null)
         } else if (entry.documentId.isNullOrEmpty() && entry.imagePath.isNullOrEmpty()) {
-            // Jurnal baru tanpa gambar, tidak perlu upload/delete
+            // Jurnal baru tanpa gambar
         } else {
-            // Pertahankan imagePath yang sudah ada (URL cloud)
+            // Pertahankan imagePath yang sudah ada
         }
 
 
         // 2. Simpan atau perbarui data ke Firestore
         return if (entry.documentId.isNullOrEmpty()) {
-            // Insert baru
-            val newDocRef = journalCollection.add(updatedEntry).await()
-            updatedEntry.copy(documentId = newDocRef.id) // Return updated entry with new Firestore ID
+            // FIX UTAMA: Gunakan .document() dan .set() untuk memastikan serialization field userId benar
+            val newDocRef = journalCollection.document()
+            updatedEntry = updatedEntry.copy(documentId = newDocRef.id)
+
+            newDocRef.set(updatedEntry).await() // Gunakan SET
+
+            updatedEntry // Kembalikan entry lengkap
         } else {
             // Update yang sudah ada
             journalCollection.document(entry.documentId!!).set(updatedEntry).await()
@@ -117,10 +121,8 @@ class JournalCloudRepository(
         entry.imagePath?.let { url ->
             if (url.startsWith("https://firebasestorage")) {
                 try {
-                    // Mendapatkan referensi storage dari URL
                     storage.getReferenceFromUrl(url).delete().await()
                 } catch (e: Exception) {
-                    // Log error tapi biarkan proses berlanjut, agar dokumen Firestore tetap terhapus
                     e.printStackTrace()
                 }
             }

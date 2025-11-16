@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION") // ← TAMBAHKAN INI DI PALING ATAS
+
 package com.mindease.mindeaseapp.ui.auth
 
 import android.content.Intent
@@ -19,9 +21,7 @@ import com.mindease.mindeaseapp.data.repository.AuthRepository
 import com.mindease.mindeaseapp.databinding.ActivityLoginBinding
 import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.mindease.mindeaseapp.utils.AuthResult
-import com.mindease.mindeaseapp.ui.auth.ForgotPasswordActivity
 
-@Suppress("DEPRECATION") // FIX: Anotasi ini menghilangkan semua warnings Google Sign-In
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -41,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
 
         // 2. Inisialisasi Google Sign-In Options dan Client
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com") // GANTI INI dengan Web Client ID dari Firebase Console
+            .requestIdToken(getString(R.string.default_web_client_id)) // Ambil dari strings.xml
             .requestEmail()
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)

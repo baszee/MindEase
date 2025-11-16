@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.JournalEntry
-import com.mindease.mindeaseapp.data.repository.JournalCloudRepository // FIX: Menggunakan Cloud Repo
+import com.mindease.mindeaseapp.data.repository.JournalCloudRepository
 import com.mindease.mindeaseapp.databinding.ActivityDetailJournalBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ class DetailJournalActivity : AppCompatActivity() {
     private var currentJournal: JournalEntry? = null
 
     companion object {
-        const val EXTRA_JOURNAL_ID = "extra_journal_document_id" // GANTI NAMA EXTRA
+        const val EXTRA_JOURNAL_ID = "extra_journal_document_id"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +54,7 @@ class DetailJournalActivity : AppCompatActivity() {
         val auth = FirebaseAuth.getInstance()
 
         val repo = JournalCloudRepository(firestore, storage, auth)
-        cloudRepository = repo
+        cloudRepository = repo // Simpan referensi ke repo untuk loadJournalDetail
 
         val factory = JournalViewModelFactory(repo)
         viewModel = ViewModelProvider(this, factory).get(JournalViewModel::class.java)
@@ -82,11 +82,12 @@ class DetailJournalActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // FIX: Menggunakan documentId untuk reload
+        // Menggunakan documentId untuk reload
         currentJournal?.documentId?.let { loadJournalDetail(it) }
     }
 
     private fun loadJournalDetail(documentId: String) {
+        // Panggil suspend function dari Repository di coroutine scope Activity
         CoroutineScope(Dispatchers.IO).launch {
             val journal = cloudRepository.getJournalById(documentId)
             withContext(Dispatchers.Main) {
@@ -150,6 +151,7 @@ class DetailJournalActivity : AppCompatActivity() {
             .setTitle(getString(R.string.confirm_delete_title))
             .setMessage(getString(R.string.confirm_delete_message))
             .setPositiveButton(getString(R.string.delete)) { _, _ ->
+                // FIX: Memanggil fungsi ViewModel yang sekarang sudah didefinisikan (Memperbaiki Error 2)
                 viewModel.deleteJournalEntry(journal)
                 Toast.makeText(this, getString(R.string.deleted_successfully), Toast.LENGTH_SHORT).show()
                 finish()

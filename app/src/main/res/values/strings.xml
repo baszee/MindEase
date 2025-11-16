@@ -120,4 +120,9 @@
     <string name="cd_add_button">Tombol Tambah</string>
 
     <string name="placeholder_quote">Tarik napas dalam-dalam dan tenangkan pikiranmu</string>
+
+    <!-- ============ TAMBAHKAN INI ============ -->
+    <!-- Firebase Google Sign-In Web Client ID -->
+    <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>
+
 </resources>
