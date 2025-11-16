@@ -35,5 +35,7 @@
     <color name="mood_happy">#4CAF50</color>
     <color name="mood_neutral">#A38933</color>
     <color name="mood_sad">#FF9800</color>
-    <color name="mood_very_sad">#F44336</color>
+    <color name="mood_very_sad">#FF1100</color>
+
+    <color name="text_secondary">#757575</color>
 </resources>

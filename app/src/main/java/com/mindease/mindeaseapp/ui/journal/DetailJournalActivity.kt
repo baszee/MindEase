@@ -31,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.mindease.mindeaseapp.utils.AnalyticsHelper
+import com.mindease.mindeaseapp.utils.ThemeManager
 
 class DetailJournalActivity : AppCompatActivity() {
 
@@ -45,6 +46,7 @@ class DetailJournalActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
         binding = ActivityDetailJournalBinding.inflate(layoutInflater)
         setContentView(binding.root)

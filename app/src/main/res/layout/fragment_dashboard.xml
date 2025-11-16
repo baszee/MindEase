@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/android:colorBackground"
-    android:padding="20dp"
-    tools:context=".ui.home.DashboardFragment">
+    android:paddingHorizontal="20dp"
+    android:paddingTop="48dp" tools:context=".ui.home.DashboardFragment">
 
     <TextView
         android:id="@+id/tv_greeting"

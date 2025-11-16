@@ -9,7 +9,6 @@
         <item name="materialButtonStyle">@style/Widget.MindEaseApp.Button</item>
         <item name="materialCardViewStyle">@style/Widget.MindEaseApp.CardView</item>
         <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.PrimarySurface</item>
-
     </style>
 
     <style name="Theme.MindEase.Indigo" parent="Base.Theme.MindEaseApp">
@@ -147,11 +146,5 @@
     <style name="Widget.MindEaseApp.Toolbar" parent="Widget.MaterialComponents.Toolbar.PrimarySurface">
         <item name="titleTextColor">?attr/colorOnSurface</item>
         <item name="android:elevation">4dp</item>
-    </style>
-
-    <style name="Widget.MindEaseApp.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
-        <item name="itemIconTint">?attr/colorPrimary</item>
-        <item name="itemTextColor">?attr/colorPrimary</item>
-        <item name="android:elevation">8dp</item>
     </style>
 </resources>

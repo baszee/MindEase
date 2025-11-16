@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mindease.mindeaseapp.databinding.ActivitySettingsBinding
-import com.mindease.mindeaseapp.utils.ThemeManager // 🔥 IMPORT BARU
+import com.mindease.mindeaseapp.utils.ThemeManager // 🔥 Wajib import
 
 /**
  * Activity untuk halaman Pengaturan/Settings.
@@ -14,7 +14,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 🔥 KRITIS: Terapkan tema penuh SEBELUM super.onCreate()
+        // 🔥 FIX KRITIS: Terapkan tema penuh SEBELUM super.onCreate()
         setTheme(ThemeManager.getThemeStyleResId(this))
 
         super.onCreate(savedInstanceState)

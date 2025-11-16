@@ -13,7 +13,7 @@ import com.mindease.mindeaseapp.databinding.ActivityMainBinding
 import com.mindease.mindeaseapp.ui.breathing.BreathingFragment
 import com.mindease.mindeaseapp.ui.journal.JournalFragment
 import com.mindease.mindeaseapp.ui.profile.ProfileFragment
-import com.mindease.mindeaseapp.utils.ThemeManager // Import tetap ada karena ThemeManager digunakan di Activity lain
+import com.mindease.mindeaseapp.utils.ThemeManager // 🔥 Wajib import
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,11 +29,11 @@ class MainActivity : AppCompatActivity() {
     private var activeFragment: Fragment = dashboardFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 🔥 FIX KRITIS: Panggil setTheme() sebelum super.onCreate()
+        setTheme(ThemeManager.getThemeStyleResId(this))
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-
-        // HAPUS LOGIKA APLIKASI WARNA AKSEN KUSTOM DARI KOTLIN
-        // Semua styling Bottom Nav sekarang dihandle oleh XML menggunakan ?attr/colorPrimary dari tema aktif
 
         setContentView(binding.root)
 

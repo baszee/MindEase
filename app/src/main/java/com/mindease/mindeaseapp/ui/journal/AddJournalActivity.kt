@@ -25,6 +25,7 @@ import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.JournalEntry
 import com.mindease.mindeaseapp.data.repository.JournalCloudRepository
 import com.mindease.mindeaseapp.databinding.ActivityAddJournalBinding
+import com.mindease.mindeaseapp.utils.ThemeManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
+
 
 class AddJournalActivity : AppCompatActivity() {
 
@@ -53,6 +55,7 @@ class AddJournalActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
         binding = ActivityAddJournalBinding.inflate(layoutInflater)
         setContentView(binding.root)

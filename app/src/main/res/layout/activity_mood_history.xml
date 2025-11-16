@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9F5F1"
+    android:background="?attr/android:colorBackground"
     android:fitsSystemWindows="true"
     tools:context=".ui.journal.MoodHistoryActivity">
 
@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         app:title="Mood History"
-        app:titleTextColor="@android:color/black"
+        app:titleTextColor="?attr/colorOnPrimary"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,9 +23,10 @@
         android:id="@+id/tab_filter"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="#F9F5F1"
-        app:tabIndicatorColor="@android:color/black"
-        app:tabTextColor="@android:color/darker_gray"
+        android:background="?attr/android:colorBackground"
+        app:tabIndicatorColor="?attr/colorPrimary"
+        app:tabTextColor="?attr/colorOnSurface"
+        app:tabSelectedTextColor="?attr/colorPrimary"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -77,6 +78,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
+                app:cardBackgroundColor="?attr/colorSurface"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -91,6 +93,7 @@
                         android:text="Statistik Mood Mingguan"
                         android:textSize="18sp"
                         android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="12dp"/>
 
                     <TextView
@@ -99,6 +102,7 @@
                         android:layout_height="wrap_content"
                         android:text="Most Common Mood This Week: Neutral"
                         android:textSize="16sp"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
@@ -107,6 +111,7 @@
                         android:layout_height="wrap_content"
                         android:text="Average Mood Score: 3.4/5.0"
                         android:textSize="16sp"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
@@ -115,6 +120,7 @@
                         android:layout_height="wrap_content"
                         android:text="You're having a good day on: Sunday &amp; Saturday"
                         android:textSize="16sp"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
@@ -122,7 +128,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="You're having a rough day on: Thursday"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:textColor="?attr/colorOnSurface"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -132,6 +139,8 @@
                 android:text="&quot;Whenever life plants you, bloom with grace&quot;"
                 android:gravity="center"
                 android:textStyle="italic"
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.7"
                 android:layout_marginTop="16dp"/>
 
         </LinearLayout>
