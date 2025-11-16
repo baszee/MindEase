@@ -4,16 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mindease.mindeaseapp.databinding.ActivitySettingsBinding
+import com.mindease.mindeaseapp.utils.ThemeManager // 🔥 IMPORT BARU
 
 /**
  * Activity untuk halaman Pengaturan/Settings.
- * Mengelola navigasi ke sub-menu seperti Edit Profile, Themes, Privacy Policy, dll.
  */
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 🔥 KRITIS: Terapkan tema penuh SEBELUM super.onCreate()
+        setTheme(ThemeManager.getThemeStyleResId(this))
+
         super.onCreate(savedInstanceState)
 
         binding = ActivitySettingsBinding.inflate(layoutInflater)
@@ -38,7 +41,7 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Navigasi ke Themes (Sudah dibuat di langkah sebelumnya)
+        // Navigasi ke Themes
         binding.tvThemes.setOnClickListener {
             val intent = Intent(this, ThemesActivity::class.java)
             startActivity(intent)
@@ -50,13 +53,13 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Navigasi ke About App (Sudah dibuat di langkah sebelumnya)
+        // Navigasi ke About App
         binding.tvAboutApp.setOnClickListener {
             val intent = Intent(this, AboutAppActivity::class.java)
             startActivity(intent)
         }
 
-        // BARU: Navigasi ke Delete Account
+        // Navigasi ke Delete Account
         binding.tvDeleteAccount.setOnClickListener {
             val intent = Intent(this, DeleteAccountActivity::class.java)
             startActivity(intent)

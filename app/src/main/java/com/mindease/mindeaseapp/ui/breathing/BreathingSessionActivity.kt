@@ -28,6 +28,7 @@ import com.mindease.mindeaseapp.utils.AnalyticsHelper
 import kotlinx.coroutines.launch
 import kotlin.math.floor
 import android.util.Log // 🔥 IMPORT LOG BARU
+import com.mindease.mindeaseapp.utils.ThemeManager
 
 class BreathingSessionActivity : AppCompatActivity() {
 
@@ -77,6 +78,7 @@ class BreathingSessionActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
         binding = ActivityBreathingSessionBinding.inflate(layoutInflater)
         setContentView(binding.root)

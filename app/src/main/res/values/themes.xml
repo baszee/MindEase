@@ -1,44 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Base.Theme.MindEaseApp" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">#6200EE</item>
-        <item name="colorPrimaryVariant">#3700B3</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-
-        <item name="colorSecondary">#03DAC5</item>
-        <item name="colorSecondaryVariant">#018786</item>
-        <item name="colorOnSecondary">#000000</item>
-
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-
+    <style name="Base.Theme.MindEaseApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorError">#B00020</item>
         <item name="colorOnError">#FFFFFF</item>
 
-        <item name="colorSurface">#FFFFFF</item>
-        <item name="colorOnSurface">#000000</item>
+        <item name="textInputStyle">@style/Widget.MindEaseApp.TextInputLayout</item>
+        <item name="materialButtonStyle">@style/Widget.MindEaseApp.Button</item>
+        <item name="materialCardViewStyle">@style/Widget.MindEaseApp.CardView</item>
+        <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.PrimarySurface</item>
 
-        <item name="android:colorBackground">#FFFFFF</item>
-        <item name="colorOnBackground">#000000</item>
     </style>
 
-    <style name="Theme.MindEaseApp" parent="Base.Theme.MindEaseApp" />
+    <style name="Theme.MindEase.Indigo" parent="Base.Theme.MindEaseApp">
+        <item name="colorPrimary">@color/mindease_primary</item>
+        <item name="colorPrimaryVariant">@color/mindease_primary</item>
+        <item name="colorOnPrimary">@color/color_on_surface_dark</item>
+        <item name="colorSecondary">@color/mindease_secondary</item>
+        <item name="colorSecondaryVariant">@color/mindease_secondary</item>
+        <item name="colorOnSecondary">@color/color_on_surface_light</item>
 
-    <style name="Theme.MindEase" parent="Theme.MindEaseApp" />
+        <item name="android:colorBackground">@color/theme_light_background</item>
+        <item name="colorOnBackground">@color/color_on_surface_light</item>
+        <item name="colorSurface">@color/theme_light_surface</item>
+        <item name="colorOnSurface">@color/color_on_surface_light</item>
 
-    <style name="Theme.MindEaseApp.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">#6200EE</item>
-        <item name="colorPrimaryVariant">#3700B3</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="android:statusBarColor">@color/mindease_primary</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
     </style>
 
-    <style name="Theme.MindEase.NoActionBar" parent="Theme.MindEaseApp.NoActionBar" />
+    <style name="Theme.MindEase.Dark" parent="Base.Theme.MindEaseApp">
+        <item name="colorPrimary">@color/theme_dark_primary</item>
+        <item name="colorPrimaryVariant">@color/theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/color_on_surface_light</item>
+        <item name="colorSecondary">@color/theme_dark_secondary</item>
+        <item name="colorSecondaryVariant">@color/theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/color_on_surface_light</item>
 
-    <style name="Theme.MindEaseApp.Fullscreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:colorBackground">@color/theme_dark_background</item>
+        <item name="colorOnBackground">@color/color_on_surface_dark</item>
+        <item name="colorSurface">@color/theme_dark_surface</item>
+        <item name="colorOnSurface">@color/color_on_surface_dark</item>
+
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+
+    <style name="Theme.MindEase.GreenTea" parent="Base.Theme.MindEaseApp">
+        <item name="colorPrimary">@color/theme_greentea_primary</item>
+        <item name="colorPrimaryVariant">@color/theme_greentea_primary</item>
+        <item name="colorOnPrimary">@color/color_on_surface_dark</item>
+        <item name="colorSecondary">@color/theme_greentea_secondary</item>
+        <item name="colorSecondaryVariant">@color/theme_greentea_secondary</item>
+        <item name="colorOnSecondary">@color/color_on_surface_light</item>
+
+        <item name="android:colorBackground">@color/theme_greentea_bg</item>
+        <item name="colorOnBackground">@color/theme_greentea_on_surface</item>
+        <item name="colorSurface">@color/theme_light_surface</item>
+        <item name="colorOnSurface">@color/theme_greentea_on_surface</item>
+
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+
+    <style name="Theme.MindEase.OceanBlue" parent="Base.Theme.MindEaseApp">
+        <item name="colorPrimary">@color/theme_oceanblue_primary</item>
+        <item name="colorPrimaryVariant">@color/theme_oceanblue_primary</item>
+        <item name="colorOnPrimary">@color/color_on_surface_dark</item>
+        <item name="colorSecondary">@color/theme_oceanblue_secondary</item>
+        <item name="colorSecondaryVariant">@color/theme_oceanblue_secondary</item>
+        <item name="colorOnSecondary">@color/color_on_surface_light</item>
+
+        <item name="android:colorBackground">@color/theme_oceanblue_bg</item>
+        <item name="colorOnBackground">@color/color_on_surface_light</item>
+        <item name="colorSurface">@color/theme_light_surface</item>
+        <item name="colorOnSurface">@color/color_on_surface_light</item>
+
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+
+    <style name="Theme.MindEase.RosePink" parent="Base.Theme.MindEaseApp">
+        <item name="colorPrimary">@color/theme_rosepink_primary</item>
+        <item name="colorPrimaryVariant">@color/theme_rosepink_primary</item>
+        <item name="colorOnPrimary">@color/color_on_surface_dark</item>
+        <item name="colorSecondary">@color/theme_rosepink_secondary</item>
+        <item name="colorSecondaryVariant">@color/theme_rosepink_secondary</item>
+        <item name="colorOnSecondary">@color/color_on_surface_light</item>
+
+        <item name="android:colorBackground">@color/theme_rosepink_bg</item>
+        <item name="colorOnBackground">@color/color_on_surface_light</item>
+        <item name="colorSurface">@color/theme_light_surface</item>
+        <item name="colorOnSurface">@color/color_on_surface_light</item>
+
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+
+    <style name="Theme.MindEase.AutumnGold" parent="Base.Theme.MindEaseApp">
+        <item name="colorPrimary">@color/theme_autumngold_primary</item>
+        <item name="colorPrimaryVariant">@color/theme_autumngold_primary</item>
+        <item name="colorOnPrimary">@color/color_on_surface_dark</item>
+        <item name="colorSecondary">@color/theme_autumngold_secondary</item>
+        <item name="colorSecondaryVariant">@color/theme_autumngold_secondary</item>
+        <item name="colorOnSecondary">@color/color_on_surface_light</item>
+
+        <item name="android:colorBackground">@color/theme_autumngold_bg</item>
+        <item name="colorOnBackground">@color/color_on_surface_light</item>
+        <item name="colorSurface">@color/theme_light_surface</item>
+        <item name="colorOnSurface">@color/color_on_surface_light</item>
+
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+
+    <style name="Theme.MindEaseApp" parent="Theme.MindEase.Indigo" />
+
+    <style name="Theme.MindEaseApp.NoActionBar" parent="Base.Theme.MindEaseApp" />
+
+    <style name="Theme.MindEaseApp.Fullscreen" parent="Theme.MindEaseApp">
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="colorPrimary">#6200EE</item>
         <item name="android:statusBarColor">?attr/colorPrimary</item>
     </style>
 
@@ -68,14 +144,14 @@
         <item name="cardBackgroundColor">?attr/colorSurface</item>
     </style>
 
-    <style name="Widget.MindEaseApp.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
-        <item name="titleTextColor">?attr/colorOnPrimary</item>
+    <style name="Widget.MindEaseApp.Toolbar" parent="Widget.MaterialComponents.Toolbar.PrimarySurface">
+        <item name="titleTextColor">?attr/colorOnSurface</item>
         <item name="android:elevation">4dp</item>
     </style>
 
     <style name="Widget.MindEaseApp.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
-        <item name="itemIconTint">@color/bottom_nav_color</item>
-        <item name="itemTextColor">@color/bottom_nav_color</item>
+        <item name="itemIconTint">?attr/colorPrimary</item>
+        <item name="itemTextColor">?attr/colorPrimary</item>
         <item name="android:elevation">8dp</item>
     </style>
 </resources>

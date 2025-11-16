@@ -11,24 +11,29 @@ import com.mindease.mindeaseapp.data.repository.AuthRepository
 import com.mindease.mindeaseapp.databinding.ActivitySplashBinding
 import com.mindease.mindeaseapp.ui.auth.LoginActivity
 import com.mindease.mindeaseapp.ui.home.MainActivity
+import com.mindease.mindeaseapp.utils.ThemeManager // 🔥 IMPORT BARU
 
 class SplashActivity : AppCompatActivity() {
 
-    private val SPLASH_DELAY_MS: Long = 1500 // Kurangi jadi 1.5 detik
+    private val SPLASH_DELAY_MS: Long = 1500
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 🔥 KRITIS: Terapkan style tema penuh SEBELUM super.onCreate()
+        val themeStyleResId = ThemeManager.getThemeStyleResId(this)
+        setTheme(themeStyleResId)
+        // 🔥 END LOGIC
+
         super.onCreate(savedInstanceState)
         val binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            checkAuthAndRedirect() // Panggil fungsi cek auth
+            checkAuthAndRedirect()
         }, SPLASH_DELAY_MS)
     }
 
     /**
      * Mengecek status login pengguna saat ini dan mengarahkan ke Activity yang sesuai.
-     * Ini akan segera berjalan setelah splash.
      */
     private fun checkAuthAndRedirect() {
         val authRepository = AuthRepository(Firebase.auth)

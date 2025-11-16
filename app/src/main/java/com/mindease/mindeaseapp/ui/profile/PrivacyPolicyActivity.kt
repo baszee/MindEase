@@ -10,6 +10,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.mindease.mindeaseapp.utils.ThemeManager
 
 // Catatan: Referensi ke BuildConfig dihapus untuk menghindari Unresolved reference error.
 
@@ -24,6 +25,7 @@ class PrivacyPolicyActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
 
         binding = ActivityPrivacyPolicyBinding.inflate(layoutInflater)

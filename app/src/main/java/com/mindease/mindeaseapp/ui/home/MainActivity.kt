@@ -13,6 +13,7 @@ import com.mindease.mindeaseapp.databinding.ActivityMainBinding
 import com.mindease.mindeaseapp.ui.breathing.BreathingFragment
 import com.mindease.mindeaseapp.ui.journal.JournalFragment
 import com.mindease.mindeaseapp.ui.profile.ProfileFragment
+import com.mindease.mindeaseapp.utils.ThemeManager // Import tetap ada karena ThemeManager digunakan di Activity lain
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +31,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+        // HAPUS LOGIKA APLIKASI WARNA AKSEN KUSTOM DARI KOTLIN
+        // Semua styling Bottom Nav sekarang dihandle oleh XML menggunakan ?attr/colorPrimary dari tema aktif
+
         setContentView(binding.root)
 
         // FIREBASE COST-SAVING: AKTIFKAN OFFLINE PERSISTENCE
@@ -69,7 +74,6 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Mengganti Fragment yang ditampilkan menggunakan show() dan hide().
-     * Ini mencegah Fragment dibuat ulang (recreate) dan menghilangkan flicker.
      */
     private fun switchFragment(targetFragment: Fragment) {
         if (activeFragment == targetFragment) return
@@ -101,6 +105,4 @@ class MainActivity : AppCompatActivity() {
             Log.e("FirebaseInit", "Gagal mengaktifkan persistence: ${e.message}")
         }
     }
-
-    // Fungsi replaceFragment dihapus karena kita menggunakan switchFragment
 }

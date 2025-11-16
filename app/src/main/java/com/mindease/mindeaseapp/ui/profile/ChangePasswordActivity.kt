@@ -13,6 +13,7 @@ import com.mindease.mindeaseapp.databinding.ActivityChangePasswordBinding
 import com.mindease.mindeaseapp.ui.auth.AuthViewModel
 import com.mindease.mindeaseapp.ui.auth.AuthViewModelFactory
 import com.mindease.mindeaseapp.utils.AuthResult
+import com.mindease.mindeaseapp.utils.ThemeManager
 
 class ChangePasswordActivity : AppCompatActivity() {
 
@@ -20,6 +21,7 @@ class ChangePasswordActivity : AppCompatActivity() {
     private lateinit var authViewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
         binding = ActivityChangePasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)

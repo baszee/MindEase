@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="?attr/android:colorBackground"
     android:fitsSystemWindows="true"
     tools:context=".ui.profile.SettingsActivity">
 
@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="AKUN"
-                android:textColor="@color/mindease_primary"
+                android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
@@ -74,14 +74,14 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
-                android:background="@android:color/darker_gray" />
+                android:background="?attr/colorOnSurface" />
 
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="TAMPILAN"
-                android:textColor="@color/mindease_primary"
+                android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
@@ -102,14 +102,14 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
-                android:background="@android:color/darker_gray" />
+                android:background="?attr/colorOnSurface" />
 
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="LAINNYA"
-                android:textColor="@color/mindease_primary"
+                android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"

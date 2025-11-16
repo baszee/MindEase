@@ -22,7 +22,7 @@ import com.google.firebase.auth.ktx.auth // Tambahkan import
 import com.google.firebase.ktx.Firebase // Tambahkan import
 import com.google.firebase.firestore.FirebaseFirestore // Tambahkan import
 import com.mindease.mindeaseapp.data.repository.MoodCloudRepository // Tambahkan import
-
+import com.mindease.mindeaseapp.utils.ThemeManager
 class MoodHistoryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMoodHistoryBinding
@@ -36,6 +36,7 @@ class MoodHistoryActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
         binding = ActivityMoodHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)

@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.MainActivity">
 
-    <!-- Frame Layout sebagai Container untuk semua Fragment -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
@@ -17,7 +16,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Bottom Navigation Bar -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="0dp"
@@ -25,9 +23,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="?android:attr/windowBackground"
+        android:background="?attr/colorSurface"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="@color/design_default_color_primary"
-        app:itemTextColor="@color/design_default_color_primary"/>
+
+        style="@style/Widget.MindEaseApp.BottomNavigationView"
+
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.databinding.ActivityAboutAppBinding
+import com.mindease.mindeaseapp.utils.ThemeManager
 
 /**
  * Activity untuk halaman About App/Tentang Aplikasi.
@@ -15,6 +16,7 @@ class AboutAppActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAboutAppBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
 
         binding = ActivityAboutAppBinding.inflate(layoutInflater)

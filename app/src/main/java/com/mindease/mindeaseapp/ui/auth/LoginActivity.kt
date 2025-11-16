@@ -22,6 +22,7 @@ import com.mindease.mindeaseapp.databinding.ActivityLoginBinding
 import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.mindease.mindeaseapp.utils.AuthResult
 import com.mindease.mindeaseapp.utils.AnalyticsHelper
+import com.mindease.mindeaseapp.utils.ThemeManager
 
 class LoginActivity : AppCompatActivity() {
 
@@ -31,6 +32,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)

@@ -2,7 +2,34 @@
 <resources>
     <color name="mindease_primary">#6200EE</color>
     <color name="mindease_secondary">#03DAC5</color>
-    <color name="bottom_nav_color">#6200EE</color>
+    <color name="theme_light_background">#F9F5F1</color> <color name="theme_light_surface">#FFFFFF</color>
+    <color name="color_on_surface_light">#000000</color>
+
+    <color name="theme_dark_primary">#90CAF9</color>
+    <color name="theme_dark_secondary">#03DAC5</color>
+    <color name="theme_dark_background">#121212</color>
+    <color name="theme_dark_surface">#1D1D1D</color>
+    <color name="color_on_surface_dark">#FFFFFF</color>
+
+    <color name="theme_greentea_primary">#4CAF50</color>
+    <color name="theme_greentea_secondary">#81C784</color>
+    <color name="theme_greentea_bg">#E8F5E9</color>
+    <color name="theme_greentea_on_surface">#000000</color>
+
+    <color name="theme_oceanblue_primary">#2196F3</color>
+    <color name="theme_oceanblue_secondary">#64B5F6</color>
+    <color name="theme_oceanblue_bg">#E3F2FD</color>
+    <color name="theme_oceanblue_on_surface">#000000</color>
+
+    <color name="theme_rosepink_primary">#F06292</color>
+    <color name="theme_rosepink_secondary">#F48FB1</color>
+    <color name="theme_rosepink_bg">#FCE4EC</color>
+    <color name="theme_rosepink_on_surface">#000000</color>
+
+    <color name="theme_autumngold_primary">#FFB74D</color>
+    <color name="theme_autumngold_secondary">#FFCC80</color>
+    <color name="theme_autumngold_bg">#FFF3E0</color>
+    <color name="theme_autumngold_on_surface">#000000</color>
 
     <color name="mood_very_happy">#1B5E20</color>
     <color name="mood_happy">#4CAF50</color>

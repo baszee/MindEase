@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.tasks.await
+import com.mindease.mindeaseapp.utils.ThemeManager
 
 class DeleteAccountActivity : AppCompatActivity() {
 
@@ -36,6 +37,7 @@ class DeleteAccountActivity : AppCompatActivity() {
     private val currentUser = Firebase.auth.currentUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
         binding = ActivityDeleteAccountBinding.inflate(layoutInflater)
         setContentView(binding.root) // FIX: Menggunakan binding.root
