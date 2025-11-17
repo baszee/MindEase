@@ -270,6 +270,10 @@
     <string name="email_required_toast">Mohon masukkan alamat email Anda.</string>
     <string name="restart_app_prompt">Aplikasi perlu dimulai ulang untuk menerapkan pengaturan bahasa baru.</string>
 
+    <string name="notification_settings_description">Kontrol apakah Anda menerima pengingat harian untuk mencatat mood.</string>
+    <string name="settings_saved_successfully">Pengaturan berhasil disimpan.</string>
+
+
     <string name="language_already_selected">Bahasa ini sudah aktif.</string>
 
     <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>

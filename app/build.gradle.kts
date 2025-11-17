@@ -72,6 +72,8 @@ dependencies {
     // Material Components
     implementation("com.google.android.material:material:1.11.0")
 
+    implementation("androidx.preference:preference-ktx:1.2.1")
+
     // ==================== GRAFIK ====================
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 

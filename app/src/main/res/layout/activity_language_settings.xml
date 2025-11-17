@@ -69,13 +69,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/language_english"
-                    app:drawableEndCompat="@drawable/ic_arrow_forward"
-                    app:drawableStartCompat="@drawable/ic_language"
+                    app:drawableEndCompat="@null"               android:drawableEnd="@null"                 app:drawableStartCompat="@drawable/ic_language"
                     android:drawablePadding="12dp"
                     android:drawableTint="?attr/colorOnSurface"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp"
-                    android:background="@android:color/transparent"
+                    android:paddingTop="6dp"                   android:paddingBottom="6dp"                android:background="@android:color/transparent"
                     tools:ignore="RedundantAsCustom" />
 
             </com.google.android.material.card.MaterialCardView>
@@ -99,13 +96,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/language_indonesia"
-                    app:drawableEndCompat="@drawable/ic_arrow_forward"
-                    app:drawableStartCompat="@drawable/ic_language"
+                    app:drawableEndCompat="@null"               android:drawableEnd="@null"                 app:drawableStartCompat="@drawable/ic_language"
                     android:drawablePadding="12dp"
                     android:drawableTint="?attr/colorOnSurface"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp"
-                    android:background="@android:color/transparent"
+                    android:paddingTop="6dp"                   android:paddingBottom="6dp"                android:background="@android:color/transparent"
                     tools:ignore="RedundantAsCustom" />
 
             </com.google.android.material.card.MaterialCardView>

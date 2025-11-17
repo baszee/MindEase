@@ -9,7 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.repository.AuthRepository
-import com.mindease.mindeaseapp.databinding.ActivityEditProfileBinding
+import com.mindease.mindeaseapp.databinding.ActivityEditProfileBinding // ✅ IMPORT YANG BENAR
 import com.mindease.mindeaseapp.ui.auth.AuthViewModel
 import com.mindease.mindeaseapp.ui.auth.AuthViewModelFactory
 import com.mindease.mindeaseapp.utils.AuthResult
@@ -21,7 +21,7 @@ import android.content.Context
 
 class EditProfileActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityEditProfileBinding
+    private lateinit var binding: ActivityEditProfileBinding // ✅ NAMA KELAS YANG BENAR
     private lateinit var authViewModel: AuthViewModel
     private lateinit var authRepository: AuthRepository
 
@@ -32,7 +32,7 @@ class EditProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
-        binding = ActivityEditProfileBinding.inflate(layoutInflater)
+        binding = ActivityEditProfileBinding.inflate(layoutInflater) // ✅ NAMA KELAS YANG BENAR
         setContentView(binding.root)
 
         val user = Firebase.auth.currentUser
@@ -73,10 +73,17 @@ class EditProfileActivity : AppCompatActivity() {
 
             // Load Image Profile
             val imageUrl = profile.profileImageUrl ?: user?.photoUrl.toString().takeIf { it.isNotEmpty() }
+
+            // 🔥 KUNCI 1: Clear state Glide untuk menghindari konflik rendering lama
+            Glide.with(this@EditProfileActivity).clear(binding.ivProfileImage)
+
             if (imageUrl != null && imageUrl.isNotBlank()) {
                 Glide.with(this@EditProfileActivity)
                     .load(imageUrl)
                     .into(binding.ivProfileImage)
+            } else {
+                // 🔥 KUNCI 2: Secara eksplisit menggunakan setImageResource (yang terbukti bekerja di Fragment)
+                binding.ivProfileImage.setImageResource(R.drawable.ic_profile_placeholder)
             }
         }
     }

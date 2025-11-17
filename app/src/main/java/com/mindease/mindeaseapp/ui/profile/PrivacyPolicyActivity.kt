@@ -4,16 +4,12 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.mindease.mindeaseapp.databinding.ActivityPrivacyPolicyBinding
-
-// Import Firebase yang diperlukan
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.mindease.mindeaseapp.utils.ThemeManager
 import android.content.Context
-
-// Catatan: Referensi ke BuildConfig dihapus untuk menghindari Unresolved reference error.
 
 class PrivacyPolicyActivity : AppCompatActivity() {
 
@@ -22,7 +18,8 @@ class PrivacyPolicyActivity : AppCompatActivity() {
 
     companion object {
         private const val PRIVACY_POLICY_KEY = "privacy_policy_text"
-        private const val DEFAULT_POLICY_TEXT = "Kebijakan Privasi tidak dapat dimuat. Mohon cek koneksi internet Anda atau coba lagi nanti."
+        private const val DEFAULT_POLICY_TEXT =
+            "Kebijakan Privasi tidak dapat dimuat. Mohon cek koneksi internet Anda atau coba lagi nanti."
     }
 
     override fun attachBaseContext(newBase: Context) {
@@ -50,37 +47,51 @@ class PrivacyPolicyActivity : AppCompatActivity() {
         remoteConfig = Firebase.remoteConfig
 
         val configSettings = remoteConfigSettings {
-            // FIX: Mengganti BuildConfig.DEBUG dengan nilai hardcoded 0 untuk testing.
-            // Di produksi (production), nilai ini harus 3600 (1 jam).
             minimumFetchIntervalInSeconds = 0L
         }
 
         remoteConfig.setConfigSettingsAsync(configSettings)
 
-        remoteConfig.setDefaultsAsync(mapOf(
-            PRIVACY_POLICY_KEY to DEFAULT_POLICY_TEXT
-        ))
+        remoteConfig.setDefaultsAsync(
+            mapOf(
+                PRIVACY_POLICY_KEY to DEFAULT_POLICY_TEXT
+            )
+        )
     }
 
     /**
      * Mengambil teks kebijakan dari Remote Config dan menampilkan.
      */
     private fun fetchAndDisplayPolicy() {
-        // Tampilkan teks yang saat ini tersedia (default lokal atau cache) saat loading
-        binding.tvContent.text = remoteConfig.getString(PRIVACY_POLICY_KEY)
 
-        // Lakukan fetch dari cloud (fetchAndActivate)
+        // Tampilkan versi default/cache dulu
+        binding.tvContent.text =
+            formatText(remoteConfig.getString(PRIVACY_POLICY_KEY))
+
         remoteConfig.fetchAndActivate()
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Jika sukses, aktifkan nilai baru dan update UI
                     val updatedText = remoteConfig.getString(PRIVACY_POLICY_KEY)
-                    binding.tvContent.text = updatedText
-                    Toast.makeText(this, "Kebijakan Privasi berhasil diperbarui.", Toast.LENGTH_SHORT).show()
+                    binding.tvContent.text = formatText(updatedText)
+                    Toast.makeText(
+                        this,
+                        "Kebijakan Privasi berhasil diperbarui.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
-                    // Jika gagal, Toast error tapi tetap menampilkan nilai default/cache
-                    Toast.makeText(this, "Gagal memuat kebijakan, menampilkan versi lokal.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        "Gagal memuat kebijakan, menampilkan versi lokal.",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
+    }
+
+    /**
+     * Mengubah delimiter "|||"" menjadi newline agar tampil rapi.
+     */
+    private fun formatText(raw: String): String {
+        return raw.replace("|||", "\n\n")
     }
 }

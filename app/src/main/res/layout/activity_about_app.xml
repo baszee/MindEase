@@ -84,32 +84,26 @@
                 style="@style/SettingsItemStyle"
                 android:drawableStart="@drawable/ic_key"
                 android:text="@string/terms_of_service"
-                app:drawableEndCompat="@drawable/ic_arrow_forward" />
-
-            <TextView
-                android:id="@+id/tv_privacy_policy"
-                style="@style/SettingsItemStyle"
-                android:drawableStart="@drawable/ic_privacy"
-                android:text="@string/privacy_policy"
-                app:drawableEndCompat="@drawable/ic_arrow_forward" />
-
-            <TextView
-                android:id="@+id/tv_app_info"
-                style="@style/SettingsItemStyle"
-                android:drawableStart="@drawable/ic_info"
-                android:text="@string/app_version_credits"
-                app:drawableEndCompat="@drawable/ic_arrow_forward" />
-
-            <TextView
-                android:id="@+id/tv_app_version"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/copyright_text"
-                android:textSize="14sp"
-                android:gravity="center"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.7"
-                android:layout_marginTop="50dp"/>
+                android:drawableEnd="@null"           app:drawableEndCompat="@null" />      <TextView
+            android:id="@+id/tv_privacy_policy"
+            style="@style/SettingsItemStyle"
+            android:drawableStart="@drawable/ic_privacy"
+            android:text="@string/privacy_policy"
+            android:drawableEnd="@null"           app:drawableEndCompat="@null" />      <TextView
+            android:id="@+id/tv_app_info"
+            style="@style/SettingsItemStyle"
+            android:drawableStart="@drawable/ic_info"
+            android:text="@string/app_version_credits"
+            android:drawableEnd="@null"           app:drawableEndCompat="@null" />      <TextView
+            android:id="@+id/tv_app_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/copyright_text"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:textColor="?attr/colorOnSurface"
+            android:alpha="0.7"
+            android:layout_marginTop="50dp"/>
 
         </LinearLayout>
     </ScrollView>

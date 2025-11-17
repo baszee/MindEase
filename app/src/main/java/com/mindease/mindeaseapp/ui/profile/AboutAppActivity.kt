@@ -35,9 +35,10 @@ class AboutAppActivity : AppCompatActivity() {
     }
 
     private fun setupNavigationListeners() {
-        // Navigasi ke Syarat & Ketentuan (Placeholder)
+        // Navigasi ke Syarat & Ketentuan (PERUBAHAN INI)
         binding.tvTermsAndConditions.setOnClickListener {
-            Toast.makeText(this, "Fitur Syarat & Ketentuan (Dalam Pengembangan)", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, TermsOfServiceActivity::class.java)
+            startActivity(intent)
         }
 
         // Navigasi ke Kebijakan Privasi

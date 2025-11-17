@@ -12,7 +12,6 @@
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -158,6 +157,18 @@
         </activity>
 
         <activity
+            android:name=".ui.profile.NotificationSettingsActivity"
+            android:exported="false"
+            android:label="@string/notifications"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.profile.SettingsActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.profile.SettingsActivity" />
+        </activity>
+
+        <activity
             android:name=".ui.profile.AboutAppActivity"
             android:exported="false"
             android:label="@string/about"
@@ -167,6 +178,30 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.home.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".ui.profile.TermsOfServiceActivity"
+            android:exported="false"
+            android:label="@string/terms_of_service"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.profile.AboutAppActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.profile.AboutAppActivity" />
+        </activity>
+
+        <activity
+            android:name=".ui.profile.PrivacyPolicyActivity"
+            android:exported="false"
+            android:label="@string/privacy_policy"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.profile.AboutAppActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.profile.AboutAppActivity" />
         </activity>
 
         <activity
@@ -199,18 +234,6 @@
             android:name=".ui.profile.DeleteAccountActivity"
             android:exported="false"
             android:label="Hapus Akun"
-            android:theme="@style/Theme.MindEaseApp.NoActionBar"
-            android:parentActivityName=".ui.profile.SettingsActivity"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.profile.SettingsActivity" />
-        </activity>
-
-        <activity
-            android:name=".ui.profile.PrivacyPolicyActivity"
-            android:exported="false"
-            android:label="@string/privacy_policy"
             android:theme="@style/Theme.MindEaseApp.NoActionBar"
             android:parentActivityName=".ui.profile.SettingsActivity"
             android:screenOrientation="portrait">

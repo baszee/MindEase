@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.databinding.ActivityThemesBinding
 import com.mindease.mindeaseapp.utils.ThemeManager
-import com.mindease.mindeaseapp.ui.home.MainActivity // Import MainActivity
+import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.google.android.material.R as MaterialR
 
 /**
@@ -20,11 +20,10 @@ class ThemesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityThemesBinding
 
-    // ✅ FIX UTAMA: Gunakan key LOWERCASING yang sesuai dengan ThemeManager.getThemeKey()
     private val themeViews by lazy {
         mapOf(
-            "light" to binding.tvThemeLight,     // Dulu "INDIGO"
-            "dark" to binding.tvThemeDark,       // Dulu "DARK_MODE"
+            "light" to binding.tvThemeLight,
+            "dark" to binding.tvThemeDark,
             "greentea" to binding.tvColorGreentea,
             "oceanblue" to binding.tvColorOceanblue,
             "rosepink" to binding.tvColorRosepink,
@@ -37,7 +36,6 @@ class ThemesActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Terapkan tema sebelum super.onCreate()
         val themeStyleResId = ThemeManager.getThemeStyleResId(this)
         setTheme(themeStyleResId)
 
@@ -46,12 +44,13 @@ class ThemesActivity : AppCompatActivity() {
         binding = ActivityThemesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Setup Toolbar
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         setupListeners()
         highlightCurrentChoices()
     }
+
+    // ... (Fungsi setupListeners dan setFullTheme tidak berubah)
 
     private fun setupListeners() {
         themeViews.forEach { (key, view) ->
@@ -62,11 +61,9 @@ class ThemesActivity : AppCompatActivity() {
     }
 
     private fun setFullTheme(key: String) {
-        // ✅ FIX: Simpan key yang sudah benar (e.g., "dark")
         ThemeManager.saveTheme(this, key)
-        ThemeManager.applyTheme(this) // Panggil ini untuk update Night Mode
+        ThemeManager.applyTheme(this)
 
-        // ✅ FIX: Gunakan String Resources yang sudah diterjemahkan
         val themeNameResId = when (key) {
             "light" -> R.string.theme_light
             "dark" -> R.string.theme_dark
@@ -80,18 +77,14 @@ class ThemesActivity : AppCompatActivity() {
 
         Toast.makeText(this, getString(R.string.theme_changed_to_name, themeName), Toast.LENGTH_SHORT).show()
 
-        // 🔥 FIX UTAMA PROPAGATION: Restart aplikasi
         val intent = Intent(this, MainActivity::class.java).apply {
-            // Hapus semua Activity yang ada di stack dan mulai MainActivity sebagai root baru
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
         startActivity(intent)
-        // PENTING: Tutup Activity Themes agar tidak kembali ke sini
         finish()
     }
 
     private fun highlightCurrentChoices() {
-        // Karena key yang disimpan sekarang benar, highlight akan bekerja
         val currentThemeKey = ThemeManager.getThemeKey(this)
 
         themeViews.forEach { (key, view) ->
@@ -103,17 +96,22 @@ class ThemesActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * FIX UTAMA: Menggunakan Drawable yang Bulat untuk Highlight.
+     */
     private fun applyHighlight(view: TextView) {
-        val selectedBgColor = resolveThemeColor(this, MaterialR.attr.colorPrimary)
+        // Ambil warna untuk teks (OnPrimary)
         val selectedTextColor = resolveThemeColor(this, MaterialR.attr.colorOnPrimary)
 
-        view.setBackgroundColor(selectedBgColor)
+        // Gunakan drawable baru untuk background (memastikan sudut tetap 8dp)
+        view.setBackgroundResource(R.drawable.bg_theme_selected_highlight)
         view.setTextColor(selectedTextColor)
     }
 
     private fun resetHighlight(view: TextView) {
         val defaultTextColor = resolveThemeColor(this, MaterialR.attr.colorOnSurface)
 
+        // Gunakan drawable standar (yang sekarang sudah tanpa garis stroke/hitam)
         view.setBackgroundResource(R.drawable.bg_rounded_border)
         view.setTextColor(defaultTextColor)
     }
