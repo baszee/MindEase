@@ -123,6 +123,35 @@
     <string name="language_indonesia">Bahasa Indonesia</string>
     <string name="select_language_title">Pilih Bahasa</string>
 
+    <string name="greeting_format">%1$s, %2$s %3$s</string>
+    <string name="how_feeling_today">Bagaimana perasaanmu hari ini?</string>
+    <string name="write_about_day">Tulis Sedikit Tentang Hari Anda…</string>
+    <string name="start_typing_here">Mulai mengetik di sini…</string>
+    <string name="add_pictures_optional">Tambah Gambar (Opsional)</string>
+    <string name="todays_mood">Mood Hari Ini</string>
+    <string name="mood_history_link">Riwayat Mood ></string>
+    <string name="todays_quotes">Kutipan Hari Ini</string>
+    <string name="ready_inhale">Siap? Tarik napas…</string>
+    <string name="session_duration_label">Durasi Sesi:</string>
+    <string name="sound_guidance">Panduan Suara</string>
+    <string name="haptic_feedback">Umpan Balik Haptik</string>
+    <string name="cycle_format">Siklus %1$d/%2$d</string>
+    <string name="themes">Tema</string>
+    <string name="language">Bahasa</string>
+    <string name="notifications">Notifikasi</string>
+    <string name="display_and_function">TAMPILAN &amp; FUNGSI</string>
+    <string name="account_and_security">AKUN &amp; KEAMANAN</string>
+    <string name="delete_account_permanent">Hapus Akun Permanen</string>
+    <string name="legal_and_info">LEGAL &amp; INFO</string>
+    <string name="app_version_credits">Versi Aplikasi &amp; Kredit</string>
+    <string name="copyright_text">© 2025 MindEase App. Hak cipta dilindungi.</string>
+    <string name="enter_your_old_password">Masukkan kata sandi lama Anda untuk verifikasi keamanan.</string>
+    <string name="old_password">Kata Sandi Lama</string>
+    <string name="new_password">Kata Sandi Baru </string>
+    <string name="confirm_delete_account">Anda akan menghapus semua data Jurnal, Mood, dan Akun Anda secara permanen. Tindakan ini TIDAK dapat dibatalkan.</string>
+    <string name="verify_password_to_contiue">Mohon verifikasi kata sandi Anda untuk melanjutkan penghapusan akun. </string>
+    <string name="password_verification">Verifikasi Kata Sandi </string>
+    <string name="delete_account">Hapus Akun Saya</string>
     <string name="placeholder_quote">Tarik napas dalam-dalam dan tenangkan pikiranmu</string>
 
     <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>

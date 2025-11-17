@@ -78,36 +78,23 @@ class DashboardFragment : Fragment() {
      * Menampilkan sapaan dinamis berdasarkan waktu dan nama pengguna (dengan reload).
      */
     private fun setupGreeting() {
-        // 🔥 FIX: Menggunakan coroutine untuk memanggil fungsi suspend (reload user)
         viewLifecycleOwner.lifecycleScope.launch {
             val userName = viewModel.getUpdatedUserName()
-
             val calendar = Calendar.getInstance()
             val hour = calendar.get(Calendar.HOUR_OF_DAY)
 
-            val greeting: String
-            val emoji: String
-
-            when (hour) {
-                in 5..11 -> {
-                    greeting = getString(R.string.good_morning)
-                    emoji = "🌤️"
-                }
-                in 12..17 -> {
-                    greeting = getString(R.string.good_afternoon)
-                    emoji = "☀️"
-                }
-                in 18..23 -> {
-                    greeting = getString(R.string.good_evening)
-                    emoji = "🌙"
-                }
-                else -> {
-                    greeting = getString(R.string.good_night)
-                    emoji = "🌌"
-                }
+            val (greetingResId, emoji) = when (hour) {
+                in 5..11 -> Pair(R.string.good_morning, "🌤️")
+                in 12..17 -> Pair(R.string.good_afternoon, "☀️")
+                in 18..23 -> Pair(R.string.good_evening, "🌙")
+                else -> Pair(R.string.good_night, "🌌")
             }
-            binding.tvGreeting.text = "$greeting, $userName $emoji"
+
+            // ✅ BENAR: Pakai String Resource dengan Format
+            val greeting = getString(greetingResId)
+            binding.tvGreeting.text = getString(R.string.greeting_format, greeting, userName, emoji)
         }
+
     }
 
     private fun setupMoodListeners() {

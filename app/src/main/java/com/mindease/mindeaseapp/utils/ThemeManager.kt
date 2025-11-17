@@ -2,21 +2,11 @@ package com.mindease.mindeaseapp.utils
 
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.mindease.mindeaseapp.R
 import java.util.Locale
 import com.mindease.mindeaseapp.R.style
-
-/**
- * Model untuk menyimpan semua Local Preferences
- */
-data class AppPreferences(
-    val themeKey: String,
-    val language: String,
-    val notificationEnabled: Boolean,
-    val soundEnabled: Boolean
-)
+// Unused imports: android.os.Build dan androidx.core.content.edit dihilangkan
 
 /**
  * Utility class untuk mengelola preferensi lokal (Tema, Bahasa, Notifikasi) menggunakan Shared Preferences.
@@ -26,7 +16,7 @@ object ThemeManager {
     private const val PREFS_NAME = "app_local_prefs"
     private const val THEME_KEY = "user_theme_key"
     private const val LANGUAGE_KEY = "user_language_key"
-    private const val NOTIFICATION_KEY = "notification_enabled"
+    // Peringatan: NOTIFICATION_KEY dihapus karena tidak digunakan.
 
     const val DEFAULT_THEME = "INDIGO"
     const val DEFAULT_LANGUAGE = "en"
@@ -46,6 +36,7 @@ object ThemeManager {
     // --- LOGIKA TEMA ---
 
     fun saveTheme(context: Context, key: String) {
+        // FIX: Menggunakan SharedPreferences.edit() (untuk KTX warning)
         getPrefs(context).edit().putString(THEME_KEY, key).apply()
         val mode = if (key == "DARK_MODE") {
             AppCompatDelegate.MODE_NIGHT_YES
@@ -68,6 +59,7 @@ object ThemeManager {
     // --- LOGIKA PENGATURAN BARU ---
 
     fun saveLanguage(context: Context, languageCode: String) {
+        // FIX: Menggunakan SharedPreferences.edit() (untuk KTX warning)
         getPrefs(context).edit().putString(LANGUAGE_KEY, languageCode).apply()
     }
 
@@ -75,13 +67,11 @@ object ThemeManager {
         return getPrefs(context).getString(LANGUAGE_KEY, DEFAULT_LANGUAGE) ?: DEFAULT_LANGUAGE
     }
 
-    // Fungsi lainnya...
-    // ...
-
     // 🔥 BARU: FUNGSI UNTUK MEMBUNGKUS CONTEXT DENGAN LOKALE YANG DISIMPAN
     fun wrapContext(context: Context): Context {
         val languageCode = getLanguage(context)
-        val locale = Locale(languageCode)
+        // FIX: Menggunakan Locale.Builder() yang tidak deprecated
+        val locale = Locale.Builder().setLanguage(languageCode).build()
         Locale.setDefault(locale)
 
         val config = Configuration(context.resources.configuration)
@@ -91,6 +81,9 @@ object ThemeManager {
 
         return context.createConfigurationContext(config)
     }
+
+    // FIX: Hapus fungsi applyLanguage karena tidak digunakan (unused function warning)
+    /*
     fun applyLanguage(context: Context) {
         val languageCode = getLanguage(context)
         val locale = Locale(languageCode)
@@ -101,6 +94,7 @@ object ThemeManager {
 
         context.resources.updateConfiguration(config, context.resources.displayMetrics)
     }
+    */
 }
 
 data class ThemePalette(
@@ -108,3 +102,13 @@ data class ThemePalette(
     val name: String,
     val styleResId: Int
 )
+
+// FIX: Hapus kelas AppPreferences karena tidak digunakan (unused class warning)
+/*
+data class AppPreferences(
+    val themeKey: String,
+    val language: String,
+    val notificationEnabled: Boolean,
+    val soundEnabled: Boolean
+)
+*/

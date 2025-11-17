@@ -71,7 +71,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="LEGAL &amp; INFO"
+                android:text="@string/legal_and_info"
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
                 android:paddingStart="4dp"
@@ -97,14 +97,14 @@
                 android:id="@+id/tv_app_info"
                 style="@style/SettingsItemStyle"
                 android:drawableStart="@drawable/ic_info"
-                android:text="App Version &amp; Credits"
+                android:text="@string/app_version_credits"
                 app:drawableEndCompat="@drawable/ic_arrow_forward" />
 
             <TextView
                 android:id="@+id/tv_app_version"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="© 2025 MindEase App. All rights reserved."
+                android:text="@string/copyright_text"
                 android:textSize="14sp"
                 android:gravity="center"
                 android:textColor="?attr/colorOnSurface"

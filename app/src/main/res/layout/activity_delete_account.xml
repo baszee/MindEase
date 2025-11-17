@@ -33,7 +33,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Anda akan menghapus semua data Jurnal, Mood, dan Akun Anda secara permanen. Tindakan ini TIDAK dapat dibatalkan."
+                android:text="@string/confirm_delete_account"
                 android:textColor="@color/mood_very_sad"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -43,7 +43,7 @@
                 android:id="@+id/tv_user_warning"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mohon verifikasi kata sandi Anda untuk melanjutkan penghapusan akun."
+                android:text="@string/verify_password_to_contiue"
                 android:textColor="@android:color/black"
                 android:layout_marginBottom="16dp"
                 tools:text="Mohon verifikasi kata sandi Anda untuk melanjutkan penghapusan akun: email@contoh.com"/>
@@ -52,7 +52,7 @@
                 android:id="@+id/til_verification_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Verifikasi Kata Sandi"
+                android:hint="@string/password_verification"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 app:endIconMode="password_toggle"
                 android:layout_marginBottom="24dp">
@@ -68,7 +68,7 @@
                 android:id="@+id/btn_delete_account_confirm"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hapus Akun Saya"
+                android:text="@string/delete_account"
                 android:layout_marginTop="32dp"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:textColor="@color/mood_very_sad"

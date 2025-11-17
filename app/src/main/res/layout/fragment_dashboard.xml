@@ -26,7 +26,7 @@
         android:id="@+id/tv_mood_prompt"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="How are you feeling today?"
+        android:text="@string/journal_mood"
         android:textSize="18sp"
         android:textColor="?attr/colorOnSurface"
         android:alpha="0.7"
@@ -55,7 +55,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Today's Mood"
+                android:text="@string/todays_mood"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface"
@@ -68,11 +68,11 @@
                 android:orientation="horizontal"
                 android:gravity="center"
                 android:baselineAligned="false">
-                <ImageView android:id="@+id/iv_mood_happy_extreme" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_happy_extreme" android:contentDescription="Very Happy Mood" />
-                <ImageView android:id="@+id/iv_mood_happy" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_happy" android:contentDescription="Happy Mood" />
-                <ImageView android:id="@+id/iv_mood_neutral" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_neutral" android:contentDescription="Neutral Mood" />
-                <ImageView android:id="@+id/iv_mood_sad" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_sad" android:contentDescription="Sad Mood" />
-                <ImageView android:id="@+id/iv_mood_sad_extreme" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_sad_extreme" android:contentDescription="Very Sad Mood" />
+                <ImageView android:id="@+id/iv_mood_happy_extreme" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_happy_extreme" android:contentDescription="@string/mood_very_good" />
+                <ImageView android:id="@+id/iv_mood_happy" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_happy" android:contentDescription="@string/mood_good" />
+                <ImageView android:id="@+id/iv_mood_neutral" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_neutral" android:contentDescription="@string/mood_neutral" />
+                <ImageView android:id="@+id/iv_mood_sad" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_sad" android:contentDescription="@string/mood_bad" />
+                <ImageView android:id="@+id/iv_mood_sad_extreme" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_sad_extreme" android:contentDescription="@string/mood_very_bad" />
             </LinearLayout>
 
             <View
@@ -87,7 +87,7 @@
                 android:id="@+id/tv_mood_history_link"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mood History >"
+                android:text="@string/mood_history_link"
                 android:textStyle="bold"
                 android:textColor="?attr/colorPrimary"
                 android:layout_gravity="end"/>
@@ -115,7 +115,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Today's Quotes"
+                android:text="@string/todays_quotes"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface"

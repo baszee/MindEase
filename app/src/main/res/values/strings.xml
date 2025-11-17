@@ -125,5 +125,37 @@
 
     <string name="placeholder_quote">Take a deep breath and calm your mind</string>
 
+    <string name="greeting_format">%1$s, %2$s %3$s</string>
+    <string name="how_feeling_today">How are you feeling today?</string>
+    <string name="write_about_day">Write a Little Bit About Your Day…</string>
+    <string name="start_typing_here">Start typing here…</string>
+    <string name="add_pictures_optional">Add Pictures (Optional)</string>
+    <string name="todays_mood">Today\'s Mood</string>
+    <string name="mood_history_link">Mood History ></string>
+    <string name="todays_quotes">Today\'s Quotes</string>
+    <string name="ready_inhale">Ready? Inhale…</string>
+    <string name="session_duration_label">Session Duration:</string>
+    <string name="sound_guidance">Sound Guidance</string>
+    <string name="haptic_feedback">Haptic Feedback</string>
+    <string name="cycle_format">Cycle %1$d/%2$d</string>
+    <string name="themes">Themes</string>
+    <string name="language">Language</string>
+    <string name="notifications">Notifications</string>
+    <string name="display_and_function">DISPLAY &amp; FUNCTION</string>
+    <string name="account_and_security">ACCOUNT &amp; SECURITY</string>
+    <string name="delete_account_permanent">Delete Account Permanently</string>
+    <string name="legal_and_info">LEGAL &amp; INFO</string>
+    <string name="app_version_credits">App Version &amp; Credits</string>
+    <string name="copyright_text">© 2025 MindEase App. All rights reserved.</string>
+    <string name="enter_your_old_password"> Enter your old password for security verification.</string>
+    <string name="old_password">Old Password</string>
+    <string name="new_password">New Password </string>
+    <string name="confirm_delete_account">You will permanently delete all your Journal, Mood, and Account data. This action CANNOT be undone</string>
+    <string name="verify_password_to_contiue">Please verify your password to continue deleting your account.</string>
+    <string name="password_verification">Password Verification</string>
+    <string name="delete_account">Delete My Account</string>
+
+
+
     <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>
 </resources>
