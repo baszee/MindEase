@@ -20,15 +20,15 @@ class ThemesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityThemesBinding
 
-    // Daftar TextView untuk semua pilihan tema
+    // ✅ FIX UTAMA: Gunakan key LOWERCASING yang sesuai dengan ThemeManager.getThemeKey()
     private val themeViews by lazy {
         mapOf(
-            "INDIGO" to binding.tvThemeLight,
-            "DARK_MODE" to binding.tvThemeDark,
-            "GREENTEA" to binding.tvColorGreentea,
-            "OCEANBLUE" to binding.tvColorOceanblue,
-            "ROSEPINK" to binding.tvColorRosepink,
-            "AUTUMNGOLD" to binding.tvColorAutumngold
+            "light" to binding.tvThemeLight,     // Dulu "INDIGO"
+            "dark" to binding.tvThemeDark,       // Dulu "DARK_MODE"
+            "greentea" to binding.tvColorGreentea,
+            "oceanblue" to binding.tvColorOceanblue,
+            "rosepink" to binding.tvColorRosepink,
+            "autumngold" to binding.tvColorAutumngold
         )
     }
 
@@ -62,17 +62,25 @@ class ThemesActivity : AppCompatActivity() {
     }
 
     private fun setFullTheme(key: String) {
-        ThemeManager.saveTheme(this, key) // Simpan pilihan dan atur Night Mode
+        // ✅ FIX: Simpan key yang sudah benar (e.g., "dark")
+        ThemeManager.saveTheme(this, key)
+        ThemeManager.applyTheme(this) // Panggil ini untuk update Night Mode
 
-        val toastMessage = when (key) {
-            "INDIGO" -> "Tema diubah ke MindEase Light."
-            "DARK_MODE" -> "Tema diubah ke MindEase Dark."
-            else -> "Tema diubah ke $key."
+        // ✅ FIX: Gunakan String Resources yang sudah diterjemahkan
+        val themeNameResId = when (key) {
+            "light" -> R.string.theme_light
+            "dark" -> R.string.theme_dark
+            "greentea" -> R.string.theme_greentea
+            "oceanblue" -> R.string.theme_oceanblue
+            "rosepink" -> R.string.theme_rosepink
+            "autumngold" -> R.string.theme_autumngold
+            else -> R.string.theme_light
         }
+        val themeName = getString(themeNameResId)
 
-        Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.theme_changed_to_name, themeName), Toast.LENGTH_SHORT).show()
 
-        // 🔥 FIX UTAMA PROPAGATION: Restart aplikasi dari MainActivity
+        // 🔥 FIX UTAMA PROPAGATION: Restart aplikasi
         val intent = Intent(this, MainActivity::class.java).apply {
             // Hapus semua Activity yang ada di stack dan mulai MainActivity sebagai root baru
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -83,6 +91,7 @@ class ThemesActivity : AppCompatActivity() {
     }
 
     private fun highlightCurrentChoices() {
+        // Karena key yang disimpan sekarang benar, highlight akan bekerja
         val currentThemeKey = ThemeManager.getThemeKey(this)
 
         themeViews.forEach { (key, view) ->

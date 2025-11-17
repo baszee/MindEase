@@ -23,6 +23,7 @@ import com.mindease.mindeaseapp.data.repository.MoodCloudRepository
 import com.mindease.mindeaseapp.data.repository.QuoteRepository
 import com.mindease.mindeaseapp.utils.AnalyticsHelper
 import com.mindease.mindeaseapp.data.repository.AuthRepository
+import com.mindease.mindeaseapp.utils.LocalizationHelper // <-- PENTING
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
@@ -52,6 +53,7 @@ class DashboardFragment : Fragment() {
 
         // Buat instance dari semua Repository
         val moodRepository = MoodCloudRepository(firestore, auth)
+        // FIX: QuoteRepository tidak lagi membutuhkan Context, tapi data fall back-nya harus di-handle di sini.
         val quoteRepository = QuoteRepository(firestore)
         val authRepository = AuthRepository(auth)
 
@@ -134,7 +136,9 @@ class DashboardFragment : Fragment() {
         // 🔥 ANALYTICS: Log Mood Tracking
         AnalyticsHelper.logMoodTracked(moodName, score)
 
-        Toast.makeText(requireContext(), "Mood Dicatat: $moodName", Toast.LENGTH_SHORT).show()
+        // ✅ PERBAIKAN: Tampilkan nama mood yang sudah dilokalisasi di Toast.
+        val localizedMoodName = LocalizationHelper.getLocalizedMoodName(requireContext(), moodName)
+        Toast.makeText(requireContext(), getString(R.string.mood_logged_toast, localizedMoodName), Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -157,7 +161,7 @@ class DashboardFragment : Fragment() {
     }
 
     /**
-     * Fungsi helper untuk mengonversi skor ke nama mood.
+     * Fungsi helper untuk mengonversi skor ke nama mood (DIGUNAKAN UNTUK DB KEY).
      */
     private fun getMoodName(score: Int): String {
         return when (score) {
@@ -185,7 +189,6 @@ class DashboardFragment : Fragment() {
 
     /**
      * Mengamati LiveData dari ViewModel dan memperbarui tampilan mood hari ini dan quotes.
-     * 🔥 FIX GLITCH PART 3: Semua update visual UI harus terjadi di sini, berdasarkan data yang dimuat.
      */
     private fun setupObservers() {
         // Observer untuk Mood Harian
@@ -211,20 +214,37 @@ class DashboardFragment : Fragment() {
 
                 selectedMoodName = mood.moodName
 
+                // ✅ PERBAIKAN: Menggunakan LocalizationHelper untuk menampilkan nama mood yang sudah diterjemahkan
+                val localizedMoodName = LocalizationHelper.getLocalizedMoodName(requireContext(), mood.moodName)
+
                 // 🔥 FIX: Menggunakan string resource R.string.today dan digabungkan
                 // Ganti prompt menjadi mood yang sudah dicatat
-                binding.tvMoodPrompt.text = "${getString(R.string.today)}: ${mood.moodName}"
+                binding.tvMoodPrompt.text = "${getString(R.string.today)}: ${localizedMoodName}"
             } else {
                 // Belum ada mood, tampilkan prompt default
                 // 🔥 FIX: Menggunakan string resource R.string.journal_mood
-                binding.tvMoodPrompt.text = getString(R.string.journal_mood)
+                binding.tvMoodPrompt.text = getString(R.string.how_feeling_today)
                 // resetMoodSelection() sudah dipanggil di awal observer
             }
         }
 
         // BARU: Observer untuk Quote
         viewModel.currentQuote.observe(viewLifecycleOwner) { quote ->
-            binding.tvQuoteText.text = "\"${quote.text}\"" // Tampilkan teks quote
+            val quoteText = try {
+                // ✅ PERBAIKAN QUOTE FALLBACK
+                if (quote.author == "MindEase" || quote.author == "Error") {
+                    // Jika ini adalah fallback (yang menyimpan ID string resource), ambil resource string aslinya
+                    getString(quote.text.toInt())
+                } else {
+                    // Jika dari Firestore, gunakan string yang sudah ada.
+                    quote.text
+                }
+            } catch (e: Exception) {
+                // Jika konversi gagal (bukan ID string), gunakan string yang sudah ada.
+                quote.text
+            }
+
+            binding.tvQuoteText.text = "\"${quoteText}\"" // Tampilkan teks quote
             binding.tvQuoteAuthor.text = "— ${quote.author}" // Tampilkan penulis
         }
     }

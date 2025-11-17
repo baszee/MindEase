@@ -20,6 +20,7 @@ import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.JournalEntry
 import com.mindease.mindeaseapp.data.repository.JournalCloudRepository
 import com.mindease.mindeaseapp.databinding.ActivityDetailJournalBinding
+import com.mindease.mindeaseapp.utils.LocalizationHelper // <-- PENTING
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -129,8 +130,8 @@ class DetailJournalActivity : AppCompatActivity() {
      */
     private fun displayJournal(journal: JournalEntry) {
         binding.apply {
-            // Data Teks
-            tvMoodNameDetail.text = journal.moodName
+            // ✅ PERBAIKAN: Menggunakan LocalizationHelper untuk menerjemahkan moodName dari DB.
+            tvMoodNameDetail.text = LocalizationHelper.getLocalizedMoodName(this@DetailJournalActivity, journal.moodName)
             tvDateDetail.text = formatDate(journal.timestamp)
             tvContentDetail.text = journal.content
 
@@ -187,8 +188,8 @@ class DetailJournalActivity : AppCompatActivity() {
 
 
     private fun formatDate(timestamp: Long): String {
-        val locale = Locale.Builder().setLanguage("id").setRegion("ID").build()
-        val sdf = SimpleDateFormat("dd MMMM yyyy", locale)
+        // ✅ PERBAIKAN TANGGAL: Menggunakan Locale default yang sudah diatur ThemeManager.
+        val sdf = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
         return sdf.format(Date(timestamp))
     }
 

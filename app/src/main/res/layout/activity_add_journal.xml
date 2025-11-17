@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
-        app:title="Add Journal"
+        app:title="@string/add_journal"
         app:titleTextColor="?attr/colorOnSurface"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:navigationIconTint="?attr/colorOnSurface"
@@ -56,18 +56,18 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-                <ImageView android:id="@+id/iv_mood_happy_extreme" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_happy_extreme" android:tag="5" android:contentDescription="Very Happy Mood"/>
-                <ImageView android:id="@+id/iv_mood_happy" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_happy" android:tag="4" android:contentDescription="Happy Mood"/>
-                <ImageView android:id="@+id/iv_mood_neutral" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_neutral" android:tag="3" android:contentDescription="Neutral Mood"/>
-                <ImageView android:id="@+id/iv_mood_sad" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_sad" android:tag="2" android:contentDescription="Sad Mood"/>
-                <ImageView android:id="@+id/iv_mood_sad_extreme" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_sad_extreme" android:tag="1" android:contentDescription="Very Sad Mood"/>
+                <ImageView android:id="@+id/iv_mood_happy_extreme" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_happy_extreme" android:tag="5" android:contentDescription="@string/mood_very_good"/>
+                <ImageView android:id="@+id/iv_mood_happy" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_happy" android:tag="4" android:contentDescription="@string/mood_good"/>
+                <ImageView android:id="@+id/iv_mood_neutral" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_neutral" android:tag="3" android:contentDescription="@string/mood_neutral"/>
+                <ImageView android:id="@+id/iv_mood_sad" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_sad" android:tag="2" android:contentDescription="@string/mood_bad"/>
+                <ImageView android:id="@+id/iv_mood_sad_extreme" style="@style/MoodIconStyle" android:src="@drawable/ic_mood_sad_extreme" android:tag="1" android:contentDescription="@string/mood_very_bad"/>
             </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_mood_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pilih Mood"
+                android:text="@string/select_mood_prompt"
                 android:textSize="14sp"
                 android:textColor="?attr/colorOnSurface"
                 android:layout_marginTop="8dp"
@@ -108,7 +108,7 @@
                 android:id="@+id/btn_add_picture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Pictures (Optional)"
+                android:text="@string/add_pictures_optional"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 app:icon="@drawable/ic_add_image"
                 android:textColor="?attr/colorPrimary"
@@ -126,7 +126,7 @@
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/btn_add_picture"
                 app:layout_constraintStart_toStartOf="parent"
-                android:contentDescription="Gambar yang ditambahkan" />
+                android:contentDescription="@string/cd_add_button" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
@@ -135,7 +135,7 @@
         android:id="@+id/btn_save_journal"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Save Journal"
+        android:text="@string/save_journal"
         style="@style/Widget.MindEaseApp.Button"
         android:textSize="18sp"
         android:paddingVertical="12dp"

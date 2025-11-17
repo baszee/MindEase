@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MindEase</string>
+    <string name="app_tagline">Pendamping kecil untuk ide-ide besar</string>
 
     <string name="good_morning">Selamat Pagi</string>
     <string name="good_afternoon">Selamat Siang</string>
@@ -15,8 +16,8 @@
     <string name="login_button">Masuk</string>
     <string name="register_button">Daftar</string>
     <string name="forgot_password">Lupa Kata Sandi?</string>
-    <string name="dont_have_account">Belum punya akun?</string>
-    <string name="already_have_account">Sudah punya akun?</string>
+    <string name="dont_have_account">Belum punya akun? Daftar</string>
+    <string name="already_have_account">Sudah punya akun? Masuk</string>
     <string name="sign_in_with_google">Masuk dengan Google</string>
     <string name="logout">Keluar</string>
 
@@ -39,6 +40,8 @@
     <string name="edit_journal_button">Edit Jurnal</string>
     <string name="no_journals_yet">Belum ada entri jurnal</string>
     <string name="start_writing">Mulai tulis jurnal pertamamu</string>
+    <string name="journal_your_story">Kisah Anda</string>
+    <string name="journal_attached_image">Gambar Terlampir</string>
 
     <string name="mood_very_happy_name">Sangat Bahagia</string>
     <string name="mood_happy_name">Bahagia</string>
@@ -94,6 +97,8 @@
     <string name="settings">Pengaturan</string>
     <string name="privacy_policy">Kebijakan Privasi</string>
     <string name="terms_of_service">Ketentuan Layanan</string>
+    <string name="profile_picture">Foto Profil</string>
+    <string name="bio_short_status">Bio Singkat/Status</string>
 
     <string name="statistics">Statistik</string>
     <string name="total_journals">Total Jurnal</string>
@@ -158,8 +163,6 @@
     <string name="with_image_base64">dengan Gambar (Base64)</string>
     <string name="invalid_journal_id">ID Jurnal tidak valid.</string>
     <string name="journal_entry_not_found">Entri jurnal tidak ditemukan.</string>
-    <string name="journal_your_story">Kisah Anda</string>
-    <string name="journal_attached_image">Gambar Terlampir</string>
     <string name="default_user_name">Pengguna MindEase</string>
     <string name="mood_logged_toast">Mood Dicatat: %1$s</string>
     <string name="guest_session">Sesi Tamu</string>
@@ -192,12 +195,22 @@
     <string name="reset_password_success_toast">Tautan reset kata sandi telah dikirim ke %1$s.</string>
     <string name="reset_password_generic_error">Gagal mengirim email reset kata sandi.</string>
     <string name="update_profile_failed_generic">Gagal memperbarui profil.</string>
-    <string name="theme_light">MindEase Terang</string>
+    <string name="theme_light">MindEase Terang (Indigo)</string>
     <string name="theme_dark">MindEase Gelap</string>
     <string name="theme_system">Sistem Default</string>
     <string name="theme_changed_to_system">Tema diubah ke Sistem Default.</string>
     <string name="theme_changed_to_name">Tema diubah ke %1$s.</string>
+    <string name="theme_greentea">Green Tea</string>
+    <string name="theme_oceanblue">Ocean Blue</string>
+    <string name="theme_rosepink">Rose Pink</string>
+    <string name="theme_autumngold">Autumn Gold</string>
 
+    <string name="theme_selection_header">PILIHAN TEMA APLIKASI</string>
+    <string name="bright_color_themes">TEMA WARNA CERAH</string>
+    <string name="username_hint">Username/Email</string>
+    <string name="password_hint">Kata Sandi</string>
+    <string name="remember_me">Ingat Saya</string>
+    <string name="enter_your_old_password">Masukkan kata sandi lama Anda untuk verifikasi keamanan.</string>
 
     <string name="confirm_delete_title">Hapus Jurnal?</string>
     <string name="confirm_delete_message">Apakah Anda yakin ingin menghapus jurnal ini? Tindakan ini tidak dapat dibatalkan.</string>
@@ -244,7 +257,6 @@
     <string name="legal_and_info">LEGAL &amp; INFO</string>
     <string name="app_version_credits">Versi Aplikasi &amp; Kredit</string>
     <string name="copyright_text">© 2025 MindEase App. Hak cipta dilindungi.</string>
-    <string name="enter_your_old_password"> Masukkan kata sandi lama Anda untuk verifikasi keamanan.</string>
     <string name="old_password">Kata Sandi Lama</string>
     <string name="new_password">Kata Sandi Baru </string>
     <string name="confirm_delete_account">Anda akan menghapus semua data Jurnal, Mood, dan Akun Anda secara permanen. Tindakan ini TIDAK dapat dibatalkan</string>
@@ -252,6 +264,13 @@
     <string name="password_verification">Verifikasi Kata Sandi </string>
     <string name="delete_account">Hapus Akun Saya</string>
 
+    <string name="forgot_password_title">Lupa Kata Sandi</string>
+    <string name="forgot_password_instruction">Masukkan email Anda untuk menerima tautan reset kata sandi.</string>
+    <string name="reset_password_button">Reset Kata Sandi</string>
+    <string name="email_required_toast">Mohon masukkan alamat email Anda.</string>
+    <string name="restart_app_prompt">Aplikasi perlu dimulai ulang untuk menerapkan pengaturan bahasa baru.</string>
+
+    <string name="language_already_selected">Bahasa ini sudah aktif.</string>
 
     <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>
 </resources>

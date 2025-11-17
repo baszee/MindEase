@@ -1,114 +1,97 @@
-package com.mindease.mindeaseapp.utils
+package com.mindease.mindeaseapp.utils // ✅ Package sudah BENAR
 
 import android.content.Context
+import android.os.Build
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import com.mindease.mindeaseapp.R
+import com.mindease.mindeaseapp.R // ✅ Import R sudah BENAR
 import java.util.Locale
-import com.mindease.mindeaseapp.R.style
-// Unused imports: android.os.Build dan androidx.core.content.edit dihilangkan
 
 /**
- * Utility class untuk mengelola preferensi lokal (Tema, Bahasa, Notifikasi) menggunakan Shared Preferences.
+ * Utility Object untuk mengelola tema (theme) dan bahasa (locale) aplikasi secara persisten.
  */
 object ThemeManager {
-
-    private const val PREFS_NAME = "app_local_prefs"
-    private const val THEME_KEY = "user_theme_key"
-    private const val LANGUAGE_KEY = "user_language_key"
-    // Peringatan: NOTIFICATION_KEY dihapus karena tidak digunakan.
-
-    const val DEFAULT_THEME = "INDIGO"
+    // --- Konstanta ---
+    const val PREFS_NAME = "AppPrefs"
+    const val THEME_KEY = "theme_style"
+    const val LANGUAGE_KEY = "language_code"
+    const val DEFAULT_THEME = "light"
     const val DEFAULT_LANGUAGE = "en"
 
-    val AVAILABLE_THEMES = listOf(
-        ThemePalette("INDIGO", "MindEase Light (Indigo)", style.Theme_MindEase_Indigo),
-        ThemePalette("DARK_MODE", "MindEase Dark", style.Theme_MindEase_Dark),
-        ThemePalette("GREENTEA", "Green Tea", style.Theme_MindEase_GreenTea),
-        ThemePalette("OCEANBLUE", "Ocean Blue", style.Theme_MindEase_OceanBlue),
-        ThemePalette("ROSEPINK", "Rose Pink", style.Theme_MindEase_RosePink),
-        ThemePalette("AUTUMNGOLD", "Autumn Gold", style.Theme_MindEase_AutumnGold)
-    )
-
-    // --- LOGIKA UTAMA (Shared Preferences Access) ---
-    private fun getPrefs(context: Context) = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-
-    // --- LOGIKA TEMA ---
-
-    fun saveTheme(context: Context, key: String) {
-        // FIX: Menggunakan SharedPreferences.edit() (untuk KTX warning)
-        getPrefs(context).edit().putString(THEME_KEY, key).apply()
-        val mode = if (key == "DARK_MODE") {
-            AppCompatDelegate.MODE_NIGHT_YES
-        } else {
-            AppCompatDelegate.MODE_NIGHT_NO
-        }
-        AppCompatDelegate.setDefaultNightMode(mode)
+    // --- Utility ---
+    private fun getPrefs(context: Context): SharedPreferences {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
-    fun getThemeStyleResId(context: Context): Int {
-        val key = getThemeKey(context)
-        return AVAILABLE_THEMES.find { it.key == key }?.styleResId
-            ?: AVAILABLE_THEMES.first().styleResId
-    }
+    // --- Pemrosesan Tema ---
 
     fun getThemeKey(context: Context): String {
         return getPrefs(context).getString(THEME_KEY, DEFAULT_THEME) ?: DEFAULT_THEME
     }
 
-    // --- LOGIKA PENGATURAN BARU ---
-
-    fun saveLanguage(context: Context, languageCode: String) {
-        // FIX: Menggunakan SharedPreferences.edit() (untuk KTX warning)
-        getPrefs(context).edit().putString(LANGUAGE_KEY, languageCode).apply()
+    /**
+     * ✅ FIX: Menggunakan nama style yang benar dari themes.xml Anda.
+     */
+    fun getThemeStyleResId(context: Context): Int {
+        // Berdasarkan file themes.xml yang Anda berikan, ini adalah nama style-nya
+        return when (getThemeKey(context)) {
+            "light" -> R.style.Theme_MindEase_Indigo
+            "dark" -> R.style.Theme_MindEase_Dark
+            "greentea" -> R.style.Theme_MindEase_GreenTea
+            "oceanblue" -> R.style.Theme_MindEase_OceanBlue
+            "rosepink" -> R.style.Theme_MindEase_RosePink
+            "autumngold" -> R.style.Theme_MindEase_AutumnGold
+            else -> R.style.Theme_MindEase_Indigo // Fallback
+        }
     }
 
-    fun getLanguage(context: Context): String {
+    fun applyTheme(context: Context) {
+        val themeKey = getThemeKey(context)
+        val mode = when (themeKey) {
+            "light", "greentea", "oceanblue", "rosepink", "autumngold" -> AppCompatDelegate.MODE_NIGHT_NO
+            "dark" -> AppCompatDelegate.MODE_NIGHT_YES
+            "system" -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            else -> AppCompatDelegate.MODE_NIGHT_NO
+        }
+        AppCompatDelegate.setDefaultNightMode(mode)
+    }
+
+    fun saveTheme(context: Context, themeKey: String) {
+        getPrefs(context).edit().putString(THEME_KEY, themeKey).apply()
+    }
+
+    // --- Pemrosesan Bahasa (Locale) ---
+
+    fun getLanguageCode(context: Context): String {
         return getPrefs(context).getString(LANGUAGE_KEY, DEFAULT_LANGUAGE) ?: DEFAULT_LANGUAGE
     }
 
-    // 🔥 BARU: FUNGSI UNTUK MEMBUNGKUS CONTEXT DENGAN LOKALE YANG DISIMPAN
+    fun saveLanguage(context: Context, languageCode: String) {
+        getPrefs(context).edit().putString(LANGUAGE_KEY, languageCode).apply()
+    }
+
+    /**
+     * Menerapkan Locale baru ke Context. Dipanggil di setiap Activity.attachBaseContext().
+     */
     fun wrapContext(context: Context): Context {
-        val languageCode = getLanguage(context)
-        // FIX: Menggunakan Locale.Builder() yang tidak deprecated
+        val languageCode = getLanguageCode(context)
         val locale = Locale.Builder().setLanguage(languageCode).build()
+
+        // 1. Set locale default untuk Java/Kotlin APIs
         Locale.setDefault(locale)
 
-        val config = Configuration(context.resources.configuration)
+        val config: Configuration = context.resources.configuration
 
-        // Menggunakan setLocale (lebih modern dan aman)
-        config.setLocale(locale)
+        // 2. Set locale pada Configuration (Cara modern dan deprecated handling)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            config.setLocale(locale)
+        } else {
+            @Suppress("DEPRECATION")
+            config.locale = locale
+        }
 
+        // 3. Kembalikan Context baru dengan Configuration yang diperbarui (Kunci agar bahasa bekerja)
         return context.createConfigurationContext(config)
     }
-
-    // FIX: Hapus fungsi applyLanguage karena tidak digunakan (unused function warning)
-    /*
-    fun applyLanguage(context: Context) {
-        val languageCode = getLanguage(context)
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-
-        val config = Configuration(context.resources.configuration)
-        config.setLocale(locale)
-
-        context.resources.updateConfiguration(config, context.resources.displayMetrics)
-    }
-    */
 }
-
-data class ThemePalette(
-    val key: String,
-    val name: String,
-    val styleResId: Int
-)
-
-// FIX: Hapus kelas AppPreferences karena tidak digunakan (unused class warning)
-/*
-data class AppPreferences(
-    val themeKey: String,
-    val language: String,
-    val notificationEnabled: Boolean,
-    val soundEnabled: Boolean
-)
-*/

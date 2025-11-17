@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.JournalEntry
 import com.mindease.mindeaseapp.databinding.ItemJournalEntryBinding
+import com.mindease.mindeaseapp.utils.LocalizationHelper // <-- PENTING
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -34,7 +35,8 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalAdapter.JournalViewHolde
     inner class JournalViewHolder(private val binding: ItemJournalEntryBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(entry: JournalEntry) {
-            binding.tvMoodName.text = entry.moodName
+            // ✅ PERBAIKAN: Menggunakan LocalizationHelper untuk menerjemahkan moodName dari DB.
+            binding.tvMoodName.text = LocalizationHelper.getLocalizedMoodName(binding.root.context, entry.moodName)
             binding.tvContentSummary.text = entry.content
             binding.tvDate.text = formatDate(entry.timestamp)
 
@@ -48,15 +50,15 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalAdapter.JournalViewHolde
             binding.root.setOnClickListener {
                 val context = binding.root.context
                 val intent = Intent(context, DetailJournalActivity::class.java).apply {
-                    putExtra(DetailJournalActivity.EXTRA_JOURNAL_ID, entry.documentId) // ✅ FIXED!
+                    putExtra(DetailJournalActivity.EXTRA_JOURNAL_ID, entry.documentId)
                 }
                 context.startActivity(intent)
             }
         }
 
         private fun formatDate(timestamp: Long): String {
-            val locale = Locale.Builder().setLanguage("id").setRegion("ID").build()
-            val sdf = SimpleDateFormat("dd MMMM yyyy", locale)
+            // ✅ PERBAIKAN TANGGAL: Menggunakan Locale default yang sudah diatur ThemeManager.
+            val sdf = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
             return sdf.format(Date(timestamp))
         }
 
@@ -81,15 +83,14 @@ class JournalAdapter : ListAdapter<JournalEntry, JournalAdapter.JournalViewHolde
             }
         }
     }
-}
 
-class JournalDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
-    override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
-        // FIX: Compare documentId (String), bukan id (Integer)
-        return oldItem.documentId == newItem.documentId
-    }
+    class JournalDiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
+        override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
+            return oldItem.documentId == newItem.documentId
+        }
 
-    override fun areContentsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
-        return oldItem == newItem
+        override fun areContentsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean {
+            return oldItem == newItem
+        }
     }
 }

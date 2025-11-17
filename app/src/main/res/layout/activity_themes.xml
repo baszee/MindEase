@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
-        app:title="Themes"
+        app:title="@string/themes"
         app:titleTextColor="?attr/colorOnSurface"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:navigationIconTint="?attr/colorOnSurface"
@@ -37,7 +37,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PILIHAN TEMA APLIKASI"
+                android:text="@string/theme_selection_header"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp"
@@ -46,12 +46,12 @@
             <TextView
                 android:id="@+id/tv_theme_light"
                 style="@style/ThemeOptionStyle"
-                android:text="MindEase Light (Indigo)" />
+                android:text="@string/theme_light" />
 
             <TextView
                 android:id="@+id/tv_theme_dark"
                 style="@style/ThemeOptionStyle"
-                android:text="MindEase Dark" />
+                android:text="@string/theme_dark" />
 
             <View
                 android:layout_width="match_parent"
@@ -63,7 +63,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TEMA WARNA CERAH"
+                android:text="@string/bright_color_themes"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp"
@@ -72,22 +72,22 @@
             <TextView
                 android:id="@+id/tv_color_greentea"
                 style="@style/ThemeOptionStyle"
-                android:text="Green Tea" />
+                android:text="@string/theme_greentea" />
 
             <TextView
                 android:id="@+id/tv_color_oceanblue"
                 style="@style/ThemeOptionStyle"
-                android:text="Ocean Blue" />
+                android:text="@string/theme_oceanblue" />
 
             <TextView
                 android:id="@+id/tv_color_rosepink"
                 style="@style/ThemeOptionStyle"
-                android:text="Rose Pink" />
+                android:text="@string/theme_rosepink" />
 
             <TextView
                 android:id="@+id/tv_color_autumngold"
                 style="@style/ThemeOptionStyle"
-                android:text="Autumn Gold" />
+                android:text="@string/theme_autumngold" />
 
         </LinearLayout>
     </ScrollView>

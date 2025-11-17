@@ -29,14 +29,13 @@ class MainActivity : AppCompatActivity() {
     // Status Fragment yang sedang aktif
     private var activeFragment: Fragment = dashboardFragment
 
-    // 🔥 PENTING: Wajib override attachBaseContext untuk menerapkan bahasa global
+    // ✅ FIX 1: Wajib override attachBaseContext untuk menerapkan bahasa global (dan tema context)
     override fun attachBaseContext(newBase: Context) {
-        //
         super.attachBaseContext(ThemeManager.wrapContext(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        //
+        // ✅ FIX 2: Wajib panggil setTheme() SEBELUM super.onCreate() untuk menerapkan tema baru
         setTheme(ThemeManager.getThemeStyleResId(this))
 
         super.onCreate(savedInstanceState)

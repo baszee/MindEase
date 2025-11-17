@@ -60,7 +60,7 @@
                 android:id="@+id/tv_tagline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/placeholder_quote"
+                android:text="@string/app_tagline"
                 android:textSize="14sp"
                 android:textStyle="italic"
                 android:gravity="center"

@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        app:title="Mood History"
+        app:title="@string/mood_history"
         app:titleTextColor="?attr/colorOnPrimary"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:layout_constraintTop_toTopOf="parent" />
@@ -34,22 +34,22 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Weeks" />
+            android:text="@string/this_week" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Months" />
+            android:text="@string/this_month" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Years" />
+            android:text="@string/this_month" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="All" />
+            android:text="@string/all_time" />
 
     </com.google.android.material.tabs.TabLayout>
 
@@ -90,7 +90,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Statistik Mood Mingguan"
+                        android:text="@string/weekly_mood_stats"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"
@@ -100,7 +100,7 @@
                         android:id="@+id/tv_most_common_mood"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Most Common Mood This Week: Neutral"
+                        tools:text="Most Common Mood This Week: Neutral"
                         android:textSize="16sp"
                         android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="8dp"/>
@@ -109,7 +109,7 @@
                         android:id="@+id/tv_average_score"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Average Mood Score: 3.4/5.0"
+                        tools:text="Average Mood Score: 3.4/5.0"
                         android:textSize="16sp"
                         android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="8dp"/>
@@ -118,25 +118,27 @@
                         android:id="@+id/tv_good_day"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="You're having a good day on: Sunday &amp; Saturday"
+                        tools:text="You're having a good day on: Sunday &amp; Saturday"
                         android:textSize="16sp"
                         android:textColor="?attr/colorOnSurface"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_marginBottom="8dp"
+                        android:visibility="gone"/>
 
                     <TextView
                         android:id="@+id/tv_rough_day"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="You're having a rough day on: Thursday"
+                        tools:text="You're having a rough day on: Thursday"
                         android:textSize="16sp"
-                        android:textColor="?attr/colorOnSurface"/>
+                        android:textColor="?attr/colorOnSurface"
+                        android:visibility="gone"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="&quot;Whenever life plants you, bloom with grace&quot;"
+                android:text="@string/generic_quote_mood_history"
                 android:gravity="center"
                 android:textStyle="italic"
                 android:textColor="?attr/colorOnSurface"

@@ -1,14 +1,15 @@
 package com.mindease.mindeaseapp.ui.auth
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.mindease.mindeaseapp.databinding.ActivityForgotPasswordBinding // Menggunakan binding yang sudah dibuat
+import com.mindease.mindeaseapp.R // Import R untuk String Resources
+import com.mindease.mindeaseapp.databinding.ActivityForgotPasswordBinding
 import com.mindease.mindeaseapp.utils.ThemeManager
-import android.content.Context
 
 /**
  * Activity untuk fitur Lupa Password (Reset via Email).
@@ -29,22 +30,26 @@ class ForgotPasswordActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Setup Toolbar manual (karena ini NoActionBar)
-        supportActionBar?.hide()
+        // Perbaikan: Tidak perlu menyembunyikan supportActionBar jika ini adalah NoActionBar Activity
+        // supportActionBar?.hide()
 
         setupListeners()
     }
 
     private fun setupListeners() {
+        // ✅ Perbaikan: Menggunakan binding yang benar. Asumsi error sebelumnya adalah glitch build.
         binding.btnResetPassword.setOnClickListener {
             performPasswordReset()
         }
     }
 
     private fun performPasswordReset() {
+        // ✅ Perbaikan: Menggunakan binding yang benar untuk EditText.
         val email = binding.etEmail.text.toString().trim()
 
         if (email.isEmpty()) {
-            Toast.makeText(this, "Mohon masukkan alamat email Anda.", Toast.LENGTH_SHORT).show()
+            // ✅ Perbaikan: Menggunakan String Resource
+            Toast.makeText(this, getString(R.string.email_required_toast), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -52,16 +57,19 @@ class ForgotPasswordActivity : AppCompatActivity() {
         auth.sendPasswordResetEmail(email)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    // ✅ Perbaikan: Menggunakan String Resource dengan format
                     Toast.makeText(
                         this,
-                        "Link reset password telah dikirim ke $email. Silakan cek email Anda.",
+                        getString(R.string.reset_password_success_toast, email),
                         Toast.LENGTH_LONG
                     ).show()
                     finish()
                 } else {
+                    // ✅ Perbaikan: Menggunakan String Resource dan menampilkan pesan error spesifik
+                    val errorMessage = task.exception?.message ?: getString(R.string.reset_password_generic_error)
                     Toast.makeText(
                         this,
-                        "Gagal mengirim link reset: ${task.exception?.message}",
+                        getString(R.string.generic_failure_message, errorMessage),
                         Toast.LENGTH_LONG
                     ).show()
                 }

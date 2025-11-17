@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
-        app:title="Journal Detail"
+        app:title="@string/journal_detail"
         app:titleTextColor="@android:color/black"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:layout_constraintTop_toTopOf="parent" >
@@ -106,7 +106,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Your Story"
+                android:text="@string/journal_your_story"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
@@ -124,7 +124,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Attached Image"
+                android:text="@string/journal_attached_image"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
@@ -143,7 +143,7 @@
                 android:visibility="gone"
                 android:background="@drawable/bg_rounded_border"
                 app:srcCompat="@drawable/ic_add_image"
-                android:contentDescription="Gambar Jurnal" />
+                android:contentDescription="@string/journal_attached_image" />
 
         </LinearLayout>
     </ScrollView>

@@ -2,33 +2,33 @@ package com.mindease.mindeaseapp.ui.profile
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
-import android.content.res.Resources // 🔥 FIX: Import yang hilang (Resources)
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.mindease.mindeaseapp.R
-import com.mindease.mindeaseapp.databinding.ActivityThemesBinding
+import com.mindease.mindeaseapp.databinding.ActivityLanguageSettingsBinding
 import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.mindease.mindeaseapp.utils.ThemeManager
-import java.util.Locale
+import com.google.android.material.R as MaterialR
 import android.util.TypedValue
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import com.google.android.material.R as MaterialR
+import com.google.android.material.card.MaterialCardView
 
 /**
  * Activity untuk memilih pengaturan Bahasa.
  */
 class LanguageSettingsActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityThemesBinding
+    private lateinit var binding: ActivityLanguageSettingsBinding
 
+    // ✅ FIX SINTAKSIS: Menghapus duplikasi 'val'
     companion object {
         const val LANG_EN = "en"
-        const val LANG_ID_ALT = "id"
+        const val LANG_ID = "id"
     }
 
     override fun attachBaseContext(newBase: Context) {
@@ -39,17 +39,17 @@ class LanguageSettingsActivity : AppCompatActivity() {
         setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
 
-        binding = ActivityThemesBinding.inflate(layoutInflater)
+        binding = ActivityLanguageSettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1. Setup Toolbar dengan judul yang benar
-        binding.toolbar.title = getString(R.string.select_language_title)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        setupLanguageOptions()
+        setupListeners()
+        // Panggil highlight setiap onCreate/re-create
         highlightCurrentLanguage()
     }
 
+    // Helper untuk mengambil warna tema
     @ColorInt
     private fun resolveThemeColor(@AttrRes attr: Int): Int {
         val typedValue = TypedValue()
@@ -57,93 +57,79 @@ class LanguageSettingsActivity : AppCompatActivity() {
         return typedValue.data
     }
 
-
-    private fun setupLanguageOptions() {
-        // 2. Gunakan string resource yang benar untuk opsi bahasa
-        binding.tvThemeLight.text = getString(R.string.language_english)
-        binding.tvThemeDark.text = getString(R.string.language_indonesia)
-
-        binding.tvThemeLight.setOnClickListener {
+    private fun setupListeners() {
+        // Navigasi ke Bahasa Inggris - sekarang klik MaterialCardView
+        binding.cardEnglish.setOnClickListener {
             setNewLocaleAndRestart(LANG_EN)
         }
 
-        binding.tvThemeDark.setOnClickListener {
-            setNewLocaleAndRestart(LANG_ID_ALT)
-        }
-
-        // 3. FIX UI: Sembunyikan semua elemen layout tema yang tidak relevan
-        binding.tvColorGreentea.visibility = View.GONE
-        binding.tvColorOceanblue.visibility = View.GONE
-        binding.tvColorRosepink.visibility = View.GONE
-        binding.tvColorAutumngold.visibility = View.GONE
-
-        // Logika untuk menyembunyikan header "PILIHAN TEMA APLIKASI", separator, dan "TEMA WARNA CERAH"
-        val parentLayout = binding.tvThemeLight.parent.parent as? android.widget.LinearLayout
-        parentLayout?.let {
-            // Sembunyikan header "PILIHAN TEMA APLIKASI" (Child 0)
-            if (it.childCount > 0 && it.getChildAt(0) is TextView) {
-                (it.getChildAt(0) as TextView).visibility = View.GONE
-            }
-
-            // Sembunyikan View separator dan header "TEMA WARNA CERAH"
-            // Kita mulai dari index 3 (setelah 2 opsi bahasa) dan sembunyikan sisanya.
-            for (i in 3 until it.childCount) {
-                it.getChildAt(i)?.visibility = View.GONE
-            }
+        // Navigasi ke Bahasa Indonesia - sekarang klik MaterialCardView
+        binding.cardIndonesia.setOnClickListener {
+            setNewLocaleAndRestart(LANG_ID)
         }
     }
 
     private fun highlightCurrentLanguage() {
-        val currentLang = ThemeManager.getLanguage(this)
+        val currentLang = ThemeManager.getLanguageCode(this)
 
+        // ✅ FIX: Menggunakan ID CardView yang benar
+        val cardEn = binding.cardEnglish
+        val cardId = binding.cardIndonesia
+
+        // Ambil warna tema
         val primaryColor = resolveThemeColor(MaterialR.attr.colorPrimary)
-        val selectedTextColor = resolveThemeColor(MaterialR.attr.colorOnPrimary)
-        val defaultBgColor = resolveThemeColor(MaterialR.attr.colorSurface)
-        val defaultTextColor = resolveThemeColor(MaterialR.attr.colorOnSurface)
 
-        fun applyHighlight(view: TextView) {
-            view.setBackgroundColor(primaryColor)
-            view.setTextColor(selectedTextColor)
+        fun applyHighlight(cardView: MaterialCardView) {
+            // Memberi warna stroke (garis pinggir) Primary
+            cardView.strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics).toInt() // Tebal stroke 2dp
+            cardView.strokeColor = primaryColor
         }
 
-        fun resetHighlight(view: TextView) {
-            // Menggunakan warna latar belakang Surface
-            view.setBackgroundColor(defaultBgColor)
-            view.setTextColor(defaultTextColor)
+        fun resetHighlight(cardView: MaterialCardView) {
+            // Menghapus stroke
+            cardView.strokeWidth = 0
+            cardView.strokeColor = 0
         }
 
+        // Tentukan mana yang harus di-highlight
         if (currentLang == LANG_EN) {
-            applyHighlight(binding.tvThemeLight)
-            resetHighlight(binding.tvThemeDark)
-        } else if (currentLang == LANG_ID_ALT) {
-            applyHighlight(binding.tvThemeDark)
-            resetHighlight(binding.tvThemeLight)
+            applyHighlight(cardEn)
+            resetHighlight(cardId)
+        } else if (currentLang == LANG_ID) {
+            applyHighlight(cardId)
+            resetHighlight(cardEn)
         }
     }
 
 
     private fun setNewLocaleAndRestart(languageCode: String) {
-        ThemeManager.saveLanguage(this, languageCode)
-        Toast.makeText(this, "Bahasa diubah. Memuat ulang aplikasi...", Toast.LENGTH_SHORT).show()
+        // Hanya restart jika pilihan bahasa berbeda dari yang sekarang
+        if (ThemeManager.getLanguageCode(this) != languageCode) {
+            ThemeManager.saveLanguage(this, languageCode)
+            showRestartDialog()
+        } else {
+            // Asumsi string 'language_already_selected' ada
+            Toast.makeText(this, getString(R.string.language_already_selected), Toast.LENGTH_SHORT).show()
+        }
+    }
 
-        // Navigasi ke MainActivity sebagai root baru
+    private fun showRestartDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.confirm))
+            .setMessage(getString(R.string.restart_app_prompt))
+            .setCancelable(false)
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                restartApp()
+            }
+            .show()
+    }
+
+    private fun restartApp() {
+        // Melakukan full restart untuk menerapkan bahasa
         val intent = Intent(this, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         }
         startActivity(intent)
         finish()
-    }
-
-    // Fungsi ini dipertahankan agar tidak terjadi Unresolved reference
-    private fun updateResources(context: Context, languageCode: String): Context {
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-
-        val resources: Resources = context.resources
-        val config: Configuration = resources.configuration
-
-        config.setLocale(locale)
-
-        return context.createConfigurationContext(config)
     }
 }
