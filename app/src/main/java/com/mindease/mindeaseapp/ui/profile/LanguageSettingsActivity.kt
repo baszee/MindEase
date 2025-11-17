@@ -3,9 +3,10 @@ package com.mindease.mindeaseapp.ui.profile
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.content.res.Resources
+import android.content.res.Resources // 🔥 FIX: Import yang hilang (Resources)
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.mindease.mindeaseapp.R
@@ -13,11 +14,10 @@ import com.mindease.mindeaseapp.databinding.ActivityThemesBinding
 import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.mindease.mindeaseapp.utils.ThemeManager
 import java.util.Locale
-import androidx.core.content.ContextCompat
 import android.util.TypedValue
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
-import com.google.android.material.R as MaterialR // 🔥 Import alias untuk Material R
+import com.google.android.material.R as MaterialR
 
 /**
  * Activity untuk memilih pengaturan Bahasa.
@@ -42,7 +42,7 @@ class LanguageSettingsActivity : AppCompatActivity() {
         binding = ActivityThemesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 🔥 FIX: Menggunakan string resource yang baru
+        // 1. Setup Toolbar dengan judul yang benar
         binding.toolbar.title = getString(R.string.select_language_title)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
@@ -50,17 +50,16 @@ class LanguageSettingsActivity : AppCompatActivity() {
         highlightCurrentLanguage()
     }
 
-    // 🔥 HELPER UNTUK MENDAPATKAN WARNA DARI THEME ATTRIBUTE
     @ColorInt
     private fun resolveThemeColor(@AttrRes attr: Int): Int {
         val typedValue = TypedValue()
         theme.resolveAttribute(attr, typedValue, true)
-        return typedValue.data // Menggunakan typedValue.data untuk warna tema
+        return typedValue.data
     }
 
 
     private fun setupLanguageOptions() {
-        // 🔥 FIX 1: Menggunakan strings.xml baru
+        // 2. Gunakan string resource yang benar untuk opsi bahasa
         binding.tvThemeLight.text = getString(R.string.language_english)
         binding.tvThemeDark.text = getString(R.string.language_indonesia)
 
@@ -72,72 +71,70 @@ class LanguageSettingsActivity : AppCompatActivity() {
             setNewLocaleAndRestart(LANG_ID_ALT)
         }
 
-        // Sembunyikan TextView lain di layout Themes
-        // Asumsi: TextView header "TEMA WARNA CERAH" ada di atas tvColorGreentea
-        if (binding.root.findViewById<View>(R.id.tv_theme_light)?.parent?.parent is android.widget.LinearLayout) {
-            val parentLayout = binding.root.findViewById<View>(R.id.tv_theme_light).parent.parent as android.widget.LinearLayout
-            if (parentLayout.getChildAt(0) is android.widget.TextView) {
-                // Sembunyikan TextView header PILIHAN TEMA APLIKASI
-                (parentLayout.getChildAt(0) as android.widget.TextView).visibility = View.GONE
-            }
-            if (parentLayout.getChildAt(4) is android.widget.TextView) {
-                // Sembunyikan TextView header TEMA WARNA CERAH
-                (parentLayout.getChildAt(4) as android.widget.TextView).visibility = View.GONE
-            }
-        }
-
+        // 3. FIX UI: Sembunyikan semua elemen layout tema yang tidak relevan
         binding.tvColorGreentea.visibility = View.GONE
         binding.tvColorOceanblue.visibility = View.GONE
         binding.tvColorRosepink.visibility = View.GONE
         binding.tvColorAutumngold.visibility = View.GONE
+
+        // Logika untuk menyembunyikan header "PILIHAN TEMA APLIKASI", separator, dan "TEMA WARNA CERAH"
+        val parentLayout = binding.tvThemeLight.parent.parent as? android.widget.LinearLayout
+        parentLayout?.let {
+            // Sembunyikan header "PILIHAN TEMA APLIKASI" (Child 0)
+            if (it.childCount > 0 && it.getChildAt(0) is TextView) {
+                (it.getChildAt(0) as TextView).visibility = View.GONE
+            }
+
+            // Sembunyikan View separator dan header "TEMA WARNA CERAH"
+            // Kita mulai dari index 3 (setelah 2 opsi bahasa) dan sembunyikan sisanya.
+            for (i in 3 until it.childCount) {
+                it.getChildAt(i)?.visibility = View.GONE
+            }
+        }
     }
 
     private fun highlightCurrentLanguage() {
         val currentLang = ThemeManager.getLanguage(this)
 
-        // 🔥 FIX 2: Menggunakan resolveThemeColor dengan referensi MaterialR
         val primaryColor = resolveThemeColor(MaterialR.attr.colorPrimary)
-        val onSurfaceColor = resolveThemeColor(MaterialR.attr.colorOnSurface)
-        val surfaceColor = resolveThemeColor(MaterialR.attr.colorSurface) // Warna background default tombol
-
-        // Asumsi: Warna teks yang dipilih harus colorOnPrimary
         val selectedTextColor = resolveThemeColor(MaterialR.attr.colorOnPrimary)
-        val defaultTextColor = onSurfaceColor
+        val defaultBgColor = resolveThemeColor(MaterialR.attr.colorSurface)
+        val defaultTextColor = resolveThemeColor(MaterialR.attr.colorOnSurface)
+
+        fun applyHighlight(view: TextView) {
+            view.setBackgroundColor(primaryColor)
+            view.setTextColor(selectedTextColor)
+        }
+
+        fun resetHighlight(view: TextView) {
+            // Menggunakan warna latar belakang Surface
+            view.setBackgroundColor(defaultBgColor)
+            view.setTextColor(defaultTextColor)
+        }
 
         if (currentLang == LANG_EN) {
-            // Highlight English
-            binding.tvThemeLight.setBackgroundColor(primaryColor)
-            binding.tvThemeLight.setTextColor(selectedTextColor)
-
-            // Reset Indonesian
-            binding.tvThemeDark.setBackgroundColor(surfaceColor)
-            binding.tvThemeDark.setTextColor(defaultTextColor)
-
+            applyHighlight(binding.tvThemeLight)
+            resetHighlight(binding.tvThemeDark)
         } else if (currentLang == LANG_ID_ALT) {
-            // Highlight Indonesian
-            binding.tvThemeDark.setBackgroundColor(primaryColor)
-            binding.tvThemeDark.setTextColor(selectedTextColor)
-
-            // Reset English
-            binding.tvThemeLight.setBackgroundColor(surfaceColor)
-            binding.tvThemeLight.setTextColor(defaultTextColor)
+            applyHighlight(binding.tvThemeDark)
+            resetHighlight(binding.tvThemeLight)
         }
     }
 
 
     private fun setNewLocaleAndRestart(languageCode: String) {
         ThemeManager.saveLanguage(this, languageCode)
+        Toast.makeText(this, "Bahasa diubah. Memuat ulang aplikasi...", Toast.LENGTH_SHORT).show()
 
-        // Restart aplikasi dari ROOT activity
-        val intent = packageManager.getLaunchIntentForPackage(packageName)
-        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        // Navigasi ke MainActivity sebagai root baru
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        }
         startActivity(intent)
-
-        // Kill current process untuk force restart
-        android.os.Process.killProcess(android.os.Process.myPid())
+        finish()
     }
 
-    // Fungsi updateResources yang asli, tidak digunakan karena attachBaseContext sudah handle
+    // Fungsi ini dipertahankan agar tidak terjadi Unresolved reference
     private fun updateResources(context: Context, languageCode: String): Context {
         val locale = Locale(languageCode)
         Locale.setDefault(locale)

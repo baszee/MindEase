@@ -224,11 +224,13 @@ class DashboardFragment : Fragment() {
 
                 selectedMoodName = mood.moodName
 
+                // 🔥 FIX: Menggunakan string resource R.string.today dan digabungkan
                 // Ganti prompt menjadi mood yang sudah dicatat
-                binding.tvMoodPrompt.text = "Mood Anda hari ini: ${mood.moodName}"
+                binding.tvMoodPrompt.text = "${getString(R.string.today)}: ${mood.moodName}"
             } else {
                 // Belum ada mood, tampilkan prompt default
-                binding.tvMoodPrompt.text = "How are you feeling today?"
+                // 🔥 FIX: Menggunakan string resource R.string.journal_mood
+                binding.tvMoodPrompt.text = getString(R.string.journal_mood)
                 // resetMoodSelection() sudah dipanggil di awal observer
             }
         }

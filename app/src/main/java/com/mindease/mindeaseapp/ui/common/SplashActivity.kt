@@ -11,17 +11,22 @@ import com.mindease.mindeaseapp.data.repository.AuthRepository
 import com.mindease.mindeaseapp.databinding.ActivitySplashBinding
 import com.mindease.mindeaseapp.ui.auth.LoginActivity
 import com.mindease.mindeaseapp.ui.home.MainActivity
-import com.mindease.mindeaseapp.utils.ThemeManager // 🔥 IMPORT BARU
+import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 
 class SplashActivity : AppCompatActivity() {
 
     private val SPLASH_DELAY_MS: Long = 1500
 
+    // 🔥 FIX KRITIS PERSISTENSI: WAJIB DITAMBAHKAN
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 🔥 KRITIS: Terapkan style tema penuh SEBELUM super.onCreate()
+        // KRITIS: Terapkan style tema penuh SEBELUM super.onCreate()
         val themeStyleResId = ThemeManager.getThemeStyleResId(this)
         setTheme(themeStyleResId)
-        // 🔥 END LOGIC
 
         super.onCreate(savedInstanceState)
         val binding = ActivitySplashBinding.inflate(layoutInflater)
