@@ -1,5 +1,6 @@
 package com.mindease.mindeaseapp.ui.home
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +28,11 @@ class MainActivity : AppCompatActivity() {
 
     // Status Fragment yang sedang aktif
     private var activeFragment: Fragment = dashboardFragment
+
+    // 🔥 PENTING: Wajib override attachBaseContext untuk menerapkan bahasa global
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // 🔥 FIX KRITIS: Panggil setTheme() sebelum super.onCreate()

@@ -1,5 +1,6 @@
 package com.mindease.mindeaseapp.ui.profile
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
@@ -9,7 +10,7 @@ import com.mindease.mindeaseapp.databinding.ActivityAboutAppBinding
 import com.mindease.mindeaseapp.utils.ThemeManager
 
 /**
- * Activity untuk halaman About App/Tentang Aplikasi.
+ * Activity untuk halaman About App/Tentang Aplikasi, yang kini berfungsi sebagai hub untuk Legal & Info.
  */
 class AboutAppActivity : AppCompatActivity() {
 
@@ -25,14 +26,27 @@ class AboutAppActivity : AppCompatActivity() {
         // Setup Toolbar
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-        // FIX: Menggunakan fungsi getAppVersion yang menjamin pengembalian String non-nullable
-        binding.tvAppVersion.text = "Version ${getAppVersion()}"
-
-        // Tagline dari strings.xml
-        binding.tvTagline.text = getString(R.string.placeholder_quote)
-
-        Toast.makeText(this, "Informasi Aplikasi dimuat.", Toast.LENGTH_SHORT).show()
+        setupNavigationListeners()
     }
+
+    private fun setupNavigationListeners() {
+        // Navigasi ke Syarat & Ketentuan (Placeholder)
+        binding.tvTermsAndConditions.setOnClickListener {
+            Toast.makeText(this, "Fitur Syarat & Ketentuan (Dalam Pengembangan)", Toast.LENGTH_SHORT).show()
+        }
+
+        // Navigasi ke Kebijakan Privasi
+        binding.tvPrivacyPolicy.setOnClickListener {
+            val intent = Intent(this, PrivacyPolicyActivity::class.java)
+            startActivity(intent)
+        }
+
+        // Navigasi ke Info Versi Aplikasi (Saat ini hanya menampilkan toast versi)
+        binding.tvAppInfo.setOnClickListener {
+            Toast.makeText(this, "MindEase Version: ${getAppVersion()}", Toast.LENGTH_LONG).show()
+        }
+    }
+
 
     /**
      * Mengambil nomor versi aplikasi dari PackageManager, menjamin non-nullable String.

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MindEase</string>
+
+    <string name="good_morning">Selamat Pagi</string>
+    <string name="good_afternoon">Selamat Siang</string>
+    <string name="good_evening">Selamat Sore</string>
+    <string name="good_night">Selamat Malam</string>
+
+    <string name="login">Masuk</string>
+    <string name="register">Daftar</string>
+    <string name="email">Email</string>
+    <string name="password">Kata Sandi</string>
+    <string name="confirm_password">Konfirmasi Kata Sandi</string>
+    <string name="login_button">Masuk</string>
+    <string name="register_button">Daftar</string>
+    <string name="forgot_password">Lupa Kata Sandi?</string>
+    <string name="dont_have_account">Belum punya akun?</string>
+    <string name="already_have_account">Sudah punya akun?</string>
+    <string name="sign_in_with_google">Masuk dengan Google</string>
+    <string name="logout">Keluar</string>
+
+    <string name="home">Beranda</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="journal">Jurnal</string>
+    <string name="breathing">Pernapasan</string>
+    <string name="profile">Profil</string>
+
+    <string name="add_journal">Tambah Jurnal</string>
+    <string name="journal_detail">Detail Jurnal</string>
+    <string name="mood_history">Riwayat Mood</string>
+    <string name="my_journals">Jurnal Saya</string>
+    <string name="journal_title">Judul</string>
+    <string name="journal_content">Isi</string>
+    <string name="journal_mood">Bagaimana perasaanmu?</string>
+    <string name="save_journal">Simpan Jurnal</string>
+    <string name="delete_journal">Hapus Jurnal</string>
+    <string name="edit_journal">Edit Jurnal</string>
+    <string name="no_journals_yet">Belum ada entri jurnal</string>
+    <string name="start_writing">Mulai tulis jurnal pertamamu</string>
+
+    <string name="mood_very_bad">Sangat Buruk</string>
+    <string name="mood_bad">Buruk</string>
+    <string name="mood_neutral">Netral</string>
+    <string name="mood_good">Baik</string>
+    <string name="mood_very_good">Sangat Baik</string>
+    <string name="select_mood">Pilih mood Anda</string>
+    <string name="average_mood_score">Rata-rata: %1$s</string>
+    <string name="most_common_mood">Paling Sering: %1$s</string>
+
+    <string name="breathing_exercise">Latihan Pernapasan</string>
+    <string name="start_breathing">Mulai Latihan</string>
+    <string name="stop_breathing">Stop Latihan</string>
+    <string name="inhale">Tarik Napas</string>
+    <string name="hold">Tahan</string>
+    <string name="exhale">Hembuskan</string>
+    <string name="breathing_instructions">Ikuti pola pernapasan di layar</string>
+    <string name="breathing_duration">Durasi: %1$d menit</string>
+    <string name="breathing_completed">Latihan Selesai!</string>
+
+    <string name="profile_name">Nama</string>
+    <string name="profile_email">Email</string>
+    <string name="edit_profile">Edit Profil</string>
+    <string name="change_password">Ubah Kata Sandi</string>
+    <string name="about">Tentang Aplikasi</string>
+    <string name="settings">Pengaturan</string>
+    <string name="privacy_policy">Kebijakan Privasi</string>
+    <string name="terms_of_service">Ketentuan Layanan</string>
+
+    <string name="statistics">Statistik</string>
+    <string name="total_journals">Total Jurnal</string>
+    <string name="this_week">Minggu Ini</string>
+    <string name="this_month">Bulan Ini</string>
+    <string name="all_time">Sepanjang Waktu</string>
+
+    <string name="save">Simpan</string>
+    <string name="cancel">Batal</string>
+    <string name="delete">Hapus</string>
+    <string name="edit">Edit</string>
+    <string name="share">Bagikan</string>
+    <string name="search">Cari</string>
+    <string name="filter">Filter</string>
+    <string name="sort">Urutkan</string>
+    <string name="ok">OK</string>
+    <string name="yes">Ya</string>
+    <string name="no">Tidak</string>
+    <string name="confirm">Konfirmasi</string>
+    <string name="back">Kembali</string>
+
+    <string name="loading">Memuat…</string>
+    <string name="error_occurred">Terjadi kesalahan</string>
+    <string name="success">Berhasil</string>
+    <string name="saved_successfully">Berhasil disimpan</string>
+    <string name="deleted_successfully">Berhasil dihapus</string>
+    <string name="no_internet_connection">Tidak ada koneksi internet</string>
+    <string name="try_again">Coba lagi</string>
+    <string name="field_required">Kolom ini wajib diisi</string>
+    <string name="invalid_email">Alamat email tidak valid</string>
+    <string name="password_too_short">Kata sandi minimal 6 karakter</string>
+    <string name="passwords_not_match">Kata sandi tidak cocok</string>
+    <string name="login_failed">Gagal masuk</string>
+    <string name="register_failed">Gagal mendaftar</string>
+    <string name="profile_updated_successfully">Profil berhasil diperbarui</string>
+
+    <string name="confirm_delete_title">Hapus Jurnal?</string>
+    <string name="confirm_delete_message">Apakah Anda yakin ingin menghapus jurnal ini? Tindakan ini tidak dapat dibatalkan.</string>
+    <string name="confirm_logout_title">Keluar?</string>
+    <string name="confirm_logout_message">Apakah Anda yakin ingin keluar?</string>
+
+    <string name="today">Hari Ini</string>
+    <string name="yesterday">Kemarin</string>
+    <string name="date_format">MMM dd, yyyy</string>
+    <string name="time_format">HH:mm</string>
+
+    <string name="cd_app_logo">Logo MindEase</string>
+    <string name="cd_profile_picture">Foto Profil</string>
+    <string name="cd_mood_icon">Ikon Mood</string>
+    <string name="cd_back_button">Tombol Kembali</string>
+    <string name="cd_menu_button">Tombol Menu</string>
+    <string name="cd_add_button">Tombol Tambah</string>
+
+    <string name="language_english">Bahasa Inggris (Default)</string>
+    <string name="language_indonesia">Bahasa Indonesia</string>
+    <string name="select_language_title">Pilih Bahasa</string>
+
+    <string name="placeholder_quote">Tarik napas dalam-dalam dan tenangkan pikiranmu</string>
+
+    <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>
+</resources>

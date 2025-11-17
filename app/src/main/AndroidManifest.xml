@@ -146,6 +146,18 @@
         </activity>
 
         <activity
+            android:name=".ui.profile.LanguageSettingsActivity"
+            android:exported="false"
+            android:label="Pilih Bahasa"
+            android:theme="@style/Theme.MindEaseApp.NoActionBar"
+            android:parentActivityName=".ui.profile.SettingsActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.profile.SettingsActivity" />
+        </activity>
+
+        <activity
             android:name=".ui.profile.AboutAppActivity"
             android:exported="false"
             android:label="@string/about"
