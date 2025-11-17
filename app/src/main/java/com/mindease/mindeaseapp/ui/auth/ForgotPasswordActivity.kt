@@ -8,6 +8,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mindease.mindeaseapp.databinding.ActivityForgotPasswordBinding // Menggunakan binding yang sudah dibuat
 import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 
 /**
  * Activity untuk fitur Lupa Password (Reset via Email).
@@ -16,6 +17,10 @@ class ForgotPasswordActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityForgotPasswordBinding
     private val auth: FirebaseAuth = Firebase.auth
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))

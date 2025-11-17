@@ -14,11 +14,16 @@ import com.mindease.mindeaseapp.ui.auth.AuthViewModel
 import com.mindease.mindeaseapp.ui.auth.AuthViewModelFactory
 import com.mindease.mindeaseapp.utils.AuthResult
 import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 
 class ChangePasswordActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChangePasswordBinding
     private lateinit var authViewModel: AuthViewModel
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))

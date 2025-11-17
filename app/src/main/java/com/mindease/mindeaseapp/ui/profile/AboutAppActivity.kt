@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.databinding.ActivityAboutAppBinding
 import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 
 /**
  * Activity untuk halaman About App/Tentang Aplikasi, yang kini berfungsi sebagai hub untuk Legal & Info.
@@ -15,6 +16,10 @@ import com.mindease.mindeaseapp.utils.ThemeManager
 class AboutAppActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAboutAppBinding
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))

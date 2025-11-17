@@ -54,6 +54,10 @@ class AddJournalActivity : AppCompatActivity() {
         const val EXTRA_JOURNAL_ID = "extra_journal_document_id_to_edit"
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)

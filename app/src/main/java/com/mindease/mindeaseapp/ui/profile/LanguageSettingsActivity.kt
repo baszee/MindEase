@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import android.util.TypedValue
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import com.google.android.material.R as MaterialR // 🔥 Import alias untuk Material R
 
 /**
  * Activity untuk memilih pengaturan Bahasa.
@@ -30,6 +31,10 @@ class LanguageSettingsActivity : AppCompatActivity() {
         const val LANG_ID_ALT = "id"
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
@@ -37,30 +42,27 @@ class LanguageSettingsActivity : AppCompatActivity() {
         binding = ActivityThemesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.toolbar.title = getString(R.string.select_language_title) // 🔥 String title baru (asumsi sudah dibuat)
+        // 🔥 FIX: Menggunakan string resource yang baru
+        binding.toolbar.title = getString(R.string.select_language_title)
         binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         setupLanguageOptions()
         highlightCurrentLanguage()
     }
 
-    // 🔥 BARU: Helper untuk mendapatkan warna tema yang konsisten
+    // 🔥 HELPER UNTUK MENDAPATKAN WARNA DARI THEME ATTRIBUTE
     @ColorInt
     private fun resolveThemeColor(@AttrRes attr: Int): Int {
         val typedValue = TypedValue()
         theme.resolveAttribute(attr, typedValue, true)
-        return ContextCompat.getColor(this, typedValue.resourceId)
+        return typedValue.data // Menggunakan typedValue.data untuk warna tema
     }
 
 
     private fun setupLanguageOptions() {
         // 🔥 FIX 1: Menggunakan strings.xml baru
-        binding.tvThemeLight.text = getString(R.string.language_english) // Dulu 'language_english'
-        binding.tvThemeDark.text = getString(R.string.language_indonesia) // Dulu 'language_indonesia'
-
-        // 🔥 FIX 2: Menghilangkan teks "Tema Cerah" di header
-        // Kita asumsikan TextView yang berisi header itu bernama tv_color_greentea (atau sejenisnya)
-        // Dibiarkan saja karena layout yang dipakai adalah ActivityThemesBinding
+        binding.tvThemeLight.text = getString(R.string.language_english)
+        binding.tvThemeDark.text = getString(R.string.language_indonesia)
 
         binding.tvThemeLight.setOnClickListener {
             setNewLocaleAndRestart(LANG_EN)
@@ -70,7 +72,20 @@ class LanguageSettingsActivity : AppCompatActivity() {
             setNewLocaleAndRestart(LANG_ID_ALT)
         }
 
-        // Sembunyikan TextView lain di layout Themes (tetap sama)
+        // Sembunyikan TextView lain di layout Themes
+        // Asumsi: TextView header "TEMA WARNA CERAH" ada di atas tvColorGreentea
+        if (binding.root.findViewById<View>(R.id.tv_theme_light)?.parent?.parent is android.widget.LinearLayout) {
+            val parentLayout = binding.root.findViewById<View>(R.id.tv_theme_light).parent.parent as android.widget.LinearLayout
+            if (parentLayout.getChildAt(0) is android.widget.TextView) {
+                // Sembunyikan TextView header PILIHAN TEMA APLIKASI
+                (parentLayout.getChildAt(0) as android.widget.TextView).visibility = View.GONE
+            }
+            if (parentLayout.getChildAt(4) is android.widget.TextView) {
+                // Sembunyikan TextView header TEMA WARNA CERAH
+                (parentLayout.getChildAt(4) as android.widget.TextView).visibility = View.GONE
+            }
+        }
+
         binding.tvColorGreentea.visibility = View.GONE
         binding.tvColorOceanblue.visibility = View.GONE
         binding.tvColorRosepink.visibility = View.GONE
@@ -80,15 +95,13 @@ class LanguageSettingsActivity : AppCompatActivity() {
     private fun highlightCurrentLanguage() {
         val currentLang = ThemeManager.getLanguage(this)
 
-        // 🔥 FIX 3: Menggunakan color attribute dari tema/material design
-        val primaryColor = resolveThemeColor(com.google.android.material.R.attr.colorPrimary)
-        val onSurfaceColor = resolveThemeColor(com.google.android.material.R.attr.colorOnSurface)
-        val surfaceColor = resolveThemeColor(com.google.android.material.R.attr.colorSurface) // FIX: Menggunakan colorSurface untuk background tidak terpilih
+        // 🔥 FIX 2: Menggunakan resolveThemeColor dengan referensi MaterialR
+        val primaryColor = resolveThemeColor(MaterialR.attr.colorPrimary)
+        val onSurfaceColor = resolveThemeColor(MaterialR.attr.colorOnSurface)
+        val surfaceColor = resolveThemeColor(MaterialR.attr.colorSurface) // Warna background default tombol
 
-        // Asumsi: Warna teks yang dipilih harus kontras (colorOnPrimary di themes.xml Anda)
-        val selectedTextColor = resolveThemeColor(com.google.android.material.R.attr.colorOnPrimary)
-
-        // Warna default tombol adalah background tombol itu sendiri (colorSurface)
+        // Asumsi: Warna teks yang dipilih harus colorOnPrimary
+        val selectedTextColor = resolveThemeColor(MaterialR.attr.colorOnPrimary)
         val defaultTextColor = onSurfaceColor
 
         if (currentLang == LANG_EN) {
@@ -109,26 +122,22 @@ class LanguageSettingsActivity : AppCompatActivity() {
             binding.tvThemeLight.setBackgroundColor(surfaceColor)
             binding.tvThemeLight.setTextColor(defaultTextColor)
         }
-
-        // FIX 4: Menghilangkan teks header tema yang tidak relevan
-        // Kita asumsikan TextView yang berisi "PILIHAN TEMA APLIKASI" ada di ActivityThemesBinding
-        // Kita cari TV pertama di linear layout dan menyetelnya
-        // Karena tidak ada ID untuk teks header, kita abaikan pembersihan UI ini untuk menghindari crash
-        // Namun, jika Anda dapat menambahkan ID ke TextView "PILIHAN TEMA APLIKASI" di activity_themes.xml, Anda bisa menyetel visibility-nya ke View.GONE
     }
 
 
     private fun setNewLocaleAndRestart(languageCode: String) {
         ThemeManager.saveLanguage(this, languageCode)
 
-        // Restart aplikasi dari Splash Activity untuk memastikan Context diterapkan di awal
-        val intent = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        }
+        // Restart aplikasi dari ROOT activity
+        val intent = packageManager.getLaunchIntentForPackage(packageName)
+        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
-        finish()
+
+        // Kill current process untuk force restart
+        android.os.Process.killProcess(android.os.Process.myPid())
     }
 
+    // Fungsi updateResources yang asli, tidak digunakan karena attachBaseContext sudah handle
     private fun updateResources(context: Context, languageCode: String): Context {
         val locale = Locale(languageCode)
         Locale.setDefault(locale)

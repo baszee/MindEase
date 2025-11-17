@@ -23,6 +23,7 @@ import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.mindease.mindeaseapp.utils.AuthResult
 import com.mindease.mindeaseapp.utils.AnalyticsHelper
 import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 
 class LoginActivity : AppCompatActivity() {
 
@@ -30,6 +31,10 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var authViewModel: AuthViewModel
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))

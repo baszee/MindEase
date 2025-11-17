@@ -77,6 +77,10 @@ class BreathingSessionActivity : AppCompatActivity() {
         const val SCALE_MAX = 3.5f
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)

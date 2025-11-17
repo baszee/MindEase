@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.mindease.mindeaseapp.databinding.ActivitySettingsBinding
 import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 
 /**
  * Activity untuk halaman Pengaturan/Settings.
@@ -13,6 +14,10 @@ import com.mindease.mindeaseapp.utils.ThemeManager
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))
@@ -40,7 +45,7 @@ class SettingsActivity : AppCompatActivity() {
 
         // Navigasi ke Bahasa (BARU)
         binding.tvLanguage.setOnClickListener {
-            val intent = Intent(this, LanguageSettingsActivity::class.java) // 🔥 Intent ke Activity baru
+            val intent = Intent(this, LanguageSettingsActivity::class.java)
             startActivity(intent)
         }
 

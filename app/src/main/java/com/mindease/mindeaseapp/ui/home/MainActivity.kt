@@ -14,7 +14,7 @@ import com.mindease.mindeaseapp.databinding.ActivityMainBinding
 import com.mindease.mindeaseapp.ui.breathing.BreathingFragment
 import com.mindease.mindeaseapp.ui.journal.JournalFragment
 import com.mindease.mindeaseapp.ui.profile.ProfileFragment
-import com.mindease.mindeaseapp.utils.ThemeManager // 🔥 Wajib import
+import com.mindease.mindeaseapp.utils.ThemeManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,11 +31,12 @@ class MainActivity : AppCompatActivity() {
 
     // 🔥 PENTING: Wajib override attachBaseContext untuk menerapkan bahasa global
     override fun attachBaseContext(newBase: Context) {
+        //
         super.attachBaseContext(ThemeManager.wrapContext(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 🔥 FIX KRITIS: Panggil setTheme() sebelum super.onCreate()
+        //
         setTheme(ThemeManager.getThemeStyleResId(this))
 
         super.onCreate(savedInstanceState)

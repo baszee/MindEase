@@ -17,12 +17,17 @@ import com.mindease.mindeaseapp.utils.ThemeManager
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import com.bumptech.glide.Glide
+import android.content.Context
 
 class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditProfileBinding
     private lateinit var authViewModel: AuthViewModel
     private lateinit var authRepository: AuthRepository
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))

@@ -91,6 +91,16 @@ object ThemeManager {
 
         return context.createConfigurationContext(config)
     }
+    fun applyLanguage(context: Context) {
+        val languageCode = getLanguage(context)
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+
+        val config = Configuration(context.resources.configuration)
+        config.setLocale(locale)
+
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+    }
 }
 
 data class ThemePalette(

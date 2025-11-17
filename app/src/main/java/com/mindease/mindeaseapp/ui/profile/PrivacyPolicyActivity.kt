@@ -11,6 +11,7 @@ import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 
 // Catatan: Referensi ke BuildConfig dihapus untuk menghindari Unresolved reference error.
 
@@ -22,6 +23,10 @@ class PrivacyPolicyActivity : AppCompatActivity() {
     companion object {
         private const val PRIVACY_POLICY_KEY = "privacy_policy_text"
         private const val DEFAULT_POLICY_TEXT = "Kebijakan Privasi tidak dapat dimuat. Mohon cek koneksi internet Anda atau coba lagi nanti."
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

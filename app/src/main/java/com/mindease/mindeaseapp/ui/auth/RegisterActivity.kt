@@ -13,6 +13,7 @@ import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.mindease.mindeaseapp.utils.AuthResult
 import com.mindease.mindeaseapp.utils.AnalyticsHelper // 🔥 IMPORT BARU
 import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 
 /**
  * Activity untuk fitur Pendaftaran/Register.
@@ -21,6 +22,10 @@ class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var authViewModel: AuthViewModel
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))

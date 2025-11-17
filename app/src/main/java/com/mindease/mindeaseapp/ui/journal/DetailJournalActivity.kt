@@ -32,6 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.mindease.mindeaseapp.utils.AnalyticsHelper
 import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 
 class DetailJournalActivity : AppCompatActivity() {
 
@@ -43,6 +44,10 @@ class DetailJournalActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_JOURNAL_ID = "extra_journal_document_id"
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

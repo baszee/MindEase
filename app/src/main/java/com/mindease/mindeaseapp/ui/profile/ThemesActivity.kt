@@ -32,6 +32,10 @@ class ThemesActivity : AppCompatActivity() {
         )
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // Terapkan tema sebelum super.onCreate()
         val themeStyleResId = ThemeManager.getThemeStyleResId(this)

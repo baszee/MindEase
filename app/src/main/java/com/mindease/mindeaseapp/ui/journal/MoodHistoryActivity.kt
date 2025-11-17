@@ -23,6 +23,7 @@ import com.google.firebase.ktx.Firebase // Tambahkan import
 import com.google.firebase.firestore.FirebaseFirestore // Tambahkan import
 import com.mindease.mindeaseapp.data.repository.MoodCloudRepository // Tambahkan import
 import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 class MoodHistoryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMoodHistoryBinding
@@ -33,6 +34,10 @@ class MoodHistoryActivity : AppCompatActivity() {
         val auth = Firebase.auth
         val repository = MoodCloudRepository(firestore, auth) // Menggunakan Cloud Repository
         MoodHistoryViewModelFactory(repository) // Menggunakan Factory yang sudah diperbarui
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

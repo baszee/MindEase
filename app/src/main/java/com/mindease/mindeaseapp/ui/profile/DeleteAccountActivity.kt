@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.tasks.await
 import com.mindease.mindeaseapp.utils.ThemeManager
+import android.content.Context
 
 class DeleteAccountActivity : AppCompatActivity() {
 
@@ -35,6 +36,10 @@ class DeleteAccountActivity : AppCompatActivity() {
     private lateinit var journalCloudRepository: JournalCloudRepository
 
     private val currentUser = Firebase.auth.currentUser
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(ThemeManager.wrapContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))
