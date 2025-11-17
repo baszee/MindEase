@@ -27,6 +27,7 @@
     <string name="profile">Profil</string>
 
     <string name="add_journal">Tambah Jurnal</string>
+    <string name="edit_journal">Edit Jurnal</string>
     <string name="journal_detail">Detail Jurnal</string>
     <string name="mood_history">Riwayat Mood</string>
     <string name="my_journals">Jurnal Saya</string>
@@ -35,9 +36,15 @@
     <string name="journal_mood">Bagaimana perasaanmu?</string>
     <string name="save_journal">Simpan Jurnal</string>
     <string name="delete_journal">Hapus Jurnal</string>
-    <string name="edit_journal">Edit Jurnal</string>
+    <string name="edit_journal_button">Edit Jurnal</string>
     <string name="no_journals_yet">Belum ada entri jurnal</string>
     <string name="start_writing">Mulai tulis jurnal pertamamu</string>
+
+    <string name="mood_very_happy_name">Sangat Bahagia</string>
+    <string name="mood_happy_name">Bahagia</string>
+    <string name="mood_neutral_name">Netral</string>
+    <string name="mood_sad_name">Sedih</string>
+    <string name="mood_very_sad_name">Sangat Sedih</string>
 
     <string name="mood_very_bad">Sangat Buruk</string>
     <string name="mood_bad">Buruk</string>
@@ -51,12 +58,33 @@
     <string name="breathing_exercise">Latihan Pernapasan</string>
     <string name="start_breathing">Mulai Latihan</string>
     <string name="stop_breathing">Stop Latihan</string>
+
+    <string name="breathing_box_title">Box Breathing (4-4-4-4)</string>
+    <string name="breathing_box_desc">Ketenangan seimbang untuk fokus</string>
+    <string name="breathing_cyclic_title">Cyclic Sighing</string>
+    <string name="breathing_cyclic_desc">Pereda cepat untuk kecemasan</string>
+    <string name="breathing_478_title">Pernapasan 4-7-8</string>
+    <string name="breathing_478_desc">Relaksasi untuk tidur</string>
+    <string name="breathing_start_prompt">Tekan \'Mulai Sesi\' untuk memulai %1$s.</string>
+
     <string name="inhale">Tarik Napas</string>
     <string name="hold">Tahan</string>
     <string name="exhale">Hembuskan</string>
+
+    <string name="breathing_box_inhale">Tarik 4s →</string>
+    <string name="breathing_box_hold_in">↑ Tahan 4s</string>
+    <string name="breathing_box_hold_out">↓ Tahan 4s</string>
+    <string name="breathing_box_exhale">← Hembus 4s</string>
+    <string name="breathing_478_hold">↑ Tahan 7s</string>
+    <string name="breathing_478_exhale">↓ Hembus 8s</string>
+
     <string name="breathing_instructions">Ikuti pola pernapasan di layar</string>
     <string name="breathing_duration">Durasi: %1$d menit</string>
     <string name="breathing_completed">Latihan Selesai!</string>
+    <string name="session_completed_toast">Latihan selesai! Anda telah menyelesaikan %1$d siklus dalam %2$s.</string>
+    <string name="session_stopped">Sesi dihentikan.</string>
+    <string name="failed_to_save_settings">Gagal menyimpan pengaturan: %1$s</string>
+    <string name="settings_disabled_guest">Fitur pengaturan persisten dinonaktifkan untuk Guest/pengguna yang belum login.</string>
 
     <string name="profile_name">Nama</string>
     <string name="profile_email">Email</string>
@@ -73,6 +101,15 @@
     <string name="this_month">Bulan Ini</string>
     <string name="all_time">Sepanjang Waktu</string>
 
+    <string name="weekly_mood_stats">Statistik Mood Mingguan</string>
+    <string name="most_common_mood_this_week">Mood Paling Sering Minggu Ini: %1$s</string>
+    <string name="average_mood_score_value">Rata-rata Skor Mood: %1$s/5.0</string>
+    <string name="good_day_text">Anda memiliki hari yang baik di: %1$s</string>
+    <string name="rough_day_text">Anda memiliki hari yang sulit di: %1$s</string>
+    <string name="generic_quote_mood_history">"Dimanapun hidup menanammu, berbunga dengan anggun"</string>
+    <string name="mood_score_label">Skor Mood Harian</string>
+    <string name="no_mood_data_period">Belum ada data Mood yang tercatat pada periode ini.</string>
+
     <string name="save">Simpan</string>
     <string name="cancel">Batal</string>
     <string name="delete">Hapus</string>
@@ -86,6 +123,8 @@
     <string name="no">Tidak</string>
     <string name="confirm">Konfirmasi</string>
     <string name="back">Kembali</string>
+    <string name="or">ATAU</string>
+    <string name="sign_in_as_a_guest">Masuk sebagai Tamu</string>
 
     <string name="loading">Memuat…</string>
     <string name="error_occurred">Terjadi kesalahan</string>
@@ -101,6 +140,64 @@
     <string name="login_failed">Gagal masuk</string>
     <string name="register_failed">Gagal mendaftar</string>
     <string name="profile_updated_successfully">Profil berhasil diperbarui</string>
+
+    <string name="guest_cannot_edit_profile">Mohon maaf, Akun Tamu tidak dapat mengubah profil.</string>
+    <string name="name_cannot_be_empty">Nama tidak boleh kosong.</string>
+    <string name="session_invalid_relogin">Sesi pengguna tidak valid. Silakan login ulang.</string>
+    <string name="failed_to_load_journal">Gagal memuat jurnal.</string>
+    <string name="select_mood_prompt">Pilih Mood</string>
+    <string name="select_mood_required">Mohon pilih Mood Anda hari ini.</string>
+    <string name="journal_content_required">Tuliskan sedikit tentang hari Anda.</string>
+    <string name="login_required_to_save_journal">Anda harus login untuk menyimpan jurnal.</string>
+    <string name="saving_journal_in_progress">Menyimpan Jurnal…</string>
+    <string name="failed_to_read_image">Gagal membaca gambar</string>
+    <string name="image_compressed_kb">Gambar di-compress: %1$sKB</string>
+    <string name="failed_to_process_image">Gagal memproses gambar: %1$s</string>
+    <string name="journal_action_updated">diperbarui</string>
+    <string name="journal_action_saved">disimpan</string>
+    <string name="with_image_base64">dengan Gambar (Base64)</string>
+    <string name="invalid_journal_id">ID Jurnal tidak valid.</string>
+    <string name="journal_entry_not_found">Entri jurnal tidak ditemukan.</string>
+    <string name="journal_your_story">Kisah Anda</string>
+    <string name="journal_attached_image">Gambar Terlampir</string>
+    <string name="default_user_name">Pengguna MindEase</string>
+    <string name="mood_logged_toast">Mood Dicatat: %1$s</string>
+    <string name="guest_session">Sesi Tamu</string>
+    <string name="no_email_found">Email Tidak Ditemukan</string>
+    <string name="session_ended">Sesi Berakhir</string>
+    <string name="please_relogin">Silakan login ulang</string>
+    <string name="logout_success_toast">Anda telah keluar.</string>
+    <string name="notifications_feature_wip">Fitur Pengaturan Notifikasi (Dalam Pengembangan)</string>
+    <string name="terms_wip">Fitur Syarat &amp; Ketentuan (Dalam Pengembangan)</string>
+    <string name="app_version_toast">MindEase Versi: %1$s</string>
+    <string name="change_pass_email_only">Mohon maaf, fitur ini hanya tersedia untuk pengguna yang masuk dengan Email &amp; Kata Sandi.</string>
+    <string name="all_fields_required">Semua kolom wajib diisi.</string>
+    <string name="password_updated_relogin">Kata sandi berhasil diperbarui. Silakan login ulang.</string>
+    <string name="old_password_incorrect">Kata sandi lama salah. Verifikasi gagal.</string>
+    <string name="generic_failure_message">Gagal: %1$s</string>
+    <string name="email_password_required_toast">Email dan sandi tidak boleh kosong</string>
+    <string name="google_sign_in_failed">Masuk Google Gagal: %1$s</string>
+    <string name="firebase_login_failed">Masuk Firebase Gagal: %1$s</string>
+    <string name="auth_success_toast">Autentikasi Sukses! Selamat datang.</string>
+    <string name="registration_success_toast">Pendaftaran Berhasil! Selamat datang.</string>
+    <string name="registration_failed_message">Pendaftaran Gagal: %1$s</string>
+    <string name="guest_cannot_delete_account">Mohon maaf, Anda tidak dapat menghapus akun karena sedang menggunakan Sesi Tamu. Silakan Daftar atau Masuk untuk memiliki kontrol penuh atas data Anda.</string>
+    <string name="login_register_action">MASUK / DAFTAR</string>
+    <string name="password_required_toast">Mohon masukkan kata sandi Anda.</string>
+    <string name="failed_to_delete_journal_data">Gagal menghapus data Jurnal. Coba lagi.</string>
+    <string name="password_verification_failed">Verifikasi Sandi Gagal. %1$s</string>
+    <string name="account_deleted_successfully">Akun dan semua data berhasil dihapus.</string>
+    <string name="verify_password_for_email">Mohon verifikasi kata sandi Anda untuk menghapus akun: %1$s</string>
+    <string name="app_version_format">Versi %1$s</string>
+    <string name="reset_password_success_toast">Tautan reset kata sandi telah dikirim ke %1$s.</string>
+    <string name="reset_password_generic_error">Gagal mengirim email reset kata sandi.</string>
+    <string name="update_profile_failed_generic">Gagal memperbarui profil.</string>
+    <string name="theme_light">MindEase Terang</string>
+    <string name="theme_dark">MindEase Gelap</string>
+    <string name="theme_system">Sistem Default</string>
+    <string name="theme_changed_to_system">Tema diubah ke Sistem Default.</string>
+    <string name="theme_changed_to_name">Tema diubah ke %1$s.</string>
+
 
     <string name="confirm_delete_title">Hapus Jurnal?</string>
     <string name="confirm_delete_message">Apakah Anda yakin ingin menghapus jurnal ini? Tindakan ini tidak dapat dibatalkan.</string>
@@ -122,6 +219,8 @@
     <string name="language_english">Bahasa Inggris (Default)</string>
     <string name="language_indonesia">Bahasa Indonesia</string>
     <string name="select_language_title">Pilih Bahasa</string>
+
+    <string name="placeholder_quote">Tarik napas dalam-dalam dan tenangkan pikiranmu</string>
 
     <string name="greeting_format">%1$s, %2$s %3$s</string>
     <string name="how_feeling_today">Bagaimana perasaanmu hari ini?</string>
@@ -145,14 +244,14 @@
     <string name="legal_and_info">LEGAL &amp; INFO</string>
     <string name="app_version_credits">Versi Aplikasi &amp; Kredit</string>
     <string name="copyright_text">© 2025 MindEase App. Hak cipta dilindungi.</string>
-    <string name="enter_your_old_password">Masukkan kata sandi lama Anda untuk verifikasi keamanan.</string>
+    <string name="enter_your_old_password"> Masukkan kata sandi lama Anda untuk verifikasi keamanan.</string>
     <string name="old_password">Kata Sandi Lama</string>
     <string name="new_password">Kata Sandi Baru </string>
-    <string name="confirm_delete_account">Anda akan menghapus semua data Jurnal, Mood, dan Akun Anda secara permanen. Tindakan ini TIDAK dapat dibatalkan.</string>
+    <string name="confirm_delete_account">Anda akan menghapus semua data Jurnal, Mood, dan Akun Anda secara permanen. Tindakan ini TIDAK dapat dibatalkan</string>
     <string name="verify_password_to_contiue">Mohon verifikasi kata sandi Anda untuk melanjutkan penghapusan akun. </string>
     <string name="password_verification">Verifikasi Kata Sandi </string>
     <string name="delete_account">Hapus Akun Saya</string>
-    <string name="placeholder_quote">Tarik napas dalam-dalam dan tenangkan pikiranmu</string>
+
 
     <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>
 </resources>

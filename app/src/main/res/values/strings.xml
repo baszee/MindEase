@@ -27,6 +27,7 @@
     <string name="profile">Profile</string>
 
     <string name="add_journal">Add Journal</string>
+    <string name="edit_journal">Edit Journal</string>
     <string name="journal_detail">Journal Detail</string>
     <string name="mood_history">Mood History</string>
     <string name="my_journals">My Journals</string>
@@ -35,9 +36,15 @@
     <string name="journal_mood">How are you feeling?</string>
     <string name="save_journal">Save Journal</string>
     <string name="delete_journal">Delete Journal</string>
-    <string name="edit_journal">Edit Journal</string>
+    <string name="edit_journal_button">Edit Journal</string>
     <string name="no_journals_yet">No journal entries yet</string>
     <string name="start_writing">Start writing your first journal</string>
+
+    <string name="mood_very_happy_name">Very Happy</string>
+    <string name="mood_happy_name">Happy</string>
+    <string name="mood_neutral_name">Neutral</string>
+    <string name="mood_sad_name">Sad</string>
+    <string name="mood_very_sad_name">Very Sad</string>
 
     <string name="mood_very_bad">Very Bad</string>
     <string name="mood_bad">Bad</string>
@@ -51,12 +58,33 @@
     <string name="breathing_exercise">Breathing Exercise</string>
     <string name="start_breathing">Start Exercise</string>
     <string name="stop_breathing">Stop Exercise</string>
+
+    <string name="breathing_box_title">Box Breathing (4-4-4-4)</string>
+    <string name="breathing_box_desc">Balanced calm for focus</string>
+    <string name="breathing_cyclic_title">Cyclic Sighing</string>
+    <string name="breathing_cyclic_desc">Quick relief for anxiety</string>
+    <string name="breathing_478_title">4-7-8 Breathing</string>
+    <string name="breathing_478_desc">Wind down for sleep</string>
+    <string name="breathing_start_prompt">Press \'Start Session\' to begin %1$s.</string>
+
     <string name="inhale">Inhale</string>
     <string name="hold">Hold</string>
     <string name="exhale">Exhale</string>
+
+    <string name="breathing_box_inhale">Inhale 4s →</string>
+    <string name="breathing_box_hold_in">↑ Hold 4s</string>
+    <string name="breathing_box_hold_out">↓ Hold 4s</string>
+    <string name="breathing_box_exhale">← Exhale 4s</string>
+    <string name="breathing_478_hold">↑ Hold 7s</string>
+    <string name="breathing_478_exhale">↓ Exhale 8s</string>
+
     <string name="breathing_instructions">Follow the breathing pattern on screen</string>
     <string name="breathing_duration">Duration: %1$d minutes</string>
     <string name="breathing_completed">Exercise Completed!</string>
+    <string name="session_completed_toast">Exercise finished! You completed %1$d cycles in %2$s.</string>
+    <string name="session_stopped">Session stopped.</string>
+    <string name="failed_to_save_settings">Failed to save settings: %1$s</string>
+    <string name="settings_disabled_guest">Persistent settings feature is disabled for Guest/unauthenticated users.</string>
 
     <string name="profile_name">Name</string>
     <string name="profile_email">Email</string>
@@ -73,6 +101,15 @@
     <string name="this_month">This Month</string>
     <string name="all_time">All Time</string>
 
+    <string name="weekly_mood_stats">Weekly Mood Statistics</string>
+    <string name="most_common_mood_this_week">Most Common Mood This Week: %1$s</string>
+    <string name="average_mood_score_value">Average Mood Score: %1$s/5.0</string>
+    <string name="good_day_text">You\'re having a good day on: %1$s</string>
+    <string name="rough_day_text">You\'re having a rough day on: %1$s</string>
+    <string name="generic_quote_mood_history">"Whenever life plants you, bloom with grace"</string>
+    <string name="mood_score_label">Daily Mood Score</string>
+    <string name="no_mood_data_period">No Mood data recorded in this period.</string>
+
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
@@ -86,8 +123,7 @@
     <string name="no">No</string>
     <string name="confirm">Confirm</string>
     <string name="back">Back</string>
-
-    <string name="loading">Loading…</string>
+    <string name="or">OR</string> <string name="sign_in_as_a_guest">Sign In as a Guest</string> <string name="loading">Loading…</string>
     <string name="error_occurred">An error occurred</string>
     <string name="success">Success</string>
     <string name="saved_successfully">Saved successfully</string>
@@ -101,6 +137,56 @@
     <string name="login_failed">Login failed</string>
     <string name="register_failed">Registration failed</string>
     <string name="profile_updated_successfully">Profile updated successfully</string>
+
+    <string name="guest_cannot_edit_profile">Sorry, Guest Accounts cannot change profiles.</string>
+    <string name="name_cannot_be_empty">Name cannot be empty.</string>
+    <string name="session_invalid_relogin">Invalid user session. Please re-login.</string>
+    <string name="failed_to_load_journal">Failed to load journal.</string>
+    <string name="select_mood_prompt">Select Mood</string>
+    <string name="select_mood_required">Please select your Mood for today.</string>
+    <string name="journal_content_required">Write a little about your day.</string>
+    <string name="login_required_to_save_journal">You must be logged in to save a journal.</string>
+    <string name="saving_journal_in_progress">Saving Journal…</string>
+    <string name="failed_to_read_image">Failed to read image</string>
+    <string name="image_compressed_kb">Image compressed: %1$sKB</string>
+    <string name="failed_to_process_image">Failed to process image: %1$s</string>
+    <string name="journal_action_updated">updated</string>
+    <string name="journal_action_saved">saved</string>
+    <string name="with_image_base64">with Image (Base64)</string>
+    <string name="invalid_journal_id">Invalid Journal ID.</string>
+    <string name="journal_entry_not_found">Journal entry not found.</string>
+    <string name="journal_your_story">Your Story</string>
+    <string name="journal_attached_image">Attached Image</string>
+    <string name="default_user_name">MindEase User</string>
+    <string name="mood_logged_toast">Mood Recorded: %1$s</string>
+    <string name="guest_session">Guest Session</string>
+    <string name="no_email_found">No Email Found</string>
+    <string name="session_ended">Session Ended</string>
+    <string name="please_relogin">Please re-login</string>
+    <string name="logout_success_toast">You have been logged out.</string>
+    <string name="notifications_feature_wip">Notification Settings feature (In Development)</string>
+    <string name="terms_wip">Terms and Conditions feature (In Development)</string>
+    <string name="app_version_toast">MindEase Version: %1$s</string>
+    <string name="change_pass_email_only">Sorry, this feature is only available for users logged in with Email &amp; Password.</string>
+    <string name="all_fields_required">All fields must be filled.</string>
+    <string name="password_updated_relogin">Password successfully updated. Please re-login.</string>
+    <string name="old_password_incorrect">Old password is incorrect. Verification failed.</string>
+    <string name="generic_failure_message">Failed: %1$s</string>
+    <string name="email_password_required_toast">Email and password cannot be empty</string>
+    <string name="google_sign_in_failed">Google Sign-In Failed: %1$s</string>
+    <string name="firebase_login_failed">Firebase Login Failed: %1$s</string>
+    <string name="auth_success_toast">Authentication Success! Welcome.</string>
+    <string name="registration_success_toast">Registration Success! Welcome.</string>
+    <string name="registration_failed_message">Registration Failed: %1$s</string>
+    <string name="guest_cannot_delete_account">Sorry, you cannot delete the account because you are using a Guest Session. Please Register or Log In to have full control over your data.</string>
+    <string name="login_register_action">LOG IN / REGISTER</string>
+    <string name="password_required_toast">Please enter your password.</string>
+    <string name="failed_to_delete_journal_data">Failed to delete Journal data. Please try again.</string>
+    <string name="password_verification_failed">Password Verification Failed. %1$s</string>
+    <string name="account_deleted_successfully">Account and all data successfully deleted.</string>
+    <string name="verify_password_for_email">Please verify your password to delete the account: %1$s</string>
+    <string name="app_version_format">Version %1$s</string> <string name="reset_password_success_toast">Password reset link sent to %1$s.</string> <string name="reset_password_generic_error">Failed to send reset email.</string> <string name="update_profile_failed_generic">Failed to update profile.</string> <string name="theme_light">MindEase Light</string> <string name="theme_dark">MindEase Dark</string> <string name="theme_system">System Default</string> <string name="theme_changed_to_system">Theme changed to System Default.</string> <string name="theme_changed_to_name">Theme changed to %1$s.</string>
+
 
     <string name="confirm_delete_title">Delete Journal?</string>
     <string name="confirm_delete_message">Are you sure you want to delete this journal entry? This action cannot be undone.</string>
@@ -154,7 +240,6 @@
     <string name="verify_password_to_contiue">Please verify your password to continue deleting your account.</string>
     <string name="password_verification">Password Verification</string>
     <string name="delete_account">Delete My Account</string>
-
 
 
     <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>

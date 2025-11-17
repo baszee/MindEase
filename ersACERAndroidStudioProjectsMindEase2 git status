@@ -1,0 +1,19 @@
+[33mb6ac1e3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m not fix: language settings
+[33mba005fe[m not fix: language settings
+[33m095826f[m not fix: language settings
+[33m519a9bd[m not fix: language settings
+[33m20fbd3f[m fix: profile picture
+[33m0dddc80[m fix: migrate to KSP, fix Room database crash, update dependencies
+[33mce6e8a2[m no fix: themes
+[33mee8f863[m feat(journal): Finalized Base64 image storage solution to bypass Firebase Spark Plan billing limits. Fixed critical data mapping and persistence bugs.
+[33m4e8b5bc[m fix: configure Google Sign-In, add PrivacyPolicyActivity, update Journal components
+[33m75e89bb[m chore: update .gitignore to exclude google-services.json
+[33m0505b28[m feat: implement Quote system, UserSettings repository, and refactor ViewModels
+[33m266fd2d[m fix: upgrade Kotlin to 2.0.21, migrate KAPT to KSP, fix Room database version conflict
+[33mf92ce82[m FEAT: Memperbaiki konflik build & menyinkronkan data jurnal ke cloud.
+[33m313bbe8[m FEAT: Menyelesaikan Fase 3 (Breathing Exercise Penuh & Kustomisasi) dan Memperbaiki Semua Structural/Deprecation Warning. Proyek Bersih.
+[33maf94a5a[m FEAT: Menyelesaikan Fase 1 (Firebase Auth Penuh) dan Fase 2 (Integrasi Gambar Jurnal & Detail Jurnal). Proyek stabil.
+[33med3591c[m FIX: Mengembalikan AddJournalActivity, JournalViewModel, dan AndroidManifest yang terhapus akibat revert.
+[33ma7e8531[m[33m ([m[1;31mgithub/master[m[33m, [m[1;31mgithub/HEAD[m[33m)[m Merge branch 'master' of https://github.com/baszee/MindEase
+[33maca8180[m Initial commit
+[33m40b4b94[m Initial commit
