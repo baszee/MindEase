@@ -7,19 +7,34 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.mindease.mindeaseapp.data.model.UserProfile
 import com.mindease.mindeaseapp.utils.AuthResult
+import com.mindease.mindeaseapp.utils.retryWithExponentialBackoff
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
-import android.util.Log // Import Log
+import android.util.Log
+import com.google.firebase.firestore.FirebaseFirestore // 🔥 Import Firestore
 
 /**
- * Repository untuk menangani semua operasi Otentikasi (Login, Register, Logout, Guest).
+ * Repository untuk menangani semua operasi Otentikasi (Login, Register, Logout, Guest) dan Profile Data di Firestore.
  */
-class AuthRepository(val auth: FirebaseAuth = Firebase.auth) {
+class AuthRepository(
+    val auth: FirebaseAuth = Firebase.auth,
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance() // 🔥 Tambahkan Firestore
+) {
+
+    private val TAG = "AuthRepo"
+
+    // Koleksi baru untuk menyimpan data profile detail pengguna
+    private fun getUserProfileCollection() = firestore.collection("user_profiles")
 
     val currentUser: FirebaseUser?
         get() = auth.currentUser
+
+    // ====================================================================
+    // FIREBASE AUTH (Nama di Auth)
+    // ====================================================================
 
     /**
      * Mengambil nama pengguna saat ini (untuk digunakan setelah reload).
@@ -35,33 +50,78 @@ class AuthRepository(val auth: FirebaseAuth = Firebase.auth) {
     suspend fun reloadCurrentUser() {
         try {
             auth.currentUser?.reload()?.await()
-            Log.d("AuthRepository", "FirebaseUser successfully reloaded from server.")
+            Log.d(TAG, "FirebaseUser successfully reloaded from server.")
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Error reloading user: ${e.message}")
+            Log.e(TAG, "Error reloading user: ${e.message}")
         }
     }
 
+    // ====================================================================
+    // FIRESTORE USER PROFILE (Bio, Image, Nama Sinkronisasi) 🔥 BARU
+    // ====================================================================
+
     /**
-     * Melakukan update nama tampilan (displayName) pengguna.
+     * Mendapatkan profil pengguna dari Firestore.
      */
-    fun updateProfileName(name: String): Flow<AuthResult<FirebaseUser>> = flow {
+    suspend fun getUserProfile(): UserProfile = retryWithExponentialBackoff(tag = "$TAG-GetProfile") {
+        val userId = auth.currentUser?.uid ?: throw IllegalStateException("User not logged in.")
+        val snapshot = getUserProfileCollection().document(userId).get().await()
+
+        return@retryWithExponentialBackoff snapshot.toObject(UserProfile::class.java)
+            ?.copy(documentId = snapshot.id)
+            ?: UserProfile(userId = userId) // Kembalikan default jika dokumen tidak ada
+    }
+
+    /**
+     * Melakukan update Name, Bio, dan Image URL di Firebase Auth dan Firestore.
+     * Catatan: Image URL harus berupa String, proses upload harus dilakukan di ViewModel/Activity.
+     */
+    fun updateUserProfile(name: String, bio: String, imageUrl: String? = null): Flow<AuthResult<FirebaseUser>> = flow {
         emit(AuthResult.Loading)
         try {
             val user = auth.currentUser
-            if (user != null) {
+            val userId = user?.uid
+
+            if (user != null && userId != null) {
+                // 1. Update Firebase Auth (hanya DisplayName)
                 val profileUpdates = UserProfileChangeRequest.Builder()
                     .setDisplayName(name)
+                    // URL foto harus berupa Uri. Parse string URL jika ada.
+                    .setPhotoUri(if (imageUrl != null) android.net.Uri.parse(imageUrl) else user.photoUrl)
                     .build()
 
                 user.updateProfile(profileUpdates).await()
+
+                // 2. Update Firestore User Profile (Name, Bio, Image URL)
+                val userProfileData = UserProfile(
+                    userId = userId,
+                    name = name,
+                    email = user.email,
+                    bio = bio,
+                    profileImageUrl = imageUrl
+                )
+
+                // Simpan/Timpa ke Firestore
+                getUserProfileCollection().document(userId)
+                    .set(userProfileData)
+                    .await()
+
+                // 3. Reload user untuk memastikan sinkronisasi ke objek lokal
+                reloadCurrentUser()
+
                 emit(AuthResult.Success(user))
             } else {
                 emit(AuthResult.Error(Exception("User not authenticated for profile update.")))
             }
         } catch (e: Exception) {
+            Log.e(TAG, "Error updating profile: ${e.message}")
             emit(AuthResult.Error(e))
         }
     }
+
+    // ====================================================================
+    // AUTH LAMA (Dipertahankan)
+    // ====================================================================
 
     /**
      * Re-authenticate pengguna dengan sandi lama.
@@ -110,6 +170,9 @@ class AuthRepository(val auth: FirebaseAuth = Firebase.auth) {
             if (user == null) {
                 return AuthResult.Error(Exception("Sesi pengguna berakhir. Tidak dapat menghapus akun."))
             }
+
+            // 🔥 BARU: Hapus dokumen profile custom dari Firestore
+            getUserProfileCollection().document(user.uid).delete().await()
 
             // Hapus user dari Firebase Auth
             user.delete().await()

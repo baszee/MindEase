@@ -32,24 +32,22 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="AKUN"
+                android:text="AKUN &amp; KEAMANAN"
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
                 android:paddingTop="16dp"
                 android:paddingBottom="8dp"
-                android:textSize="14sp"
-                tools:ignore="HardcodedText" />
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tv_edit_profile"
                 style="@style/SettingsItemStyle"
-                android:drawableStart="@drawable/ic_edit"
+                android:drawableStart="@drawable/ic_nav_profile"
                 android:text="@string/edit_profile"
                 app:drawableEndCompat="@drawable/ic_arrow_forward" />
 
@@ -66,35 +64,6 @@
                 android:textColor="@color/mood_very_sad"
                 android:drawableStart="@drawable/ic_delete"
                 android:text="Hapus Akun Permanen"
-                app:drawableEndCompat="@drawable/ic_arrow_forward"
-                tools:ignore="HardcodedText" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="?attr/colorOnSurface" />
-
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TAMPILAN"
-                android:textColor="?attr/colorPrimary"
-                android:textStyle="bold"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="8dp"
-                android:textSize="14sp"
-                tools:ignore="HardcodedText" />
-
-            <TextView
-                android:id="@+id/tv_themes"
-                style="@style/SettingsItemStyle"
-                android:drawableStart="@drawable/ic_theme"
-                android:text="Tema"
                 app:drawableEndCompat="@drawable/ic_arrow_forward" />
 
             <View
@@ -104,19 +73,65 @@
                 android:layout_marginBottom="8dp"
                 android:background="?attr/colorOnSurface" />
 
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="LAINNYA"
+                android:text="TAMPILAN &amp; FUNGSI"
                 android:textColor="?attr/colorPrimary"
                 android:textStyle="bold"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
                 android:paddingTop="16dp"
                 android:paddingBottom="8dp"
-                android:textSize="14sp"
-                tools:ignore="HardcodedText" />
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_themes"
+                style="@style/SettingsItemStyle"
+                android:drawableStart="@drawable/ic_theme"
+                android:text="Tema"
+                app:drawableEndCompat="@drawable/ic_arrow_forward" />
+
+            <TextView
+                android:id="@+id/tv_language"
+                style="@style/SettingsItemStyle"
+                android:drawableStart="@drawable/ic_key"
+                android:text="Bahasa"
+                app:drawableEndCompat="@drawable/ic_arrow_forward" />
+
+            <TextView
+                android:id="@+id/tv_notifications"
+                style="@style/SettingsItemStyle"
+                android:drawableStart="@drawable/ic_info"
+                android:text="Notifikasi"
+                app:drawableEndCompat="@drawable/ic_arrow_forward" />
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:background="?attr/colorOnSurface" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="LAINNYA &amp; LEGAL"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_terms_and_conditions"
+                style="@style/SettingsItemStyle"
+                android:drawableStart="@drawable/ic_key"
+                android:text="@string/terms_of_service"
+                app:drawableEndCompat="@drawable/ic_arrow_forward" />
 
 
             <TextView

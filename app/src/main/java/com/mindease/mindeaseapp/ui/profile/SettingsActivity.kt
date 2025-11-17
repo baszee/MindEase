@@ -2,6 +2,7 @@ package com.mindease.mindeaseapp.ui.profile
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.mindease.mindeaseapp.databinding.ActivitySettingsBinding
 import com.mindease.mindeaseapp.utils.ThemeManager // 🔥 Wajib import
@@ -29,7 +30,9 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupNavigationListeners() {
-        // Navigasi ke Edit Profile
+        // KATEGORI 1: AKUN & KEAMANAN
+
+        // Navigasi ke Edit Profile (Sekarang mencakup Bio/Gambar Profil)
         binding.tvEditProfile.setOnClickListener {
             val intent = Intent(this, EditProfileActivity::class.java)
             startActivity(intent)
@@ -41,10 +44,38 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Navigasi ke Delete Account
+        binding.tvDeleteAccount.setOnClickListener {
+            val intent = Intent(this, DeleteAccountActivity::class.java)
+            startActivity(intent)
+        }
+
+        // KATEGORI 2: TAMPILAN & FUNGSI
+
         // Navigasi ke Themes
         binding.tvThemes.setOnClickListener {
             val intent = Intent(this, ThemesActivity::class.java)
             startActivity(intent)
+        }
+
+        // Navigasi ke Bahasa (Placeholder untuk fitur mendatang)
+        binding.tvLanguage.setOnClickListener {
+            // TODO: Implement Language Settings Activity
+            Toast.makeText(this, "Fitur Pengaturan Bahasa (Dalam Pengembangan)", Toast.LENGTH_SHORT).show()
+        }
+
+        // Navigasi ke Notifikasi (Placeholder untuk fitur mendatang)
+        binding.tvNotifications.setOnClickListener {
+            // TODO: Implement Notification Settings Activity
+            Toast.makeText(this, "Fitur Pengaturan Notifikasi (Dalam Pengembangan)", Toast.LENGTH_SHORT).show()
+        }
+
+        // KATEGORI 3: LAINNYA & LEGAL
+
+        // Navigasi ke Syarat & Ketentuan (Placeholder)
+        binding.tvTermsAndConditions.setOnClickListener {
+            // TODO: Implement Terms and Conditions Activity
+            Toast.makeText(this, "Fitur Syarat & Ketentuan (Dalam Pengembangan)", Toast.LENGTH_SHORT).show()
         }
 
         // Navigasi ke Privacy Policy
@@ -56,12 +87,6 @@ class SettingsActivity : AppCompatActivity() {
         // Navigasi ke About App
         binding.tvAboutApp.setOnClickListener {
             val intent = Intent(this, AboutAppActivity::class.java)
-            startActivity(intent)
-        }
-
-        // Navigasi ke Delete Account
-        binding.tvDeleteAccount.setOnClickListener {
-            val intent = Intent(this, DeleteAccountActivity::class.java)
             startActivity(intent)
         }
     }

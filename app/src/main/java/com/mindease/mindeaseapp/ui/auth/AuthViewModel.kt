@@ -18,9 +18,12 @@ class AuthViewModel(val repository: AuthRepository) : ViewModel() { // FIX: DIUB
     private val _deleteResult = MutableLiveData<AuthResult<Unit>>() // LiveData Khusus untuk hasil Delete
     val deleteResult: LiveData<AuthResult<Unit>> = _deleteResult // BARU
 
-    fun updateProfileName(name: String) {
+    /**
+     * 🔥 Mengganti updateProfileName dengan fungsi yang lebih lengkap.
+     */
+    fun updateUserProfile(name: String, bio: String, imageUrl: String? = null) {
         viewModelScope.launch {
-            repository.updateProfileName(name).collect { result ->
+            repository.updateUserProfile(name, bio, imageUrl).collect { result ->
                 _loginResult.value = result
             }
         }

@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.repository.AuthRepository
@@ -13,11 +14,15 @@ import com.mindease.mindeaseapp.ui.auth.AuthViewModel
 import com.mindease.mindeaseapp.ui.auth.AuthViewModelFactory
 import com.mindease.mindeaseapp.utils.AuthResult
 import com.mindease.mindeaseapp.utils.ThemeManager
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import com.bumptech.glide.Glide
 
 class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditProfileBinding
     private lateinit var authViewModel: AuthViewModel
+    private lateinit var authRepository: AuthRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeManager.getThemeStyleResId(this))
@@ -34,8 +39,8 @@ class EditProfileActivity : AppCompatActivity() {
             return
         }
 
-        // Setup ViewModel
-        val authRepository = AuthRepository(Firebase.auth)
+        // Setup Repository dan ViewModel
+        authRepository = AuthRepository(Firebase.auth, FirebaseFirestore.getInstance())
         val factory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
@@ -48,17 +53,36 @@ class EditProfileActivity : AppCompatActivity() {
 
     private fun loadCurrentUserProfile() {
         val user = Firebase.auth.currentUser
-        // Email tidak akan null jika sudah melewati cek di onCreate
+
+        // Memuat data dari Firebase Auth (untuk info Email)
         binding.tvUserEmail.text = user?.email ?: "No Email (Signed In)"
-        binding.etUsername.setText(user?.displayName ?: "")
+
+        // Memuat data dari Firestore (Nama, Bio, Image URL)
+        lifecycleScope.launch {
+            val profile = authRepository.getUserProfile()
+
+            // Nama dari Firebase Auth (jika ada) atau dari Firestore
+            binding.etUsername.setText(user?.displayName ?: profile.name ?: "")
+            // Bio dari Firestore
+            binding.etBio.setText(profile.bio ?: "")
+
+            // Load Image Profile
+            val imageUrl = profile.profileImageUrl ?: user?.photoUrl.toString().takeIf { it.isNotEmpty() }
+            if (imageUrl != null && imageUrl.isNotBlank()) {
+                Glide.with(this@EditProfileActivity)
+                    .load(imageUrl)
+                    .into(binding.ivProfileImage)
+            }
+        }
     }
 
     private fun setupSaveButton() {
         binding.btnSave.setOnClickListener {
             val newName = binding.etUsername.text.toString().trim()
+            val newBio = binding.etBio.text.toString().trim()
 
             if (newName.isEmpty()) {
-                Toast.makeText(this, getString(R.string.field_required), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Nama tidak boleh kosong.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -68,7 +92,8 @@ class EditProfileActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            authViewModel.updateProfileName(newName)
+            // Saat ini, tidak ada fitur upload gambar, jadi URL gambar disetel null/lama
+            authViewModel.updateUserProfile(newName, newBio, null)
         }
     }
 

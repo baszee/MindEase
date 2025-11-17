@@ -35,97 +35,77 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="40dp">
+            android:paddingBottom="40dp"
+            android:gravity="center_horizontal">
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="?attr/colorSurface">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:id="@+id/iv_profile_picture"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:src="@drawable/ic_nav_profile"
-                        android:background="@drawable/bg_rounded_border"
-                        android:padding="8dp"
-                        android:contentDescription="Profile Picture"
-                        app:tint="?attr/colorPrimary"/>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
-
-                        <TextView
-                            android:id="@+id/tv_user_name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="?attr/colorOnSurface"
-                            tools:text="axjay" />
-
-                        <TextView
-                            android:id="@+id/tv_user_email"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:textColor="?attr/colorOnSurface"
-                            android:alpha="0.7"
-                            tools:text="baszegaming@gmail.com" />
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            <ImageView
+                android:id="@+id/iv_profile_picture"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/ic_profile_placeholder"
+                android:background="@drawable/bg_breathing_circle"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Profile Picture" />/> <TextView
+            android:id="@+id/tv_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="aje gile" />
 
             <TextView
+                android:id="@+id/tv_user_bio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SETTINGS"
                 android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="?attr/colorPrimary"
-                android:layout_marginBottom="12dp"/>
+                android:textColor="?attr/colorOnSurface"
+                android:alpha="0.7"
+                android:layout_marginBottom="16dp"
+                tools:text="awowakokwaokwa" />
 
             <TextView
-                android:id="@+id/tv_themes"
-                style="@style/SettingsItemStyle"
-                android:text="Themes"
+                android:id="@+id/tv_user_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
                 android:textColor="?attr/colorOnSurface"
-                app:drawableStartCompat="@drawable/ic_theme"
+                android:alpha="0.5"
+                tools:text="baszegaming@gmail.com" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="16dp"
+                android:background="?attr/colorOnSurface"
+                android:alpha="0.2"/>
+
+            <TextView
+                android:id="@+id/tv_edit_profile_menu"
+                style="@style/SettingsItemStyle"
+                android:text="Edit Profile"
+                app:drawableStartCompat="@drawable/ic_edit"
                 app:drawableEndCompat="@drawable/ic_arrow_forward" />
 
             <TextView
-                android:id="@+id/tv_settings"
+                android:id="@+id/tv_settings_menu"
                 style="@style/SettingsItemStyle"
                 android:text="Settings"
-                android:textColor="?attr/colorOnSurface"
-                app:drawableStartCompat="@drawable/ic_info"
+                app:drawableStartCompat="@drawable/ic_settings"
                 app:drawableEndCompat="@drawable/ic_arrow_forward" />
 
             <TextView
-                android:id="@+id/tv_about_app"
+                android:id="@+id/tv_about_app_menu"
                 style="@style/SettingsItemStyle"
                 android:text="About App"
-                android:textColor="?attr/colorOnSurface"
                 app:drawableStartCompat="@drawable/ic_info"
-                app:drawableEndCompat="@drawable/ic_arrow_forward"
-                android:layout_marginBottom="24dp"/>
+                app:drawableEndCompat="@drawable/ic_arrow_forward" />
 
             <Button
-                android:id="@+id/btn_logout"
+                android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Logout"
@@ -133,7 +113,7 @@
                 android:backgroundTint="@color/mood_very_sad"
                 android:textColor="?attr/colorOnPrimary"
                 app:cornerRadius="8dp"
-                android:layout_marginTop="16dp"/>
+                android:layout_marginTop="32dp"/>
 
         </LinearLayout>
     </ScrollView>

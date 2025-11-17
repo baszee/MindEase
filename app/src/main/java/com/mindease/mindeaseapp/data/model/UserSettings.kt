@@ -16,8 +16,15 @@ data class UserSettings(
 
     // 🔥 FIX: ANOTASI KRITIS UNTUK MAPPING FIRESTORE
     @field:JvmField
-    val isHapticEnabled: Boolean = false
+    val isHapticEnabled: Boolean = false,
+
+    // 🔥 BARU: Pengaturan Tambahan
+    @field:JvmField
+    val language: String = "ID", // Default: ID
+
+    @field:JvmField
+    val notificationEnabled: Boolean = false
 ) {
     // Konstruktor kosong diperlukan oleh Firestore
-    constructor() : this(null, false, false)
+    constructor() : this(null, false, false, "ID", false)
 }
