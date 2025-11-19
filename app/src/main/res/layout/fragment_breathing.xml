@@ -12,7 +12,7 @@
         android:id="@+id/tv_breathing_header"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Breathing Exercise"
+        android:text="@string/breathing_exercise"
         android:textSize="32sp"
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"

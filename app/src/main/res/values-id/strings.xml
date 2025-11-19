@@ -275,6 +275,6 @@
 
 
     <string name="language_already_selected">Bahasa ini sudah aktif.</string>
-
+    <string name="test_language">Bahasa: Indonesia</string>
     <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>
 </resources>

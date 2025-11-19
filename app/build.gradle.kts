@@ -71,12 +71,10 @@ dependencies {
 
     // Material Components
     implementation("com.google.android.material:material:1.11.0")
-
     implementation("androidx.preference:preference-ktx:1.2.1")
 
     // ==================== GRAFIK ====================
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-
 
     // ==================== LIFECYCLE & COROUTINES ====================
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
@@ -85,13 +83,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
-    // ==================== FIREBASE (Semua di bawah ini GRATIS di Spark Plan) ====================
+    // ==================== FIREBASE ====================
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
-    implementation("com.google.firebase:firebase-config-ktx")
 
-    // 🔥 ANALYTICS, CRASHLYTICS, PERF MONITORING (GRATIS)
+    // 🔥 ANALYTICS, CRASHLYTICS, PERF MONITORING
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-perf-ktx")
@@ -103,12 +100,11 @@ dependencies {
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
-
-    ksp("androidx.room:room-compiler:$roomVersion") // FIX: Menggunakan KSP
+    ksp("androidx.room:room-compiler:$roomVersion")
 
     // ==================== IMAGE LOADING ====================
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    ksp("com.github.bumptech.glide:compiler:4.16.0") // FIX: Menggunakan KSP
+    ksp("com.github.bumptech.glide:compiler:4.16.0")
 
     // ==================== NETWORKING ====================
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -117,11 +113,10 @@ dependencies {
 
     // ==================== TESTING ====================
     testImplementation(libs.junit)
-
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // 🔥 Tambahkan Library Image Compressor 🔥
+    // 🔥 Image Compressor
     implementation("id.zelory:compressor:3.0.1")
 
     // Room testing

@@ -12,7 +12,7 @@
         android:id="@+id/tv_journal_header"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Journal"
+        android:text="@string/journal"
         android:textSize="32sp"
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"

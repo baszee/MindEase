@@ -111,4 +111,5 @@ class MainActivity : AppCompatActivity() {
             Log.e("FirebaseInit", "Gagal mengaktifkan persistence: ${e.message}")
         }
     }
+
 }

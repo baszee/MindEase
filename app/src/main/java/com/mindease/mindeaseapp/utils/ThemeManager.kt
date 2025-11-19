@@ -1,40 +1,32 @@
-package com.mindease.mindeaseapp.utils // ✅ Package sudah BENAR
+package com.mindease.mindeaseapp.utils
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import com.mindease.mindeaseapp.R // ✅ Import R sudah BENAR
+import com.mindease.mindeaseapp.R
 import java.util.Locale
+import kotlin.system.exitProcess
 
-/**
- * Utility Object untuk mengelola tema (theme) dan bahasa (locale) aplikasi secara persisten.
- */
 object ThemeManager {
-    // --- Konstanta ---
     const val PREFS_NAME = "AppPrefs"
     const val THEME_KEY = "theme_style"
     const val LANGUAGE_KEY = "language_code"
     const val DEFAULT_THEME = "light"
     const val DEFAULT_LANGUAGE = "en"
 
-    // --- Utility ---
     private fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
-
-    // --- Pemrosesan Tema ---
 
     fun getThemeKey(context: Context): String {
         return getPrefs(context).getString(THEME_KEY, DEFAULT_THEME) ?: DEFAULT_THEME
     }
 
-    /**
-     * ✅ FIX: Menggunakan nama style yang benar dari themes.xml Anda.
-     */
     fun getThemeStyleResId(context: Context): Int {
-        // Berdasarkan file themes.xml yang Anda berikan, ini adalah nama style-nya
         return when (getThemeKey(context)) {
             "light" -> R.style.Theme_MindEase_Indigo
             "dark" -> R.style.Theme_MindEase_Dark
@@ -42,7 +34,7 @@ object ThemeManager {
             "oceanblue" -> R.style.Theme_MindEase_OceanBlue
             "rosepink" -> R.style.Theme_MindEase_RosePink
             "autumngold" -> R.style.Theme_MindEase_AutumnGold
-            else -> R.style.Theme_MindEase_Indigo // Fallback
+            else -> R.style.Theme_MindEase_Indigo
         }
     }
 
@@ -61,8 +53,6 @@ object ThemeManager {
         getPrefs(context).edit().putString(THEME_KEY, themeKey).apply()
     }
 
-    // --- Pemrosesan Bahasa (Locale) ---
-
     fun getLanguageCode(context: Context): String {
         return getPrefs(context).getString(LANGUAGE_KEY, DEFAULT_LANGUAGE) ?: DEFAULT_LANGUAGE
     }
@@ -72,26 +62,50 @@ object ThemeManager {
     }
 
     /**
-     * Menerapkan Locale baru ke Context. Dipanggil di setiap Activity.attachBaseContext().
+     * ✅ FIX UTAMA: Mapping "id" ke "in" untuk Android
      */
     fun wrapContext(context: Context): Context {
         val languageCode = getLanguageCode(context)
-        val locale = Locale.Builder().setLanguage(languageCode).build()
 
-        // 1. Set locale default untuk Java/Kotlin APIs
+        // Android menggunakan "in" untuk Indonesia, bukan "id"
+        val androidLanguageCode = if (languageCode == "id") "in" else languageCode
+
+        android.util.Log.d("ThemeManager", "Applying language: $languageCode (Android: $androidLanguageCode)")
+
+        val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Locale.forLanguageTag(androidLanguageCode)
+        } else {
+            Locale(androidLanguageCode)
+        }
+
         Locale.setDefault(locale)
 
-        val config: Configuration = context.resources.configuration
+        val config = Configuration(context.resources.configuration)
 
-        // 2. Set locale pada Configuration (Cara modern dan deprecated handling)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             config.setLocale(locale)
+            config.setLocales(android.os.LocaleList(locale))
+            context.createConfigurationContext(config)
         } else {
             @Suppress("DEPRECATION")
             config.locale = locale
+            @Suppress("DEPRECATION")
+            context.resources.updateConfiguration(config, context.resources.displayMetrics)
+            context
         }
+    }
 
-        // 3. Kembalikan Context baru dengan Configuration yang diperbarui (Kunci agar bahasa bekerja)
-        return context.createConfigurationContext(config)
+    fun restartApplication(activity: Activity) {
+        android.util.Log.d("ThemeManager", "Restarting application...")
+
+        val intent = activity.packageManager.getLaunchIntentForPackage(activity.packageName)
+        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+
+        activity.startActivity(intent)
+        activity.finish()
+
+        exitProcess(0)
     }
 }
