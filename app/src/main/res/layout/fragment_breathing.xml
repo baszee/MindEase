@@ -41,28 +41,110 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_box_breathing"
                 style="@style/BreathingCardStyle"
-                app:layout_constraintTop_toTopOf="parent">
-                <LinearLayout style="@style/BreathingContentStyle">
-                    <TextView style="@style/BreathingTitleStyle" android:text="Box Breathing (4-4-4-4)"/>
-                    <TextView style="@style/BreathingDescStyle" android:text="Balanced calm for focus"/>
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_breathing_box"
+                        android:contentDescription="@string/breathing_box_title"
+                        android:layout_marginEnd="16dp"
+                        app:tint="?attr/colorOnSurface" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/BreathingTitleStyle"
+                            android:text="@string/breathing_box_title" />
+
+                        <TextView
+                            style="@style/BreathingDescStyle"
+                            android:text="@string/breathing_box_desc" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_cyclic_sighing"
-                style="@style/BreathingCardStyle">
-                <LinearLayout style="@style/BreathingContentStyle">
-                    <TextView style="@style/BreathingTitleStyle" android:text="Cyclic Sighing"/>
-                    <TextView style="@style/BreathingDescStyle" android:text="Quick relief for anxiety"/>
+                style="@style/BreathingCardStyle"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_breathing_cyclic"
+                        android:contentDescription="@string/breathing_cyclic_title"
+                        android:layout_marginEnd="16dp"
+                        app:tint="?attr/colorOnSurface" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/BreathingTitleStyle"
+                            android:text="@string/breathing_cyclic_title" />
+
+                        <TextView
+                            style="@style/BreathingDescStyle"
+                            android:text="@string/breathing_cyclic_desc" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_478_breathing"
                 style="@style/BreathingCardStyle">
-                <LinearLayout style="@style/BreathingContentStyle">
-                    <TextView style="@style/BreathingTitleStyle" android:text="4-7-8 Breathing"/>
-                    <TextView style="@style/BreathingDescStyle" android:text="Wind down for sleep"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_breathing_sleep2"
+                        android:contentDescription="@string/breathing_478_title"
+                        android:layout_marginEnd="16dp"
+                        app:tint="?attr/colorOnSurface" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/BreathingTitleStyle"
+                            android:text="@string/breathing_478_title" />
+
+                        <TextView
+                            style="@style/BreathingDescStyle"
+                            android:text="@string/breathing_478_desc" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
