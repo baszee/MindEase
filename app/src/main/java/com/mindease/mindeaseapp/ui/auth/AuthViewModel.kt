@@ -10,17 +10,34 @@ import com.mindease.mindeaseapp.data.repository.AuthRepository
 import com.mindease.mindeaseapp.utils.AuthResult
 import kotlinx.coroutines.launch
 
-class AuthViewModel(val repository: AuthRepository) : ViewModel() { // FIX: DIUBAH MENJADI val
+class AuthViewModel(val repository: AuthRepository) : ViewModel() {
 
     private val _loginResult = MutableLiveData<AuthResult<FirebaseUser>>()
     val loginResult: LiveData<AuthResult<FirebaseUser>> = _loginResult
 
-    private val _deleteResult = MutableLiveData<AuthResult<Unit>>() // LiveData Khusus untuk hasil Delete
-    val deleteResult: LiveData<AuthResult<Unit>> = _deleteResult // BARU
+    private val _deleteResult = MutableLiveData<AuthResult<Unit>>()
+    val deleteResult: LiveData<AuthResult<Unit>> = _deleteResult
 
     /**
-     * 🔥 Mengganti updateProfileName dengan fungsi yang lebih lengkap.
+     * Digunakan untuk Re-authentication user yang menggunakan Google/Pihak Ketiga (sebelum Delete/Link)
      */
+    fun reauthenticateUserWithCredential(credential: AuthCredential) {
+        _loginResult.value = AuthResult.Loading
+        viewModelScope.launch {
+            _loginResult.value = repository.reauthenticateWithCredential(credential)
+        }
+    }
+
+    /**
+     * Digunakan oleh Google User untuk pertama kali menyetel password.
+     */
+    fun linkNewPasswordToGoogleUser(newPassword: String) {
+        _loginResult.value = AuthResult.Loading
+        viewModelScope.launch {
+            _loginResult.value = repository.linkNewPassword(newPassword)
+        }
+    }
+
     fun updateUserProfile(name: String, bio: String, imageUrl: String? = null) {
         viewModelScope.launch {
             repository.updateUserProfile(name, bio, imageUrl).collect { result ->
@@ -30,7 +47,7 @@ class AuthViewModel(val repository: AuthRepository) : ViewModel() { // FIX: DIUB
     }
 
     /**
-     * Mengganti kata sandi pengguna (BARU)
+     * Mengganti kata sandi pengguna (HANYA UNTUK EMAIL/PASS USER)
      */
     fun changePassword(email: String, oldPassword: String, newPassword: String) {
         _loginResult.value = AuthResult.Loading
@@ -76,9 +93,6 @@ class AuthViewModel(val repository: AuthRepository) : ViewModel() { // FIX: DIUB
         }
     }
 
-    /**
-     * Menghapus akun pengguna dari Firebase Auth (dipanggil setelah data Jurnal dibersihkan).
-     */
     fun deleteUserAccount() {
         _deleteResult.value = AuthResult.Loading
         viewModelScope.launch {

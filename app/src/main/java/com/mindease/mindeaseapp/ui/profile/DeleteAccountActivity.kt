@@ -15,7 +15,7 @@ import com.mindease.mindeaseapp.R
 import com.mindease.mindeaseapp.data.model.JournalEntry
 import com.mindease.mindeaseapp.data.repository.AuthRepository
 import com.mindease.mindeaseapp.data.repository.JournalCloudRepository
-import com.mindease.mindeaseapp.databinding.ActivityDeleteAccountBinding // FIX: Import Binding Class
+import com.mindease.mindeaseapp.databinding.ActivityDeleteAccountBinding
 import com.mindease.mindeaseapp.ui.auth.AuthViewModel
 import com.mindease.mindeaseapp.ui.auth.AuthViewModelFactory
 import com.mindease.mindeaseapp.ui.auth.LoginActivity
@@ -28,12 +28,26 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.tasks.await
 import com.mindease.mindeaseapp.utils.ThemeManager
 import android.content.Context
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.AuthCredential // 🔥 FIX: Import AuthCredential
+import androidx.activity.result.ActivityResultLauncher // 🔥 FIX: Import ini
+import androidx.activity.result.contract.ActivityResultContracts // 🔥 FIX: Import ini
+
 
 class DeleteAccountActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityDeleteAccountBinding // FIX: Menggunakan Binding Class
+    private lateinit var binding: ActivityDeleteAccountBinding
     private lateinit var authViewModel: AuthViewModel
     private lateinit var journalCloudRepository: JournalCloudRepository
+
+    // FIX: ActivityResultLauncher sudah diimpor
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
+    private var isGoogleUser = false
 
     private val currentUser = Firebase.auth.currentUser
 
@@ -45,43 +59,70 @@ class DeleteAccountActivity : AppCompatActivity() {
         setTheme(ThemeManager.getThemeStyleResId(this))
         super.onCreate(savedInstanceState)
         binding = ActivityDeleteAccountBinding.inflate(layoutInflater)
-        setContentView(binding.root) // FIX: Menggunakan binding.root
+        setContentView(binding.root)
 
-        // 1. Verifikasi Pengguna dan Cek Tipe Login
-        if (currentUser == null || currentUser.isAnonymous) {
-            handleGuestAccess()
-            return
-        }
-
-        // Setup ViewModel
         val authRepository = AuthRepository(Firebase.auth)
         val authFactory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, authFactory)[AuthViewModel::class.java]
 
         val firestore = FirebaseFirestore.getInstance()
         val storage = FirebaseStorage.getInstance()
-        // FIX: Mengakses authRepository.auth yang sekarang val publik
         journalCloudRepository = JournalCloudRepository(firestore, storage, authRepository.auth)
 
-        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() } // FIX: Akses melalui binding
+        if (currentUser == null || currentUser.isAnonymous) {
+            handleGuestAccess()
+            return
+        }
 
-        binding.tvUserWarning.text = "Mohon verifikasi kata sandi Anda untuk menghapus akun: ${currentUser.email}" // FIX: Akses melalui binding
+        isGoogleUser = currentUser.providerData.any { info ->
+            info.providerId == GoogleAuthProvider.PROVIDER_ID
+        }
 
+        if (isGoogleUser) {
+            setupGoogleReauthClient()
+            setupGoogleUserUI()
+        } else {
+            setupEmailPassUserUI()
+        }
+
+        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         setupDeleteButton()
         observeViewModel()
     }
 
-    /**
-     * Fungsi untuk menangani pengguna Guest/Anonim.
-     */
-    private fun handleGuestAccess() {
-        binding.tvUserWarning.text = "Mohon maaf, Anda tidak dapat menghapus akun karena sedang menggunakan Sesi Tamu. Silakan Daftar atau Masuk untuk memiliki kontrol penuh atas data Anda." // FIX: Akses melalui binding
-        binding.etVerificationPassword.visibility = View.GONE // FIX: Akses melalui binding
-        binding.tilVerificationPassword.visibility = View.GONE // FIX: Akses melalui binding
-        binding.btnDeleteAccountConfirm.text = "MASUK / DAFTAR" // FIX: Akses melalui binding
+    private fun setupGoogleReauthClient() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        binding.btnDeleteAccountConfirm.setOnClickListener { // FIX: Akses melalui binding
-            // Arahkan ke LoginActivity
+        // FIX: Menggunakan ActivityResultContracts.StartActivityForResult()
+        googleSignInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            handleGoogleSignInResult(result.data)
+        }
+    }
+
+    private fun setupGoogleUserUI() {
+        binding.tvUserWarning.text = getString(R.string.delete_reauth_required)
+        binding.tilVerificationPassword.visibility = View.GONE
+        binding.etVerificationPassword.setText(getString(R.string.dummy_pass_google))
+        binding.btnDeleteAccountConfirm.text = getString(R.string.verify_with_google)
+    }
+
+    private fun setupEmailPassUserUI() {
+        binding.tvUserWarning.text = getString(R.string.verify_password_for_email, currentUser?.email ?: "")
+    }
+
+    private fun handleGuestAccess() {
+        binding.tvUserWarning.text = getString(R.string.guest_cannot_delete_account)
+        binding.etVerificationPassword.visibility = View.GONE
+        binding.tilVerificationPassword.visibility = View.GONE
+        binding.btnDeleteAccountConfirm.text = getString(R.string.login_register_action)
+
+        binding.btnDeleteAccountConfirm.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
@@ -92,69 +133,87 @@ class DeleteAccountActivity : AppCompatActivity() {
 
 
     private fun setupDeleteButton() {
-        binding.btnDeleteAccountConfirm.setOnClickListener { // FIX: Akses melalui binding
-            val verificationPassword = binding.etVerificationPassword.text.toString().trim() // FIX: Akses melalui binding
+        binding.btnDeleteAccountConfirm.setOnClickListener {
+            if (isGoogleUser) {
+                signInWithGoogleForReauth()
+            } else {
+                val verificationPassword = binding.etVerificationPassword.text.toString().trim()
 
-            if (verificationPassword.isEmpty()) {
-                Toast.makeText(this, "Mohon masukkan sandi Anda.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+                if (verificationPassword.isEmpty()) {
+                    Toast.makeText(this, getString(R.string.password_required_toast), Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                handleDeleteProcess(verificationPassword, null)
             }
-
-            // Mulai proses penghapusan
-            handleDeleteProcess(verificationPassword)
         }
     }
 
-    private fun handleDeleteProcess(verificationPassword: String) {
+    private fun signInWithGoogleForReauth() {
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
+    }
+
+    private fun handleGoogleSignInResult(data: Intent?) {
+        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+        try {
+            val account = task.getResult(ApiException::class.java)!!
+            val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+
+            handleDeleteProcess(null, credential)
+
+        } catch (e: ApiException) {
+            Toast.makeText(this, getString(R.string.google_sign_in_failed, e.statusCode.toString()), Toast.LENGTH_LONG).show()
+
+        } catch (e: Exception) {
+            Toast.makeText(this, getString(R.string.generic_failure_message, e.message), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun handleDeleteProcess(verificationPassword: String?, credential: AuthCredential?) {
         val userEmail = currentUser?.email ?: return
 
         setLoadingState(true)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            // 1. Re-authenticate User
-            // FIX: Mengakses repository melalui val publik di ViewModel
-            val reauthResult = authViewModel.repository.reauthenticateUser(userEmail, verificationPassword)
+        CoroutineScope(Dispatchers.IO).launch { // FIX: CoroutineScope perlu Dispatchers.IO
+            val reauthResult = if (credential != null) {
+                authViewModel.repository.reauthenticateWithCredential(credential)
+            } else {
+                authViewModel.repository.reauthenticateUser(userEmail, verificationPassword!!)
+            }
 
             if (reauthResult is AuthResult.Success) {
-                // 2. Jika Re-auth sukses, hapus semua data cloud (Jurnal)
                 val isDataDeleted = deleteUserJournalData()
 
                 withContext(Dispatchers.Main) {
                     if (isDataDeleted) {
-                        // 3. Hapus akun Auth (Dipanggil setelah data dihapus)
                         authViewModel.deleteUserAccount()
                     } else {
-                        // Gagal menghapus data
                         setLoadingState(false)
-                        Toast.makeText(this@DeleteAccountActivity, "Gagal menghapus data Jurnal. Coba lagi.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@DeleteAccountActivity, getString(R.string.failed_to_delete_journal_data), Toast.LENGTH_LONG).show()
                     }
                 }
             } else if (reauthResult is AuthResult.Error) {
                 withContext(Dispatchers.Main) {
                     setLoadingState(false)
-                    Toast.makeText(this@DeleteAccountActivity, "Verifikasi Sandi Gagal. ${reauthResult.exception.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@DeleteAccountActivity, getString(R.string.password_verification_failed, reauthResult.exception.message), Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-    /**
-     * Hapus semua data Jurnal (Firestore dan Storage) milik pengguna saat ini.
-     */
     private suspend fun deleteUserJournalData(): Boolean {
         return try {
             val userId = currentUser!!.uid
-            // FIX: Mengakses journalCollection melalui val publik di Repository
             val snapshot = journalCloudRepository.journalCollection
                 .whereEqualTo("userId", userId)
-                .get().await() // FIX: await sudah dikenali
+                .get().await()
 
-            // Hapus setiap dokumen dan gambarnya secara individual
             for (document in snapshot.documents) {
                 val entry = document.toObject(JournalEntry::class.java)?.copy(documentId = document.id)
                 entry?.let { journalCloudRepository.deleteJournal(it) }
             }
-            true // Semua data berhasil diproses (dihapus/diabaikan)
+            true
         } catch (e: Exception) {
             e.printStackTrace()
             false
@@ -167,9 +226,8 @@ class DeleteAccountActivity : AppCompatActivity() {
             when (result) {
                 is AuthResult.Success -> {
                     setLoadingState(false)
-                    Toast.makeText(this, "Akun dan semua data berhasil dihapus.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, getString(R.string.account_deleted_successfully), Toast.LENGTH_LONG).show()
 
-                    // Navigasi ke splash screen setelah penghapusan sukses
                     val intent = Intent(this, SplashActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     }
@@ -178,7 +236,7 @@ class DeleteAccountActivity : AppCompatActivity() {
                 }
                 is AuthResult.Error -> {
                     setLoadingState(false)
-                    Toast.makeText(this, "Gagal menghapus akun: " + result.exception.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, getString(R.string.generic_failure_message, result.exception.message), Toast.LENGTH_LONG).show()
                 }
                 else -> {}
             }
@@ -186,8 +244,11 @@ class DeleteAccountActivity : AppCompatActivity() {
     }
 
     private fun setLoadingState(isLoading: Boolean) {
-        binding.etVerificationPassword.isEnabled = !isLoading // FIX: Akses melalui binding
-        binding.btnDeleteAccountConfirm.isEnabled = !isLoading // FIX: Akses melalui binding
-        binding.btnDeleteAccountConfirm.text = if (isLoading) getString(R.string.loading) else "Hapus Akun Saya" // FIX: Akses melalui binding
+        binding.etVerificationPassword.isEnabled = !isLoading
+        binding.btnDeleteAccountConfirm.isEnabled = !isLoading
+
+        binding.btnDeleteAccountConfirm.text = if (isLoading) getString(R.string.loading) else {
+            if (isGoogleUser) "VERIFIKASI GOOGLE" else getString(R.string.delete_account)
+        }
     }
 }

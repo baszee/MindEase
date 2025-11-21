@@ -14,19 +14,18 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import android.util.Log
-import com.google.firebase.firestore.FirebaseFirestore // 🔥 Import Firestore
+import com.google.firebase.firestore.FirebaseFirestore
 
 /**
  * Repository untuk menangani semua operasi Otentikasi (Login, Register, Logout, Guest) dan Profile Data di Firestore.
  */
 class AuthRepository(
     val auth: FirebaseAuth = Firebase.auth,
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance() // 🔥 Tambahkan Firestore
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
 
     private val TAG = "AuthRepo"
 
-    // Koleksi baru untuk menyimpan data profile detail pengguna
     private fun getUserProfileCollection() = firestore.collection("user_profiles")
 
     val currentUser: FirebaseUser?
@@ -36,17 +35,10 @@ class AuthRepository(
     // FIREBASE AUTH (Nama di Auth)
     // ====================================================================
 
-    /**
-     * Mengambil nama pengguna saat ini (untuk digunakan setelah reload).
-     */
     fun getCurrentUserName(): String? {
-        // Ambil nama dari objek currentUser yang sudah di-reload
         return auth.currentUser?.displayName
     }
 
-    /**
-     * Memaksa reload data pengguna dari server (PENTING untuk sinkronisasi nama).
-     */
     suspend fun reloadCurrentUser() {
         try {
             auth.currentUser?.reload()?.await()
@@ -57,25 +49,18 @@ class AuthRepository(
     }
 
     // ====================================================================
-    // FIRESTORE USER PROFILE (Bio, Image, Nama Sinkronisasi) 🔥 BARU
+    // FIRESTORE USER PROFILE (Bio, Image, Nama Sinkronisasi)
     // ====================================================================
 
-    /**
-     * Mendapatkan profil pengguna dari Firestore.
-     */
     suspend fun getUserProfile(): UserProfile = retryWithExponentialBackoff(tag = "$TAG-GetProfile") {
         val userId = auth.currentUser?.uid ?: throw IllegalStateException("User not logged in.")
         val snapshot = getUserProfileCollection().document(userId).get().await()
 
         return@retryWithExponentialBackoff snapshot.toObject(UserProfile::class.java)
             ?.copy(documentId = snapshot.id)
-            ?: UserProfile(userId = userId) // Kembalikan default jika dokumen tidak ada
+            ?: UserProfile(userId = userId)
     }
 
-    /**
-     * Melakukan update Name, Bio, dan Image URL di Firebase Auth dan Firestore.
-     * Catatan: Image URL harus berupa String, proses upload harus dilakukan di ViewModel/Activity.
-     */
     fun updateUserProfile(name: String, bio: String, imageUrl: String? = null): Flow<AuthResult<FirebaseUser>> = flow {
         emit(AuthResult.Loading)
         try {
@@ -86,7 +71,6 @@ class AuthRepository(
                 // 1. Update Firebase Auth (hanya DisplayName)
                 val profileUpdates = UserProfileChangeRequest.Builder()
                     .setDisplayName(name)
-                    // URL foto harus berupa Uri. Parse string URL jika ada.
                     .setPhotoUri(if (imageUrl != null) android.net.Uri.parse(imageUrl) else user.photoUrl)
                     .build()
 
@@ -101,12 +85,10 @@ class AuthRepository(
                     profileImageUrl = imageUrl
                 )
 
-                // Simpan/Timpa ke Firestore
                 getUserProfileCollection().document(userId)
                     .set(userProfileData)
                     .await()
 
-                // 3. Reload user untuk memastikan sinkronisasi ke objek lokal
                 reloadCurrentUser()
 
                 emit(AuthResult.Success(user))
@@ -120,11 +102,49 @@ class AuthRepository(
     }
 
     // ====================================================================
+    // AUTH BARU (UNTUK GOOGLE RE-AUTH & LINKING)
+    // ====================================================================
+
+    /**
+     * 🔥 BARU: Re-authenticate pengguna dengan Credential (digunakan oleh Google user untuk Delete/Change Pass).
+     */
+    suspend fun reauthenticateWithCredential(credential: AuthCredential): AuthResult<FirebaseUser> {
+        return try {
+            val user = auth.currentUser ?: throw Exception("User not logged in.")
+            user.reauthenticate(credential).await()
+            AuthResult.Success(user)
+        } catch (e: Exception) {
+            AuthResult.Error(e)
+        }
+    }
+
+    /**
+     * 🔥 BARU: Link password baru ke akun yang sudah ada (hanya digunakan oleh Google user untuk menyetel password).
+     */
+    suspend fun linkNewPassword(newPassword: String): AuthResult<FirebaseUser> {
+        return try {
+            val user = auth.currentUser ?: throw Exception("User not logged in.")
+
+            // Email diperlukan untuk membuat kredensial email/pass
+            val email = user.email ?: throw Exception("User does not have an email address to set password.")
+
+            val emailCredential = EmailAuthProvider.getCredential(email, newPassword)
+
+            // Link the new email credential to the existing account
+            val result = user.linkWithCredential(emailCredential).await()
+
+            AuthResult.Success(result.user!!)
+        } catch (e: Exception) {
+            AuthResult.Error(e)
+        }
+    }
+
+    // ====================================================================
     // AUTH LAMA (Dipertahankan)
     // ====================================================================
 
     /**
-     * Re-authenticate pengguna dengan sandi lama.
+     * Re-authenticate pengguna dengan sandi lama (HANYA digunakan oleh Email/Pass user).
      */
     suspend fun reauthenticateUser(email: String, oldPassword: String): AuthResult<FirebaseUser> {
         return try {
@@ -143,7 +163,7 @@ class AuthRepository(
     }
 
     /**
-     * Mengganti kata sandi pengguna setelah berhasil re-authenticate.
+     * Mengganti kata sandi pengguna (HANYA digunakan oleh Email/Pass user).
      */
     suspend fun updatePassword(newPassword: String): AuthResult<FirebaseUser> {
         return try {
@@ -161,9 +181,6 @@ class AuthRepository(
     }
 
 
-    /**
-     * Menghapus akun pengguna yang sudah terotentikasi.
-     */
     suspend fun deleteUserAccount(): AuthResult<Unit> {
         return try {
             val user = auth.currentUser
@@ -171,7 +188,7 @@ class AuthRepository(
                 return AuthResult.Error(Exception("Sesi pengguna berakhir. Tidak dapat menghapus akun."))
             }
 
-            // 🔥 BARU: Hapus dokumen profile custom dari Firestore
+            // Hapus dokumen profile custom dari Firestore
             getUserProfileCollection().document(user.uid).delete().await()
 
             // Hapus user dari Firebase Auth
@@ -183,9 +200,6 @@ class AuthRepository(
         }
     }
 
-    /**
-     * Melakukan login menggunakan kredensial pihak ketiga (misalnya, Google ID Token).
-     */
     suspend fun signInWithCredential(credential: AuthCredential): AuthResult<FirebaseUser> = try {
         val result = auth.signInWithCredential(credential).await()
         val user = result.user
@@ -198,11 +212,7 @@ class AuthRepository(
         AuthResult.Error(e)
     }
 
-    /**
-     * Melakukan pendaftaran pengguna baru.
-     */
     suspend fun register(email: String, password: String): AuthResult<FirebaseUser> = try {
-        // Menggunakan await() untuk mengubah operasi asinkron menjadi suspend function
         val result = auth.createUserWithEmailAndPassword(email, password).await()
         val user = result.user
         if (user != null) {
@@ -214,9 +224,6 @@ class AuthRepository(
         AuthResult.Error(e)
     }
 
-    /**
-     * Melakukan login pengguna.
-     */
     suspend fun login(email: String, password: String): AuthResult<FirebaseUser> = try {
         val result = auth.signInWithEmailAndPassword(email, password).await()
         val user = result.user
@@ -229,9 +236,6 @@ class AuthRepository(
         AuthResult.Error(e)
     }
 
-    /**
-     * Melakukan login tamu/anonim.
-     */
     suspend fun loginAsGuest(): AuthResult<FirebaseUser> = try {
         val result = auth.signInAnonymously().await()
         val user = result.user

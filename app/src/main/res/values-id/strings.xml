@@ -276,5 +276,15 @@
 
     <string name="language_already_selected">Bahasa ini sudah aktif.</string>
     <string name="test_language">Bahasa: Indonesia</string>
+
+    <string name="delete_reauth_required">Anda masuk menggunakan Google. Untuk keamanan, Anda harus verifikasi ulang melalui Google sebelum menghapus akun.</string>
+    <string name="set_password_success">Kata sandi berhasil disetel. Anda kini dapat masuk menggunakan Google atau Email/Password.</string>
+
+
+    <string name="set_new_password_prompt">Masukkan kata sandi baru Anda.</string>
+
+    <string name="dummy_pass_google">DUMMY_PASS_GOOGLE</string>
+    <string name="verify_with_google">Verifikasi Google</string>
+
     <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>
 </resources>
