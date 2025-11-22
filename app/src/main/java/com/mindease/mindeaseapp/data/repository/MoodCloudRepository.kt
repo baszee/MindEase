@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.tasks.await
 import java.util.Calendar
+import android.util.Log
 
 /**
  * Repository untuk menangani operasi data Mood di Cloud (Firestore).
@@ -17,6 +18,8 @@ class MoodCloudRepository(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth
 ) {
+    private val TAG = "MoodCloudRepo"
+
     // Koleksi mood berada di sub-koleksi user
     private fun getUserMoodsCollection() = firestore.collection("users")
         .document(getCurrentUserId())
@@ -39,7 +42,6 @@ class MoodCloudRepository(
         val entryToSave = mood.copy(userId = userId, documentId = documentId)
 
         // 3. Simpan/Timpa ke Firestore menggunakan .set() dengan ID dokumen yang spesifik
-        // .set() dengan document() akan menimpa (overwrite) dokumen jika ID sudah ada.
         getUserMoodsCollection().document(documentId).set(entryToSave).await()
 
         return entryToSave
@@ -47,18 +49,16 @@ class MoodCloudRepository(
 
     /**
      * Mendapatkan semua moods pengguna saat ini secara real-time.
-     * 🔥 FIX CRASH: Memastikan awaitClose adalah instruksi terakhir di callbackFlow.
      */
     fun getAllMoods(): Flow<List<MoodEntry>> = callbackFlow {
         val listenerRegistration = getUserMoodsCollection()
             .orderBy("timestamp", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error) // Menutup flow jika ada error
+                    close(error)
                     return@addSnapshotListener
                 }
 
-                // FIX: Menambahkan documentId saat mapping (penting untuk edit/delete)
                 val moods = snapshot?.documents?.map { document ->
                     document.toObject(MoodEntry::class.java)?.copy(documentId = document.id)
                 }?.filterNotNull() ?: emptyList()
@@ -66,7 +66,6 @@ class MoodCloudRepository(
                 trySend(moods)
             }
 
-        // ⚠️ INI HARUS MENJADI INSTRUKSI TERAKHIR UNTUK MENCEGAH CRASH!
         awaitClose { listenerRegistration.remove() }
     }
 
@@ -82,5 +81,36 @@ class MoodCloudRepository(
             .await()
 
         return snapshot.documents.firstOrNull()?.toObject(MoodEntry::class.java)
+    }
+
+    /**
+     * 🔥 BARU: Menghapus semua dokumen mood historis milik pengguna.
+     * Dipanggil saat penghapusan akun.
+     */
+    suspend fun deleteAllMoods(): Boolean {
+        return try {
+            val userId = getCurrentUserId()
+
+            // ✅ FIX: Gunakan getUserMoodsCollection() yang sudah ada
+            val collectionRef = getUserMoodsCollection()
+
+            val snapshot = collectionRef.get().await()
+
+            // Gunakan batch untuk efisiensi
+            val batch = firestore.batch()
+            for (document in snapshot.documents) {
+                batch.delete(document.reference)
+            }
+
+            batch.commit().await()
+            Log.d(TAG, "All moods deleted successfully for user $userId")
+            true
+        } catch (e: IllegalStateException) {
+            Log.w(TAG, "User not logged in: ${e.message}")
+            true // Anggap berhasil jika pengguna tidak ada
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to delete all moods: ${e.message}")
+            false
+        }
     }
 }

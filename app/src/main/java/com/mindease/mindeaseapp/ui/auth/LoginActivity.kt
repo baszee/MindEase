@@ -1,9 +1,10 @@
-@file:Suppress("DEPRECATION") // 🔥 FIX: Menghilangkan semua warning GMS/GoogleSignIn
+@file:Suppress("DEPRECATION")
 
 package com.mindease.mindeaseapp.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,22 +43,19 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1. Inisialisasi ViewModel
         val authRepository = AuthRepository(Firebase.auth)
         val factory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
-        // 2. Inisialisasi Google Sign-In Options dan Client
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)) // Ambil dari strings.xml
-            .requestEmail()
-            .build()
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
+        // 🔥 FIX: Sign out dari Google dulu sebelum login untuk memaksa pilih akun
+        setupGoogleSignInClient()
 
-        // 3. Inisialisasi Activity Result Launcher
         googleSignInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
+            // 🔥 FIX: Hide loading setelah result diterima
+            setGoogleSignInLoading(false)
+
             val data: Intent? = result.data
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
@@ -77,13 +75,43 @@ class LoginActivity : AppCompatActivity() {
         observeViewModel()
     }
 
+    // 🔥 FIX: Sign out dari Google saat Activity dibuat untuk paksa pilih akun
+    private fun setupGoogleSignInClient() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        // 🔥 KUNCI: Sign out otomatis saat LoginActivity dibuka
+        // Ini memaksa user untuk MEMILIH AKUN setiap kali login
+        googleSignInClient.signOut()
+    }
+
     private fun signInWithGoogle() {
+        // 🔥 FIX: Tampilkan loading indicator
+        setGoogleSignInLoading(true)
+
         val signInIntent = googleSignInClient.signInIntent
         googleSignInLauncher.launch(signInIntent)
     }
 
+    // 🔥 FIX BARU: Loading indicator untuk Google Sign-In
+    private fun setGoogleSignInLoading(isLoading: Boolean) {
+        binding.btnGoogleSignIn.isEnabled = !isLoading
+        binding.btnLogin.isEnabled = !isLoading
+        binding.btnGuestLogin.isEnabled = !isLoading
+
+        // Tampilkan/sembunyikan teks loading (optional)
+        if (isLoading) {
+            binding.btnGoogleSignIn.alpha = 0.5f
+        } else {
+            binding.btnGoogleSignIn.alpha = 1.0f
+        }
+    }
+
     private fun setupListeners() {
-        // Login dengan Email/Password
         binding.btnLogin.setOnClickListener {
             val email = binding.etUsername.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
@@ -95,23 +123,19 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        // Google Sign-In
         binding.btnGoogleSignIn.setOnClickListener {
             signInWithGoogle()
         }
 
-        // Login Tamu (Guest)
         binding.btnGuestLogin.setOnClickListener {
             authViewModel.loginAsGuest()
         }
 
-        // Pendaftaran
         binding.tvSignUp.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
 
-        // Forgot Password
         binding.tvForgotPassword.setOnClickListener {
             val intent = Intent(this, ForgotPasswordActivity::class.java)
             startActivity(intent)
@@ -130,10 +154,27 @@ class LoginActivity : AppCompatActivity() {
                     binding.btnLogin.isEnabled = true
                     binding.btnGuestLogin.isEnabled = true
                     binding.btnGoogleSignIn.isEnabled = true
+
+                    val user = Firebase.auth.currentUser
+
+                    // 🔥 FIX: Check email verification untuk Email/Password user
+                    if (user != null && !user.isAnonymous) {
+                        val isGoogleUser = user.providerData.any { it.providerId == "google.com" }
+
+                        if (!isGoogleUser && !user.isEmailVerified) {
+                            // Email/Password user yang belum verifikasi
+                            Toast.makeText(
+                                this,
+                                "Email belum diverifikasi. Silakan cek inbox Anda.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            // Tetap izinkan login, tapi beri peringatan
+                        }
+                    }
+
                     Toast.makeText(this, "Autentikasi Sukses! Selamat datang.", Toast.LENGTH_SHORT).show()
 
-                    // 🔥 ANALYTICS: Log Login Sukses
-                    val user = Firebase.auth.currentUser
+                    // Analytics
                     val method = when {
                         user?.isAnonymous == true -> "guest"
                         user != null && user.providerData.any { it.providerId == "google.com" } -> "google"

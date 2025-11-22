@@ -38,6 +38,70 @@
             android:paddingBottom="40dp"
             android:gravity="center_horizontal">
 
+            <!-- 🔥 BARU: Verification Warning Banner -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/verification_banner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFF3E0"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="⚠️ Email Belum Diverifikasi"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:textColor="#E65100"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Verifikasi email untuk keamanan akun Anda"
+                        android:textSize="12sp"
+                        android:textColor="#5D4037"
+                        android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="end">
+
+                        <Button
+                            android:id="@+id/btn_verify_later"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="Nanti Saja"
+                            android:textSize="12sp"
+                            android:textColor="#5D4037"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_marginEnd="8dp"/>
+
+                        <Button
+                            android:id="@+id/btn_verify_now"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:text="Verifikasi Sekarang"
+                            android:textSize="12sp"
+                            android:backgroundTint="#FF6F00"
+                            style="@style/Widget.MaterialComponents.Button"/>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <ImageView
                 android:id="@+id/iv_profile_picture"
                 android:layout_width="100dp"
@@ -46,15 +110,17 @@
                 android:background="@drawable/bg_breathing_circle"
                 android:padding="8dp"
                 android:scaleType="fitCenter"
-                android:contentDescription="Profile Picture" />/> <TextView
-            android:id="@+id/tv_user_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            tools:text="aje gile" />
+                android:contentDescription="Profile Picture" />
+
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                tools:text="aje gile" />
 
             <TextView
                 android:id="@+id/tv_user_bio"

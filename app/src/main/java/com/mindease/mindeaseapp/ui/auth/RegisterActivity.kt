@@ -11,13 +11,10 @@ import com.mindease.mindeaseapp.data.repository.AuthRepository
 import com.mindease.mindeaseapp.databinding.ActivityRegisterBinding
 import com.mindease.mindeaseapp.ui.home.MainActivity
 import com.mindease.mindeaseapp.utils.AuthResult
-import com.mindease.mindeaseapp.utils.AnalyticsHelper // 🔥 IMPORT BARU
+import com.mindease.mindeaseapp.utils.AnalyticsHelper
 import com.mindease.mindeaseapp.utils.ThemeManager
 import android.content.Context
 
-/**
- * Activity untuk fitur Pendaftaran/Register.
- */
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
@@ -33,10 +30,8 @@ class RegisterActivity : AppCompatActivity() {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Setup Toolbar manual (karena ini NoActionBar)
         supportActionBar?.hide()
 
-        // Setup ViewModel
         val authRepository = AuthRepository(Firebase.auth)
         val factory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
@@ -51,7 +46,6 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         binding.tvLoginLink.setOnClickListener {
-            // Kembali ke LoginActivity
             finish()
         }
     }
@@ -88,9 +82,9 @@ class RegisterActivity : AppCompatActivity() {
                     Toast.makeText(this, "Mendaftar...", Toast.LENGTH_SHORT).show()
                 }
                 is AuthResult.Success -> {
+                    // ✅ LANGSUNG masuk tanpa paksa verifikasi
                     Toast.makeText(this, "Pendaftaran Berhasil! Selamat datang.", Toast.LENGTH_SHORT).show()
 
-                    // 🔥 ANALYTICS: Log Sign Up Sukses
                     AnalyticsHelper.logSignUp("email_password")
 
                     goToMainActivity()

@@ -286,5 +286,7 @@
     <string name="dummy_pass_google">DUMMY_PASS_GOOGLE</string>
     <string name="verify_with_google">Verifikasi Google</string>
 
+
+
     <string name="default_web_client_id" translatable="false">45537228218-b7dspchiv0n64m07ec2alp29f5ik2a4r.apps.googleusercontent.com</string>
 </resources>

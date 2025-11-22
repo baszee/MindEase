@@ -6,16 +6,13 @@ import com.google.firebase.firestore.SetOptions
 import com.mindease.mindeaseapp.data.model.UserSettings
 import com.mindease.mindeaseapp.utils.retryWithExponentialBackoff
 import kotlinx.coroutines.tasks.await
-import android.util.Log // 🔥 FIX: IMPORT LOG
+import android.util.Log
 
-/**
- * Repository untuk menangani penyimpanan dan pengambilan User Settings (preferensi).
- */
 class SettingsRepository(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth
 ) {
-    private val TAG = "SettingsRepository" // 🔥 FIX: DEFINISI TAG
+    private val TAG = "SettingsRepository"
 
     // Menunjuk ke dokumen spesifik untuk pengaturan pernapasan
     private fun getUserSettingsDocument(userId: String) = firestore.collection("users")
@@ -24,7 +21,6 @@ class SettingsRepository(
         .document("breathing_prefs")
 
     private fun getCurrentUserId(): String {
-        // Logika ini harus dipertahankan untuk melempar IllegalStateException jika user null
         return auth.currentUser?.uid ?: throw IllegalStateException("User is not logged in or UID is null.")
     }
 
@@ -41,7 +37,6 @@ class SettingsRepository(
 
         Log.d(TAG, "SAVING settings for $userId: Sound=${settings.isSoundEnabled}, Haptic=${settings.isHapticEnabled}")
 
-        // Gunakan set(data, SetOptions.merge()) untuk menjamin persistensi
         getUserSettingsDocument(userId).set(dataToUpdate, SetOptions.merge()).await()
 
         Log.d(TAG, "SAVE SUCCESSFUL for $userId")
@@ -55,7 +50,6 @@ class SettingsRepository(
             val userId = getCurrentUserId()
             val snapshot = getUserSettingsDocument(userId).get().await()
 
-            // Jika ada data, kembalikan objek UserSettings. Jika tidak ada, kembalikan default.
             val settings = snapshot.toObject(UserSettings::class.java) ?: UserSettings()
 
             Log.d(TAG, "LOADING settings for $userId: Sound=${settings.isSoundEnabled}, Haptic=${settings.isHapticEnabled}")
@@ -64,8 +58,25 @@ class SettingsRepository(
             throw e
         } catch (e: Exception) {
             e.printStackTrace()
-            // Mengembalikan default jika ada error jaringan atau Firestore
             UserSettings()
+        }
+    }
+
+    /**
+     * 🔥 BARU: Menghapus dokumen pengaturan pernapasan pengguna.
+     */
+    suspend fun deleteUserSettings(): Boolean {
+        return try {
+            val userId = getCurrentUserId()
+            getUserSettingsDocument(userId).delete().await()
+            Log.d(TAG, "Settings deleted successfully for $userId")
+            true
+        } catch (e: IllegalStateException) {
+            Log.w(TAG, "User not logged in, skipping settings deletion")
+            true // Tidak masalah jika tidak ada dokumen
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to delete user settings: ${e.message}")
+            false
         }
     }
 }
