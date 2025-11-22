@@ -40,7 +40,6 @@ import com.google.firebase.auth.AuthCredential
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 
-
 class DeleteAccountActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDeleteAccountBinding
@@ -83,39 +82,18 @@ class DeleteAccountActivity : AppCompatActivity() {
             return
         }
 
-        isGoogleUser = currentUser.providerData.any { info ->
-            info.providerId == GoogleAuthProvider.PROVIDER_ID
-        }
-
-        if (isGoogleUser) {
-            setupGoogleReauthClient()
-            setupGoogleUserUI()
-        } else {
-            // 🔥 BARU: Cek verifikasi untuk Email/Password user
-            checkEmailVerificationForEmailUser()
-        }
-
-        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
-        setupDeleteButton()
-        observeViewModel()
-    }
-
-    // 🔥 BARU: Paksa verifikasi untuk Email/Password user
-    private fun checkEmailVerificationForEmailUser() {
+        // 🔥 CHECK VERIFICATION FOR EMAIL/PASSWORD USER
         lifecycleScope.launch {
-            val isVerified = authRepository.checkVerificationForCriticalAction()
-
-            if (!isVerified) {
-                // Email/Password user BELUM verifikasi → BLOKIR akses
+            if (!authRepository.checkVerificationForCriticalAction()) {
                 showVerificationRequiredUI()
-            } else {
-                // Sudah verifikasi → Tampilkan UI normal
-                setupEmailPassUserUI()
+                return@launch
             }
+
+            // Continue with normal flow
+            proceedWithDeleteAccount()
         }
     }
 
-    // 🔥 BARU: UI jika verifikasi diperlukan
     private fun showVerificationRequiredUI() {
         binding.tvUserWarning.text = "🔒 Verifikasi Email Diperlukan\n\n" +
                 "Untuk keamanan akun Anda, kami telah mengirim email verifikasi ke ${currentUser?.email}.\n\n" +
@@ -131,7 +109,6 @@ class DeleteAccountActivity : AppCompatActivity() {
         }
     }
 
-    // 🔥 BARU: Kirim ulang email verifikasi
     private fun resendVerificationEmail() {
         lifecycleScope.launch {
             binding.btnDeleteAccountConfirm.isEnabled = false
@@ -146,8 +123,6 @@ class DeleteAccountActivity : AppCompatActivity() {
                         "✅ Email verifikasi telah dikirim! Cek inbox Anda.",
                         Toast.LENGTH_LONG
                     ).show()
-
-                    // Tutup activity, user harus verifikasi dulu
                     finish()
                 }
                 is AuthResult.Error -> {
@@ -163,6 +138,23 @@ class DeleteAccountActivity : AppCompatActivity() {
                 else -> {}
             }
         }
+    }
+
+    private fun proceedWithDeleteAccount() {
+        isGoogleUser = currentUser!!.providerData.any { info ->
+            info.providerId == GoogleAuthProvider.PROVIDER_ID
+        }
+
+        if (isGoogleUser) {
+            setupGoogleReauthClient()
+            setupGoogleUserUI()
+        } else {
+            setupEmailPassUserUI()
+        }
+
+        binding.toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        setupDeleteButton()
+        observeViewModel()
     }
 
     private fun setupGoogleReauthClient() {

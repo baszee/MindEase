@@ -4,7 +4,6 @@ package com.mindease.mindeaseapp.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,13 +46,11 @@ class LoginActivity : AppCompatActivity() {
         val factory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
-        // 🔥 FIX: Sign out dari Google dulu sebelum login untuk memaksa pilih akun
         setupGoogleSignInClient()
 
         googleSignInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            // 🔥 FIX: Hide loading setelah result diterima
             setGoogleSignInLoading(false)
 
             val data: Intent? = result.data
@@ -75,7 +72,6 @@ class LoginActivity : AppCompatActivity() {
         observeViewModel()
     }
 
-    // 🔥 FIX: Sign out dari Google saat Activity dibuat untuk paksa pilih akun
     private fun setupGoogleSignInClient() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -83,27 +79,20 @@ class LoginActivity : AppCompatActivity() {
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
-
-        // 🔥 KUNCI: Sign out otomatis saat LoginActivity dibuka
-        // Ini memaksa user untuk MEMILIH AKUN setiap kali login
         googleSignInClient.signOut()
     }
 
     private fun signInWithGoogle() {
-        // 🔥 FIX: Tampilkan loading indicator
         setGoogleSignInLoading(true)
-
         val signInIntent = googleSignInClient.signInIntent
         googleSignInLauncher.launch(signInIntent)
     }
 
-    // 🔥 FIX BARU: Loading indicator untuk Google Sign-In
     private fun setGoogleSignInLoading(isLoading: Boolean) {
         binding.btnGoogleSignIn.isEnabled = !isLoading
         binding.btnLogin.isEnabled = !isLoading
         binding.btnGuestLogin.isEnabled = !isLoading
 
-        // Tampilkan/sembunyikan teks loading (optional)
         if (isLoading) {
             binding.btnGoogleSignIn.alpha = 0.5f
         } else {
@@ -155,26 +144,9 @@ class LoginActivity : AppCompatActivity() {
                     binding.btnGuestLogin.isEnabled = true
                     binding.btnGoogleSignIn.isEnabled = true
 
-                    val user = Firebase.auth.currentUser
-
-                    // 🔥 FIX: Check email verification untuk Email/Password user
-                    if (user != null && !user.isAnonymous) {
-                        val isGoogleUser = user.providerData.any { it.providerId == "google.com" }
-
-                        if (!isGoogleUser && !user.isEmailVerified) {
-                            // Email/Password user yang belum verifikasi
-                            Toast.makeText(
-                                this,
-                                "Email belum diverifikasi. Silakan cek inbox Anda.",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            // Tetap izinkan login, tapi beri peringatan
-                        }
-                    }
-
                     Toast.makeText(this, "Autentikasi Sukses! Selamat datang.", Toast.LENGTH_SHORT).show()
 
-                    // Analytics
+                    val user = Firebase.auth.currentUser
                     val method = when {
                         user?.isAnonymous == true -> "guest"
                         user != null && user.providerData.any { it.providerId == "google.com" } -> "google"

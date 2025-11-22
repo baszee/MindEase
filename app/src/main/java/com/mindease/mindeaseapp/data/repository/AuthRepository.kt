@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.delay
 
 class AuthRepository(
     val auth: FirebaseAuth = Firebase.auth,
@@ -46,7 +48,7 @@ class AuthRepository(
     }
 
     // ====================================================================
-    // 🔥 BARU: EMAIL VERIFICATION HELPERS (SOFT APPROACH)
+    // 🔥 EMAIL VERIFICATION HELPERS
     // ====================================================================
 
     /**
@@ -66,7 +68,7 @@ class AuthRepository(
     }
 
     /**
-     * Kirim email verifikasi ke user (TANPA memaksa)
+     * Kirim email verifikasi ke user
      */
     suspend fun sendEmailVerification(): AuthResult<Unit> {
         return try {
@@ -81,13 +83,20 @@ class AuthRepository(
     }
 
     /**
-     * 🔒 ENFORCED: Cek verifikasi sebelum aksi critical
-     * Return true jika BOLEH lanjut (sudah verif ATAU bukan email/pass user)
-     * Return false jika HARUS verifikasi dulu
+     * 🔥 FIX: Cek verifikasi dengan double reload untuk avoid race condition
+     * Hanya untuk CRITICAL ACTION: Change Password & Delete Account
      */
     suspend fun checkVerificationForCriticalAction(): Boolean {
-        // Reload dulu untuk data terbaru
-        reloadCurrentUser()
+        try {
+            // Reload pertama
+            auth.currentUser?.reload()?.await()
+            // Delay singkat untuk sync
+            delay(500)
+            // Reload kedua untuk ensure fresh data
+            auth.currentUser?.reload()?.await()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error reloading user: ${e.message}")
+        }
 
         val user = auth.currentUser ?: return false
 
@@ -103,7 +112,7 @@ class AuthRepository(
     }
 
     // ====================================================================
-    // FIRESTORE USER PROFILE (Bio, Image, Nama Sinkronisasi)
+    // FIRESTORE USER PROFILE
     // ====================================================================
 
     suspend fun getUserProfile(): UserProfile = retryWithExponentialBackoff(tag = "$TAG-GetProfile") {
@@ -137,8 +146,9 @@ class AuthRepository(
                     profileImageUrl = imageUrl
                 )
 
+                // 🔥 FIX: Use merge to avoid overwriting other fields
                 getUserProfileCollection().document(userId)
-                    .set(userProfileData)
+                    .set(userProfileData, SetOptions.merge())
                     .await()
 
                 reloadCurrentUser()
@@ -154,7 +164,7 @@ class AuthRepository(
     }
 
     // ====================================================================
-    // AUTH BARU (UNTUK GOOGLE RE-AUTH & LINKING)
+    // AUTH UNTUK GOOGLE RE-AUTH & LINKING
     // ====================================================================
 
     suspend fun reauthenticateWithCredential(credential: AuthCredential): AuthResult<FirebaseUser> {
@@ -180,7 +190,7 @@ class AuthRepository(
     }
 
     // ====================================================================
-    // AUTH LAMA (Dipertahankan)
+    // AUTH UNTUK EMAIL/PASSWORD USER
     // ====================================================================
 
     suspend fun reauthenticateUser(email: String, oldPassword: String): AuthResult<FirebaseUser> {

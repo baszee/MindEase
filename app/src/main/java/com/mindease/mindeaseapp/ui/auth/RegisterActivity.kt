@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.mindease.mindeaseapp.data.repository.AuthRepository
@@ -14,11 +15,13 @@ import com.mindease.mindeaseapp.utils.AuthResult
 import com.mindease.mindeaseapp.utils.AnalyticsHelper
 import com.mindease.mindeaseapp.utils.ThemeManager
 import android.content.Context
+import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
     private lateinit var authViewModel: AuthViewModel
+    private lateinit var authRepository: AuthRepository
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(ThemeManager.wrapContext(newBase))
@@ -32,7 +35,7 @@ class RegisterActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
-        val authRepository = AuthRepository(Firebase.auth)
+        authRepository = AuthRepository(Firebase.auth)
         val factory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
@@ -82,12 +85,32 @@ class RegisterActivity : AppCompatActivity() {
                     Toast.makeText(this, "Mendaftar...", Toast.LENGTH_SHORT).show()
                 }
                 is AuthResult.Success -> {
-                    // ✅ LANGSUNG masuk tanpa paksa verifikasi
-                    Toast.makeText(this, "Pendaftaran Berhasil! Selamat datang.", Toast.LENGTH_SHORT).show()
+                    // 🔥 FIX: Kirim email verifikasi setelah registrasi berhasil
+                    lifecycleScope.launch {
+                        val sendResult = authRepository.sendEmailVerification()
 
-                    AnalyticsHelper.logSignUp("email_password")
+                        when (sendResult) {
+                            is AuthResult.Success -> {
+                                Toast.makeText(
+                                    this@RegisterActivity,
+                                    "✅ Email verifikasi terkirim ke ${result.data.email}\n\n" +
+                                            "⚠️ PERIKSA FOLDER SPAM jika tidak muncul di Inbox dalam 2 menit.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            is AuthResult.Error -> {
+                                Toast.makeText(
+                                    this@RegisterActivity,
+                                    "Pendaftaran berhasil, tapi gagal mengirim email verifikasi. Anda bisa kirim ulang dari menu Profile nanti.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            else -> {}
+                        }
 
-                    goToMainActivity()
+                        AnalyticsHelper.logSignUp("email_password")
+                        goToMainActivity()
+                    }
                 }
                 is AuthResult.Error -> {
                     binding.btnRegister.isEnabled = true

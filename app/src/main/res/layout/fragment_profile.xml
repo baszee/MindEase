@@ -181,6 +181,16 @@
                 app:cornerRadius="8dp"
                 android:layout_marginTop="32dp"/>
 
+            <TextView
+                android:id="@+id/tv_banner_instruction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="💡 Tip: Jika email tidak muncul, periksa folder Spam/Junk"
+                android:textSize="11sp"
+                android:textColor="#5D4037"
+                android:gravity="center"
+                android:layout_marginTop="4dp"/>
+
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
