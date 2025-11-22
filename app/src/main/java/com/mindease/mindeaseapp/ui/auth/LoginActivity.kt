@@ -9,6 +9,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -24,11 +25,13 @@ import com.mindease.mindeaseapp.utils.AuthResult
 import com.mindease.mindeaseapp.utils.AnalyticsHelper
 import com.mindease.mindeaseapp.utils.ThemeManager
 import android.content.Context
+import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var authViewModel: AuthViewModel
+    private lateinit var authRepository: AuthRepository
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
 
@@ -42,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val authRepository = AuthRepository(Firebase.auth)
+        authRepository = AuthRepository(Firebase.auth)
         val factory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
@@ -58,7 +61,21 @@ class LoginActivity : AppCompatActivity() {
             try {
                 val account = task.getResult(ApiException::class.java)!!
                 val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-                authViewModel.signInWithGoogleCredential(credential)
+
+                // 🔥 FIX: Cek apakah email sudah terdaftar dengan Email/Password
+                lifecycleScope.launch {
+                    val email = account.email ?: ""
+                    val existingMethods = authRepository.checkEmailExists(email)
+
+                    if (existingMethods.contains("password")) {
+                        // Email sudah terdaftar dengan Email/Password
+                        // Login dulu dengan credential, lalu link
+                        handleGoogleSignInWithExistingAccount(credential, email)
+                    } else {
+                        // Email belum terdaftar atau baru pertama kali
+                        authViewModel.signInWithGoogleCredential(credential)
+                    }
+                }
 
             } catch (e: ApiException) {
                 Toast.makeText(this, "Google Sign-In Gagal: ${e.statusCode}", Toast.LENGTH_LONG).show()
@@ -70,6 +87,24 @@ class LoginActivity : AppCompatActivity() {
 
         setupListeners()
         observeViewModel()
+    }
+
+    // 🔥 BARU: Handle Google Sign-In dengan akun Email/Password yang sudah ada
+    private fun handleGoogleSignInWithExistingAccount(credential: com.google.firebase.auth.AuthCredential, email: String) {
+        // Tampilkan dialog konfirmasi
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Akun Sudah Terdaftar")
+            .setMessage("Email $email sudah terdaftar dengan Email/Password.\n\nGabungkan akun agar Anda bisa login dengan Google atau Email/Password?")
+            .setPositiveButton("Gabungkan") { _, _ ->
+                // Login dengan Google, lalu link
+                authViewModel.signInWithGoogleCredential(credential)
+            }
+            .setNegativeButton("Batal") { dialog, _ ->
+                dialog.dismiss()
+                Toast.makeText(this, "Login dibatalkan", Toast.LENGTH_SHORT).show()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun setupGoogleSignInClient() {

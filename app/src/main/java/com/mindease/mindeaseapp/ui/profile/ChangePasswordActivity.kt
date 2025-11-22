@@ -37,6 +37,7 @@ class ChangePasswordActivity : AppCompatActivity() {
 
     private val currentUser = Firebase.auth.currentUser
     private var isGoogleUser = false
+    private var hasPassword = false
     private var isReauthenticated = false
 
     override fun attachBaseContext(newBase: Context) {
@@ -61,8 +62,9 @@ class ChangePasswordActivity : AppCompatActivity() {
 
         authRepository = AuthRepository(Firebase.auth)
 
+        // 🔥 FIX: Cek verifikasi untuk Email/Password user
         lifecycleScope.launch {
-            if (!authRepository.checkVerificationForCriticalAction()) {
+            if (authRepository.isEmailPasswordUser() && !authRepository.checkVerificationForCriticalAction()) {
                 showVerificationRequiredDialog()
                 return@launch
             }
@@ -113,9 +115,8 @@ class ChangePasswordActivity : AppCompatActivity() {
     }
 
     private fun proceedWithPasswordChange() {
-        isGoogleUser = currentUser!!.providerData.any { info ->
-            info.providerId == GoogleAuthProvider.PROVIDER_ID
-        }
+        isGoogleUser = authRepository.isGoogleUser()
+        hasPassword = authRepository.isEmailPasswordUser()
 
         val factory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
@@ -147,15 +148,30 @@ class ChangePasswordActivity : AppCompatActivity() {
     }
 
     private fun setupInitialUI() {
-        if (isGoogleUser) {
-            binding.tilOldPassword.visibility = View.GONE
-            binding.etOldPassword.setText(getString(R.string.dummy_pass_google))
-            binding.tvOldPasswordInstruction.text = getString(R.string.delete_reauth_required)
-            binding.btnSavePassword.text = getString(R.string.verify_with_google)
-            setNewPasswordFieldsEnabled(false)
-        } else {
-            binding.tvOldPasswordInstruction.text = getString(R.string.enter_your_old_password)
-            setNewPasswordFieldsEnabled(true)
+        when {
+            // 🔥 Case 1: Google user yang BELUM punya password (perlu set password pertama kali)
+            isGoogleUser && !hasPassword -> {
+                binding.tilOldPassword.visibility = View.GONE
+                binding.etOldPassword.setText(getString(R.string.dummy_pass_google))
+                binding.tvOldPasswordInstruction.text = "Anda login dengan Google. Buat password untuk bisa login dengan Email/Password juga."
+                binding.btnSavePassword.text = "Verifikasi Google & Set Password"
+                setNewPasswordFieldsEnabled(false)
+            }
+
+            // 🔥 Case 2: Google user yang SUDAH punya password (bisa ubah password)
+            isGoogleUser && hasPassword -> {
+                binding.tilOldPassword.visibility = View.GONE
+                binding.etOldPassword.setText(getString(R.string.dummy_pass_google))
+                binding.tvOldPasswordInstruction.text = "Anda login dengan Google. Verifikasi untuk mengubah password."
+                binding.btnSavePassword.text = getString(R.string.verify_with_google)
+                setNewPasswordFieldsEnabled(false)
+            }
+
+            // 🔥 Case 3: Email/Password user (flow normal)
+            else -> {
+                binding.tvOldPasswordInstruction.text = getString(R.string.enter_your_old_password)
+                setNewPasswordFieldsEnabled(true)
+            }
         }
     }
 
@@ -168,6 +184,7 @@ class ChangePasswordActivity : AppCompatActivity() {
         binding.btnSavePassword.setOnClickListener {
             val userEmail = currentUser?.email ?: return@setOnClickListener
 
+            // 🔥 FIX: Google user harus re-auth dulu
             if (isGoogleUser && !isReauthenticated) {
                 signInWithGoogleForReauth()
                 return@setOnClickListener
@@ -178,23 +195,27 @@ class ChangePasswordActivity : AppCompatActivity() {
             val confirmPassword = binding.etConfirmNewPassword.text.toString().trim()
 
             if (newPassword.length < 6) {
-                Toast.makeText(this, getString(R.string.password_too_short), Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(this, getString(R.string.password_too_short), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (newPassword != confirmPassword) {
-                Toast.makeText(this, getString(R.string.passwords_not_match), Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(this, getString(R.string.passwords_not_match), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (isGoogleUser) {
+            // 🔥 Google user yang belum punya password = link password
+            if (isGoogleUser && !hasPassword) {
                 authViewModel.linkNewPasswordToGoogleUser(newPassword)
-            } else {
+            }
+            // 🔥 Google user yang sudah punya password = update password
+            else if (isGoogleUser && hasPassword) {
+                authViewModel.updatePasswordDirectly(newPassword)
+            }
+            // Email/Password user = change password normal
+            else {
                 if (oldPassword.isEmpty()) {
-                    Toast.makeText(this, getString(R.string.all_fields_required), Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this, getString(R.string.all_fields_required), Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
                 authViewModel.changePassword(userEmail, oldPassword, newPassword)
@@ -240,36 +261,40 @@ class ChangePasswordActivity : AppCompatActivity() {
                 is AuthResult.Success -> {
                     setLoadingState(false)
 
-                    if (isGoogleUser) {
-                        if (!isReauthenticated) {
+                    // 🔥 FIX: Handle berbagai skenario
+                    when {
+                        // Setelah re-auth Google
+                        isGoogleUser && !isReauthenticated -> {
                             isReauthenticated = true
                             setNewPasswordFieldsEnabled(true)
                             binding.tvOldPasswordInstruction.text =
-                                getString(R.string.set_new_password_prompt)
-                            Toast.makeText(
-                                this,
-                                "Verifikasi Sukses. Masukkan kata sandi baru Anda.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                if (hasPassword) "Verifikasi Sukses. Masukkan password baru Anda."
+                                else "Verifikasi Sukses. Buat password untuk login dengan Email/Password."
+                            Toast.makeText(this, "Verifikasi Sukses!", Toast.LENGTH_SHORT).show()
                             binding.btnSavePassword.text = getString(R.string.save)
+                        }
 
-                        } else {
+                        // Setelah link/update password
+                        isGoogleUser -> {
+                            val message = if (hasPassword) {
+                                "Password berhasil diubah! Anda dapat login dengan Google atau Email/Password."
+                            } else {
+                                "Password berhasil dibuat! Sekarang Anda dapat login dengan Google atau Email/Password."
+                            }
+                            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                            finish()
+                        }
+
+                        // Email/Password user
+                        else -> {
                             Toast.makeText(
                                 this,
-                                getString(R.string.set_password_success),
+                                getString(R.string.password_updated_relogin),
                                 Toast.LENGTH_LONG
                             ).show()
                             Firebase.auth.signOut()
                             finish()
                         }
-                    } else {
-                        Toast.makeText(
-                            this,
-                            getString(R.string.password_updated_relogin),
-                            Toast.LENGTH_LONG
-                        ).show()
-                        Firebase.auth.signOut()
-                        finish()
                     }
                 }
 
@@ -278,10 +303,7 @@ class ChangePasswordActivity : AppCompatActivity() {
 
                     val errorMessage = when (result.exception.message) {
                         "INVALID_LOGIN_CREDENTIALS" -> getString(R.string.old_password_incorrect)
-                        else -> getString(
-                            R.string.generic_failure_message,
-                            result.exception.message
-                        )
+                        else -> getString(R.string.generic_failure_message, result.exception.message)
                     }
 
                     Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
@@ -297,10 +319,9 @@ class ChangePasswordActivity : AppCompatActivity() {
         binding.btnSavePassword.text = if (isLoading) {
             getString(R.string.loading)
         } else {
-            if (isGoogleUser && !isReauthenticated) {
-                getString(R.string.verify_with_google)
-            } else {
-                getString(R.string.save)
+            when {
+                isGoogleUser && !isReauthenticated -> "Verifikasi Google"
+                else -> getString(R.string.save)
             }
         }
     }

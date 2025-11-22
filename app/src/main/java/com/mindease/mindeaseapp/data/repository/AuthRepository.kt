@@ -57,7 +57,15 @@ class AuthRepository(
     fun isEmailPasswordUser(): Boolean {
         val user = auth.currentUser ?: return false
         if (user.isAnonymous) return false
-        return user.providerData.none { it.providerId == "google.com" }
+        return user.providerData.any { it.providerId == "password" }
+    }
+
+    /**
+     * Cek apakah user saat ini adalah Google user
+     */
+    fun isGoogleUser(): Boolean {
+        val user = auth.currentUser ?: return false
+        return user.providerData.any { it.providerId == "google.com" }
     }
 
     /**
@@ -68,11 +76,18 @@ class AuthRepository(
     }
 
     /**
-     * Kirim email verifikasi ke user
+     * Kirim email verifikasi ke user (HANYA untuk Email/Password user)
      */
     suspend fun sendEmailVerification(): AuthResult<Unit> {
         return try {
             val user = auth.currentUser ?: throw Exception("User not logged in.")
+
+            // 🔥 FIX: Jangan kirim verifikasi untuk Google user
+            if (isGoogleUser()) {
+                Log.d(TAG, "Google user tidak perlu verifikasi email")
+                return AuthResult.Success(Unit)
+            }
+
             user.sendEmailVerification().await()
             Log.d(TAG, "Verification email sent to ${user.email}")
             AuthResult.Success(Unit)
@@ -85,6 +100,7 @@ class AuthRepository(
     /**
      * 🔥 FIX: Cek verifikasi dengan double reload untuk avoid race condition
      * Hanya untuk CRITICAL ACTION: Change Password & Delete Account
+     * Google user otomatis lolos (sudah verified by Google)
      */
     suspend fun checkVerificationForCriticalAction(): Boolean {
         try {
@@ -103,12 +119,45 @@ class AuthRepository(
         // Guest user: Boleh langsung (tidak ada email)
         if (user.isAnonymous) return true
 
-        // Google user: Boleh langsung (Google sudah verifikasi)
-        val isGoogleUser = user.providerData.any { it.providerId == "google.com" }
-        if (isGoogleUser) return true
+        // 🔥 FIX: Google user: Boleh langsung (Google sudah verifikasi)
+        if (isGoogleUser()) return true
 
         // Email/Password user: HARUS sudah verifikasi
         return user.isEmailVerified
+    }
+
+    // ====================================================================
+    // 🔥 ACCOUNT LINKING (MERGE EMAIL/PASSWORD + GOOGLE)
+    // ====================================================================
+
+    /**
+     * 🔥 BARU: Cek apakah email sudah terdaftar dengan provider lain
+     * Return: List of sign-in methods untuk email tersebut
+     */
+    suspend fun checkEmailExists(email: String): List<String> {
+        return try {
+            val methods = auth.fetchSignInMethodsForEmail(email).await()
+            methods.signInMethods ?: emptyList()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking email: ${e.message}")
+            emptyList()
+        }
+    }
+
+    /**
+     * 🔥 BARU: Link Google credential ke akun yang sudah ada
+     * Digunakan saat Google Sign-In dengan email yang sudah punya akun Email/Password
+     */
+    suspend fun linkGoogleToExistingAccount(credential: AuthCredential): AuthResult<FirebaseUser> {
+        return try {
+            val user = auth.currentUser ?: throw Exception("User not logged in.")
+            val result = user.linkWithCredential(credential).await()
+            Log.d(TAG, "Google account linked successfully")
+            AuthResult.Success(result.user!!)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to link Google account: ${e.message}")
+            AuthResult.Error(e)
+        }
     }
 
     // ====================================================================
@@ -146,7 +195,6 @@ class AuthRepository(
                     profileImageUrl = imageUrl
                 )
 
-                // 🔥 FIX: Use merge to avoid overwriting other fields
                 getUserProfileCollection().document(userId)
                     .set(userProfileData, SetOptions.merge())
                     .await()
@@ -183,8 +231,10 @@ class AuthRepository(
             val email = user.email ?: throw Exception("User does not have an email address to set password.")
             val emailCredential = EmailAuthProvider.getCredential(email, newPassword)
             val result = user.linkWithCredential(emailCredential).await()
+            Log.d(TAG, "Password linked successfully to Google account")
             AuthResult.Success(result.user!!)
         } catch (e: Exception) {
+            Log.e(TAG, "Failed to link password: ${e.message}")
             AuthResult.Error(e)
         }
     }
@@ -217,9 +267,11 @@ class AuthRepository(
             }
 
             user.updatePassword(newPassword).await()
+            Log.d(TAG, "Password updated successfully")
 
             AuthResult.Success(user)
         } catch (e: Exception) {
+            Log.e(TAG, "Failed to update password: ${e.message}")
             AuthResult.Error(e)
         }
     }

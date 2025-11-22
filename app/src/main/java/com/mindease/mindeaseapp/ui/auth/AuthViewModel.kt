@@ -38,6 +38,16 @@ class AuthViewModel(val repository: AuthRepository) : ViewModel() {
         }
     }
 
+    /**
+     * 🔥 BARU: Update password langsung tanpa re-auth (untuk Google user yang sudah punya password)
+     */
+    fun updatePasswordDirectly(newPassword: String) {
+        _loginResult.value = AuthResult.Loading
+        viewModelScope.launch {
+            _loginResult.value = repository.updatePassword(newPassword)
+        }
+    }
+
     fun updateUserProfile(name: String, bio: String, imageUrl: String? = null) {
         viewModelScope.launch {
             repository.updateUserProfile(name, bio, imageUrl).collect { result ->

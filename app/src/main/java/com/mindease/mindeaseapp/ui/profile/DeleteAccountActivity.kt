@@ -82,9 +82,9 @@ class DeleteAccountActivity : AppCompatActivity() {
             return
         }
 
-        // 🔥 CHECK VERIFICATION FOR EMAIL/PASSWORD USER
+        // 🔥 CHECK VERIFICATION untuk Email/Password user
         lifecycleScope.launch {
-            if (!authRepository.checkVerificationForCriticalAction()) {
+            if (authRepository.isEmailPasswordUser() && !authRepository.checkVerificationForCriticalAction()) {
                 showVerificationRequiredUI()
                 return@launch
             }
@@ -141,9 +141,7 @@ class DeleteAccountActivity : AppCompatActivity() {
     }
 
     private fun proceedWithDeleteAccount() {
-        isGoogleUser = currentUser!!.providerData.any { info ->
-            info.providerId == GoogleAuthProvider.PROVIDER_ID
-        }
+        isGoogleUser = authRepository.isGoogleUser()
 
         if (isGoogleUser) {
             setupGoogleReauthClient()

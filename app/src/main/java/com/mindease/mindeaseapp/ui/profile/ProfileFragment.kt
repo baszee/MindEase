@@ -50,7 +50,7 @@ class ProfileFragment : Fragment() {
         setupLogoutListener()
         setupNavigationListeners()
 
-        // 🔥 Setup verification banner (HANYA DI PROFILE)
+        // 🔥 Setup verification banner (HANYA untuk Email/Password user yang belum verify)
         setupVerificationBanner()
     }
 
@@ -69,7 +69,7 @@ class ProfileFragment : Fragment() {
         googleSignInClient = GoogleSignIn.getClient(requireContext(), gso)
     }
 
-    // 🔥 BANNER VERIFICATION (HANYA DI PROFILE FRAGMENT)
+    // 🔥 BANNER VERIFICATION (HANYA untuk Email/Password user yang belum verify)
     private fun setupVerificationBanner() {
         viewLifecycleOwner.lifecycleScope.launch {
             // Cek apakah user Email/Password dan belum verifikasi
@@ -87,7 +87,10 @@ class ProfileFragment : Fragment() {
                     binding.verificationBanner.visibility = View.GONE
                 }
             } else {
-                // Sembunyikan banner jika sudah verifikasi atau bukan email/pass user
+                // Sembunyikan banner jika:
+                // - Sudah verifikasi
+                // - Google user (tidak perlu verifikasi)
+                // - Guest user
                 binding.verificationBanner.visibility = View.GONE
             }
         }

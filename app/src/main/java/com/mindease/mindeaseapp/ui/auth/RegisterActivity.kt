@@ -85,27 +85,36 @@ class RegisterActivity : AppCompatActivity() {
                     Toast.makeText(this, "Mendaftar...", Toast.LENGTH_SHORT).show()
                 }
                 is AuthResult.Success -> {
-                    // 🔥 FIX: Kirim email verifikasi setelah registrasi berhasil
+                    // 🔥 FIX: Kirim email verifikasi HANYA untuk Email/Password user
                     lifecycleScope.launch {
-                        val sendResult = authRepository.sendEmailVerification()
+                        // Double check: pastikan ini Email/Password user (bukan Google)
+                        if (authRepository.isEmailPasswordUser()) {
+                            val sendResult = authRepository.sendEmailVerification()
 
-                        when (sendResult) {
-                            is AuthResult.Success -> {
-                                Toast.makeText(
-                                    this@RegisterActivity,
-                                    "✅ Email verifikasi terkirim ke ${result.data.email}\n\n" +
-                                            "⚠️ PERIKSA FOLDER SPAM jika tidak muncul di Inbox dalam 2 menit.",
-                                    Toast.LENGTH_LONG
-                                ).show()
+                            when (sendResult) {
+                                is AuthResult.Success -> {
+                                    Toast.makeText(
+                                        this@RegisterActivity,
+                                        "✅ Pendaftaran berhasil!\n\nEmail verifikasi telah dikirim ke ${result.data.email}\n\n⚠️ PERIKSA FOLDER SPAM jika tidak muncul di Inbox dalam 2 menit.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                is AuthResult.Error -> {
+                                    Toast.makeText(
+                                        this@RegisterActivity,
+                                        "Pendaftaran berhasil, tapi gagal mengirim email verifikasi. Anda bisa kirim ulang dari menu Profile nanti.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                else -> {}
                             }
-                            is AuthResult.Error -> {
-                                Toast.makeText(
-                                    this@RegisterActivity,
-                                    "Pendaftaran berhasil, tapi gagal mengirim email verifikasi. Anda bisa kirim ulang dari menu Profile nanti.",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                            else -> {}
+                        } else {
+                            // Tidak seharusnya sampai sini, tapi untuk safety
+                            Toast.makeText(
+                                this@RegisterActivity,
+                                "Pendaftaran berhasil!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
 
                         AnalyticsHelper.logSignUp("email_password")
