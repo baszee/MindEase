@@ -72,25 +72,24 @@ class ProfileFragment : Fragment() {
     // 🔥 BANNER VERIFICATION (HANYA untuk Email/Password user yang belum verify)
     private fun setupVerificationBanner() {
         viewLifecycleOwner.lifecycleScope.launch {
-            // Cek apakah user Email/Password dan belum verifikasi
+            // 🔥 FIX: Prioritaskan Google user check DULU
+            if (authRepository.isGoogleUser()) {
+                binding.verificationBanner.visibility = View.GONE
+                return@launch
+            }
+
+            // Cek Email/Password user yang belum verifikasi
             if (authRepository.isEmailPasswordUser() && !authRepository.isEmailVerified()) {
-                // Tampilkan banner
                 binding.verificationBanner.visibility = View.VISIBLE
 
-                // Button "Verifikasi Sekarang"
                 binding.btnVerifyNow.setOnClickListener {
                     sendVerificationEmail()
                 }
 
-                // Button "Nanti Saja" (dismiss banner sementara)
                 binding.btnVerifyLater.setOnClickListener {
                     binding.verificationBanner.visibility = View.GONE
                 }
             } else {
-                // Sembunyikan banner jika:
-                // - Sudah verifikasi
-                // - Google user (tidak perlu verifikasi)
-                // - Guest user
                 binding.verificationBanner.visibility = View.GONE
             }
         }

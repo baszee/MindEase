@@ -104,22 +104,19 @@ class AuthRepository(
      */
     suspend fun checkVerificationForCriticalAction(): Boolean {
         try {
-            // Reload pertama
-            auth.currentUser?.reload()?.await()
-            // Delay singkat untuk sync
-            delay(500)
-            // Reload kedua untuk ensure fresh data
+            // Single reload
             auth.currentUser?.reload()?.await()
         } catch (e: Exception) {
-            Log.e(TAG, "Error reloading user: ${e.message}")
+            Log.e("AuthRepo", "Error reloading user: ${e.message}")
+            return false
         }
 
         val user = auth.currentUser ?: return false
 
-        // Guest user: Boleh langsung (tidak ada email)
+        // Guest user: Boleh langsung
         if (user.isAnonymous) return true
 
-        // 🔥 FIX: Google user: Boleh langsung (Google sudah verifikasi)
+        // Google user: Boleh langsung (Google sudah verifikasi)
         if (isGoogleUser()) return true
 
         // Email/Password user: HARUS sudah verifikasi
