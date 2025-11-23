@@ -65,6 +65,9 @@ class DeleteAccountActivity : AppCompatActivity() {
         binding = ActivityDeleteAccountBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // ✅ KRITIS: Setup Google launcher SEBELUM lifecycle check
+        setupGoogleReauthClient()
+
         authRepository = AuthRepository(Firebase.auth)
         val authFactory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, authFactory)[AuthViewModel::class.java]
@@ -82,22 +85,21 @@ class DeleteAccountActivity : AppCompatActivity() {
             return
         }
 
-        // 🔥 CHECK VERIFICATION untuk Email/Password user
+        // ✅ CHECK VERIFICATION
         lifecycleScope.launch {
-            if (authRepository.isEmailPasswordUser() && !authRepository.checkVerificationForCriticalAction()) {
+            if (!authRepository.checkVerificationForCriticalAction()) {
                 showVerificationRequiredUI()
                 return@launch
             }
-
-            // Continue with normal flow
             proceedWithDeleteAccount()
         }
     }
 
     private fun showVerificationRequiredUI() {
         binding.tvUserWarning.text = "🔒 Verifikasi Email Diperlukan\n\n" +
-                "Untuk keamanan akun Anda, kami telah mengirim email verifikasi ke ${currentUser?.email}.\n\n" +
-                "Silakan cek inbox Anda dan klik link verifikasi, lalu kembali ke halaman ini."
+                "Untuk keamanan akun Anda, silakan verifikasi email terlebih dahulu.\n\n" +
+                "📧 Email verifikasi telah dikirim ke ${currentUser?.email}\n\n" +
+                "⚠️ Cek folder Spam/Junk jika tidak muncul di Inbox"
 
         binding.tilVerificationPassword.visibility = View.GONE
         binding.etVerificationPassword.visibility = View.GONE
@@ -118,19 +120,32 @@ class DeleteAccountActivity : AppCompatActivity() {
 
             when (result) {
                 is AuthResult.Success -> {
-                    Toast.makeText(
-                        this@DeleteAccountActivity,
-                        "✅ Email verifikasi telah dikirim! Cek inbox Anda.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    finish()
+                    binding.tvUserWarning.text = "✅ Email Verifikasi Terkirim!\n\n" +
+                            "📧 Silakan cek inbox Anda (termasuk folder Spam)\n\n" +
+                            "🔄 Setelah klik link di email, kembali ke halaman ini dan klik \"Sudah Verifikasi\""
+
+                    binding.btnDeleteAccountConfirm.text = "Sudah Verifikasi - Lanjutkan"
+                    binding.btnDeleteAccountConfirm.isEnabled = true
+
+                    binding.btnDeleteAccountConfirm.setOnClickListener {
+                        checkVerificationAndProceed()
+                    }
                 }
                 is AuthResult.Error -> {
-                    Toast.makeText(
-                        this@DeleteAccountActivity,
-                        "❌ Gagal mengirim email: ${result.exception.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    val errorMsg = result.exception.message ?: "Unknown error"
+
+                    val userMessage = when {
+                        errorMsg.contains("TOO_MANY_ATTEMPTS") ->
+                            "❌ Terlalu banyak percobaan. Tunggu 5 menit."
+                        errorMsg.contains("NETWORK") ->
+                            "❌ Koneksi internet bermasalah."
+                        errorMsg.contains("REQUIRES_RECENT_LOGIN") ->
+                            "❌ Sesi login sudah lama. Silakan logout dan login ulang."
+                        else ->
+                            "❌ Gagal mengirim email: $errorMsg"
+                    }
+
+                    Toast.makeText(this@DeleteAccountActivity, userMessage, Toast.LENGTH_LONG).show()
 
                     binding.btnDeleteAccountConfirm.isEnabled = true
                     binding.btnDeleteAccountConfirm.text = "Kirim Ulang Email Verifikasi"
@@ -140,11 +155,37 @@ class DeleteAccountActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkVerificationAndProceed() {
+        lifecycleScope.launch {
+            binding.btnDeleteAccountConfirm.isEnabled = false
+            binding.btnDeleteAccountConfirm.text = "Memeriksa..."
+
+            // Reload user data dari server
+            authRepository.reloadCurrentUser()
+
+            if (authRepository.checkVerificationForCriticalAction()) {
+                Toast.makeText(
+                    this@DeleteAccountActivity,
+                    "✅ Email terverifikasi! Melanjutkan...",
+                    Toast.LENGTH_SHORT
+                ).show()
+                proceedWithDeleteAccount()
+            } else {
+                Toast.makeText(
+                    this@DeleteAccountActivity,
+                    "❌ Email belum diverifikasi. Silakan cek inbox Anda dan klik link verifikasi.",
+                    Toast.LENGTH_LONG
+                ).show()
+                binding.btnDeleteAccountConfirm.isEnabled = true
+                binding.btnDeleteAccountConfirm.text = "Sudah Verifikasi - Lanjutkan"
+            }
+        }
+    }
+
     private fun proceedWithDeleteAccount() {
         isGoogleUser = authRepository.isGoogleUser()
 
         if (isGoogleUser) {
-            setupGoogleReauthClient()
             setupGoogleUserUI()
         } else {
             setupEmailPassUserUI()
@@ -162,6 +203,7 @@ class DeleteAccountActivity : AppCompatActivity() {
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
+        // ✅ Register SEBELUM activity STARTED
         googleSignInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
@@ -270,7 +312,6 @@ class DeleteAccountActivity : AppCompatActivity() {
         return try {
             val userId = currentUser!!.uid
 
-            // 1. Hapus Journals
             val journalSnapshot = journalCloudRepository.journalCollection
                 .whereEqualTo("userId", userId)
                 .get().await()
@@ -280,14 +321,12 @@ class DeleteAccountActivity : AppCompatActivity() {
                 entry?.let { journalCloudRepository.deleteJournal(it) }
             }
 
-            // 2. Hapus Moods
             val moodDeleted = moodCloudRepository.deleteAllMoods()
             if (!moodDeleted) {
                 android.util.Log.e("DeleteAccount", "Failed to delete moods")
                 return false
             }
 
-            // 3. Hapus Settings
             val settingsDeleted = settingsRepository.deleteUserSettings()
             if (!settingsDeleted) {
                 android.util.Log.e("DeleteAccount", "Failed to delete settings")

@@ -51,7 +51,6 @@ class ChangePasswordActivity : AppCompatActivity() {
         binding = ActivityChangePasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Validasi awal
         if (currentUser == null || currentUser.isAnonymous) {
             Toast.makeText(
                 this,
@@ -62,100 +61,110 @@ class ChangePasswordActivity : AppCompatActivity() {
             return
         }
 
-        // Inisialisasi Repository & ViewModel
         authRepository = AuthRepository(Firebase.auth)
         val factory = AuthViewModelFactory(authRepository)
         authViewModel = ViewModelProvider(this, factory)[AuthViewModel::class.java]
 
-        // 🔥 FIX CRITICAL: Setup Google launcher SEBELUM lifecycle check
+        // ✅ Setup Google launcher SEBELUM lifecycle check
         setupGoogleReauthClient()
 
-        // Setup toolbar
         binding.toolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        // 🔥 FIX: Cek verifikasi HANYA untuk Email/Password user
+        // ✅ CHECK VERIFICATION
         lifecycleScope.launch {
-            if (authRepository.isEmailPasswordUser() && !authRepository.isGoogleUser()) {
-                // Check verifikasi dengan SINGLE reload (tanpa delay)
-                try {
-                    authRepository.reloadCurrentUser()
-                } catch (e: Exception) {
-                    Log.e("ChangePass", "Reload failed: ${e.message}")
-                }
-
-                if (!authRepository.isEmailVerified()) {
-                    showVerificationRequiredDialog()
-                    return@launch
-                }
+            if (!authRepository.checkVerificationForCriticalAction()) {
+                showVerificationRequiredUI()
+                return@launch
             }
-
-            // Lanjutkan setup UI
             proceedWithPasswordChange()
         }
     }
 
-    private fun showVerificationRequiredDialog() {
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("⚠️ Email Belum Diverifikasi")
-            .setMessage("Untuk keamanan akun Anda, silakan verifikasi email terlebih dahulu sebelum mengubah password.")
-            .setPositiveButton("Kirim Email Verifikasi") { _, _ ->
-                sendVerificationEmail()
-            }
-            .setNegativeButton("Batal") { _, _ ->
-                finish()
-            }
-            .setCancelable(false)
-            .show()
+    private fun showVerificationRequiredUI() {
+        binding.tvOldPasswordInstruction.text = "🔒 Verifikasi Email Diperlukan\n\n" +
+                "Untuk keamanan akun, silakan verifikasi email terlebih dahulu.\n\n" +
+                "📧 Email verifikasi telah dikirim ke ${currentUser?.email}\n\n" +
+                "⚠️ Cek folder Spam/Junk jika tidak muncul"
+
+        binding.tilOldPassword.visibility = View.GONE
+        binding.tilNewPassword.visibility = View.GONE
+        binding.tilConfirmNewPassword.visibility = View.GONE
+
+        binding.btnSavePassword.text = "Kirim Ulang Email Verifikasi"
+
+        binding.btnSavePassword.setOnClickListener {
+            resendVerificationEmail()
+        }
     }
 
-    private fun sendVerificationEmail() {
+    private fun resendVerificationEmail() {
         lifecycleScope.launch {
-            try {
-                val result = authRepository.sendEmailVerification()
-                when (result) {
-                    is AuthResult.Success -> {
-                        Toast.makeText(
-                            this@ChangePasswordActivity,
-                            "✅ Email verifikasi telah dikirim! Silakan cek inbox Anda (termasuk folder Spam), lalu kembali ke sini.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        finish()
+            binding.btnSavePassword.isEnabled = false
+            binding.btnSavePassword.text = "Mengirim..."
+
+            val result = authRepository.sendEmailVerification()
+
+            when (result) {
+                is AuthResult.Success -> {
+                    binding.tvOldPasswordInstruction.text = "✅ Email Verifikasi Terkirim!\n\n" +
+                            "📧 Silakan cek inbox (termasuk Spam)\n\n" +
+                            "🔄 Setelah klik link, kembali dan klik \"Sudah Verifikasi\""
+
+                    binding.btnSavePassword.text = "Sudah Verifikasi - Lanjutkan"
+                    binding.btnSavePassword.isEnabled = true
+
+                    binding.btnSavePassword.setOnClickListener {
+                        checkVerificationAndProceed()
                     }
-
-                    is AuthResult.Error -> {
-                        val errorMsg = result.exception.message ?: "Unknown error"
-                        Log.e("ChangePass", "Email send error: $errorMsg")
-
-                        // 🔥 FIX: Tampilkan error yang lebih jelas
-                        val userMessage = when {
-                            errorMsg.contains("TOO_MANY_ATTEMPTS") ->
-                                "❌ Terlalu banyak percobaan. Silakan tunggu 5 menit."
-                            errorMsg.contains("NETWORK") ->
-                                "❌ Koneksi internet bermasalah. Cek koneksi Anda."
-                            else ->
-                                "❌ Gagal mengirim email: $errorMsg"
-                        }
-
-                        Toast.makeText(
-                            this@ChangePasswordActivity,
-                            userMessage,
-                            Toast.LENGTH_LONG
-                        ).show()
-                        finish()
-                    }
-
-                    else -> {}
                 }
-            } catch (e: Exception) {
-                Log.e("ChangePass", "Unexpected error: ${e.message}")
+                is AuthResult.Error -> {
+                    val errorMsg = result.exception.message ?: "Unknown error"
+
+                    val userMessage = when {
+                        errorMsg.contains("TOO_MANY_ATTEMPTS") ->
+                            "❌ Terlalu banyak percobaan. Tunggu 5 menit."
+                        errorMsg.contains("NETWORK") ->
+                            "❌ Koneksi internet bermasalah."
+                        errorMsg.contains("REQUIRES_RECENT_LOGIN") ->
+                            "❌ Sesi login sudah lama. Logout dan login ulang."
+                        else ->
+                            "❌ Gagal: $errorMsg"
+                    }
+
+                    Toast.makeText(this@ChangePasswordActivity, userMessage, Toast.LENGTH_LONG).show()
+
+                    binding.btnSavePassword.isEnabled = true
+                    binding.btnSavePassword.text = "Kirim Ulang Email Verifikasi"
+                }
+                else -> {}
+            }
+        }
+    }
+
+    private fun checkVerificationAndProceed() {
+        lifecycleScope.launch {
+            binding.btnSavePassword.isEnabled = false
+            binding.btnSavePassword.text = "Memeriksa..."
+
+            authRepository.reloadCurrentUser()
+
+            if (authRepository.checkVerificationForCriticalAction()) {
                 Toast.makeText(
                     this@ChangePasswordActivity,
-                    "❌ Error: ${e.message}",
+                    "✅ Email terverifikasi!",
+                    Toast.LENGTH_SHORT
+                ).show()
+                proceedWithPasswordChange()
+            } else {
+                Toast.makeText(
+                    this@ChangePasswordActivity,
+                    "❌ Email belum diverifikasi. Cek inbox dan klik link verifikasi.",
                     Toast.LENGTH_LONG
                 ).show()
-                finish()
+                binding.btnSavePassword.isEnabled = true
+                binding.btnSavePassword.text = "Sudah Verifikasi - Lanjutkan"
             }
         }
     }
@@ -177,7 +186,6 @@ class ChangePasswordActivity : AppCompatActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // 🔥 FIX: Register launcher SEBELUM activity STARTED
         googleSignInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
@@ -187,7 +195,6 @@ class ChangePasswordActivity : AppCompatActivity() {
 
     private fun setupInitialUI() {
         when {
-            // Case 1: Google user tanpa password
             isGoogleUser && !hasPassword -> {
                 binding.tilOldPassword.visibility = View.GONE
                 binding.etOldPassword.setText(getString(R.string.dummy_pass_google))
@@ -196,7 +203,6 @@ class ChangePasswordActivity : AppCompatActivity() {
                 setNewPasswordFieldsEnabled(false)
             }
 
-            // Case 2: Google user dengan password
             isGoogleUser && hasPassword -> {
                 binding.tilOldPassword.visibility = View.GONE
                 binding.etOldPassword.setText(getString(R.string.dummy_pass_google))
@@ -205,7 +211,6 @@ class ChangePasswordActivity : AppCompatActivity() {
                 setNewPasswordFieldsEnabled(false)
             }
 
-            // Case 3: Email/Password user normal
             else -> {
                 binding.tvOldPasswordInstruction.text = getString(R.string.enter_your_old_password)
                 setNewPasswordFieldsEnabled(true)
@@ -222,7 +227,6 @@ class ChangePasswordActivity : AppCompatActivity() {
         binding.btnSavePassword.setOnClickListener {
             val userEmail = currentUser?.email ?: return@setOnClickListener
 
-            // Google user harus re-auth dulu
             if (isGoogleUser && !isReauthenticated) {
                 signInWithGoogleForReauth()
                 return@setOnClickListener
@@ -242,7 +246,6 @@ class ChangePasswordActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Proses perubahan password
             when {
                 isGoogleUser && !hasPassword -> {
                     authViewModel.linkNewPasswordToGoogleUser(newPassword)
@@ -300,7 +303,6 @@ class ChangePasswordActivity : AppCompatActivity() {
                     setLoadingState(false)
 
                     when {
-                        // Setelah re-auth Google
                         isGoogleUser && !isReauthenticated -> {
                             isReauthenticated = true
                             setNewPasswordFieldsEnabled(true)
@@ -311,7 +313,6 @@ class ChangePasswordActivity : AppCompatActivity() {
                             binding.btnSavePassword.text = getString(R.string.save)
                         }
 
-                        // Setelah link/update password
                         isGoogleUser -> {
                             val message = if (hasPassword) {
                                 "Password berhasil diubah! Anda dapat login dengan Google atau Email/Password."
@@ -322,7 +323,6 @@ class ChangePasswordActivity : AppCompatActivity() {
                             finish()
                         }
 
-                        // Email/Password user
                         else -> {
                             Toast.makeText(
                                 this,
