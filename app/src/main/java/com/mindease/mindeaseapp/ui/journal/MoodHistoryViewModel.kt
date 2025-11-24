@@ -27,7 +27,8 @@ class MoodHistoryViewModel(private val repository: MoodCloudRepository) : ViewMo
 
     // Status filter yang saat ini aktif, default ke WEEK
     private val _filter = MutableStateFlow(MoodFilter.WEEK)
-    val filter: StateFlow<MoodFilter> = _filter
+    // Dibuat public agar Activity dapat mengambil nilai filter saat ini (digunakan di setupChart)
+    val filter: StateFlow<MoodFilter> = _filter // PROPERTI INI PENTING UNTUK DIGUNAKAN DI ACTIVITY
 
     // LiveData yang akan diperbarui secara reaktif berdasarkan filter
     val filteredMoods: LiveData<List<MoodEntry>> = _filter.flatMapLatest { moodFilter ->
@@ -44,7 +45,7 @@ class MoodHistoryViewModel(private val repository: MoodCloudRepository) : ViewMo
 
     /**
      * Fungsi untuk melakukan filtering data mood berdasarkan rentang waktu.
-     * Logika ini tetap sama, hanya sekarang memfilter data dari Cloud.
+     * Logika rentang waktu 7, 30, dan 365 hari dipertahankan.
      */
     private fun filterMoods(moods: List<MoodEntry>, filter: MoodFilter): List<MoodEntry> {
         val currentTime = System.currentTimeMillis()

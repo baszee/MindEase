@@ -3,6 +3,7 @@ package com.mindease.mindeaseapp.ui.home
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.firebase.firestore.FirebaseFirestore
@@ -45,6 +46,17 @@ class MainActivity : AppCompatActivity() {
 
         // FIREBASE COST-SAVING: AKTIFKAN OFFLINE PERSISTENCE
         setupFirestoreOfflinePersistence()
+
+        // ✅ FIX BOTTOM NAV HEIGHT - Paksa tinggi bottom nav sesuai XML
+        binding.bottomNavigation.post {
+            val params = binding.bottomNavigation.layoutParams
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            binding.bottomNavigation.layoutParams = params
+
+            // Reset padding sesuai XML (6dp = 24px pada density 4.0)
+            val paddingVertical = (6 * resources.displayMetrics.density).toInt()
+            binding.bottomNavigation.setPadding(0, paddingVertical, 0, paddingVertical)
+        }
 
         if (savedInstanceState == null) {
             // Inisialisasi semua Fragment hanya jika Activity baru dibuat

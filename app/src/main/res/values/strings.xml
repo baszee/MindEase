@@ -104,6 +104,7 @@
     <string name="total_journals">Total Journals</string>
     <string name="this_week">This Week</string>
     <string name="this_month">This Month</string>
+    <string name="this_year">This Year</string>
     <string name="all_time">All Time</string>
 
     <string name="weekly_mood_stats">Weekly Mood Statistics</string>

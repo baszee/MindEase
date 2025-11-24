@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- ... styles lain tetap sama ... -->
-
-    <!-- UPDATED: BottomNavigationView Style -->
+    <!-- STYLE BOTTOM NAV DI-COMMENT KARENA BIKIN OVERRIDE -->
+    <!--
     <style name="Widget.MindEaseApp.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
         <item name="itemIconTint">@color/bottom_nav_selector</item>
         <item name="itemTextColor">@color/bottom_nav_selector</item>
-        <item name="android:elevation">16dp</item>
-
-        <!-- Padding untuk ketengahin icon -->
-        <item name="android:paddingTop">40dp</item>
-        <item name="android:paddingBottom">40dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="itemPaddingTop">0dp</item>
+        <item name="itemPaddingBottom">0dp</item>
         <item name="android:paddingStart">16dp</item>
         <item name="android:paddingEnd">16dp</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.MindEaseApp.BottomNavRounded</item>
     </style>
+    -->
 
-    <!-- Shape rounded untuk BottomNav -->
     <style name="ShapeAppearance.MindEaseApp.BottomNavRounded" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">32dp</item>
     </style>
 
-    <!-- MoodIconStyle -->
     <style name="MoodIconStyle">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">48dp</item>
@@ -30,7 +28,6 @@
         <item name="android:padding">4dp</item>
     </style>
 
-    <!-- BreathingCardStyle -->
     <style name="BreathingCardStyle" parent="Widget.MaterialComponents.CardView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -42,7 +39,6 @@
         <item name="android:clickable">true</item>
     </style>
 
-    <!-- BreathingContentStyle -->
     <style name="BreathingContentStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -50,7 +46,6 @@
         <item name="android:padding">16dp</item>
     </style>
 
-    <!-- BreathingTitleStyle -->
     <style name="BreathingTitleStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -59,7 +54,6 @@
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
-    <!-- BreathingDescStyle -->
     <style name="BreathingDescStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -69,7 +63,6 @@
         <item name="android:layout_marginTop">4dp</item>
     </style>
 
-    <!-- ThemeOptionStyle -->
     <style name="ThemeOptionStyle" parent="Widget.AppCompat.TextView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -84,7 +77,6 @@
         <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
-    <!-- SettingsItemStyle -->
     <style name="SettingsItemStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -103,7 +95,6 @@
         <item name="android:layout_marginBottom">8dp</item>
     </style>
 
-    <!-- SettingsOptionStyle -->
     <style name="SettingsOptionStyle" parent="Widget.AppCompat.TextView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -120,7 +111,6 @@
         <item name="android:foreground">?attr/selectableItemBackground</item>
     </style>
 
-    <!-- CycleTextStyle -->
     <style name="CycleTextStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

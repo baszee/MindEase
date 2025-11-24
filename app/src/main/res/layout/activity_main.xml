@@ -25,10 +25,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
 
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="37dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:elevation="8dp"
+        android:elevation="10dp"
 
         android:background="@drawable/bottom_nav_background"
         app:menu="@menu/bottom_nav_menu"
@@ -36,7 +36,7 @@
         app:itemIconTint="@color/bottom_nav_selector"
         app:itemTextColor="@color/bottom_nav_selector"
         app:labelVisibilityMode="labeled"
-        app:itemIconSize="24dp"
+        app:itemIconSize="26dp"
         android:paddingVertical="6dp"
         app:itemHorizontalTranslationEnabled="false"
         />

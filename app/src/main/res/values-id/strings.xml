@@ -104,6 +104,7 @@
     <string name="total_journals">Total Jurnal</string>
     <string name="this_week">Minggu Ini</string>
     <string name="this_month">Bulan Ini</string>
+    <string name="this_year">Tahun Ini</string>
     <string name="all_time">Sepanjang Waktu</string>
 
     <string name="weekly_mood_stats">Statistik Mood Mingguan</string>
