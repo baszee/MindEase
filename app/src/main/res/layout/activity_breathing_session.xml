@@ -29,17 +29,59 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:id="@+id/breathing_shape"
+        <!-- Text Panah Top (Inhale) -->
+        <TextView
+            android:id="@+id/tv_cycle_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Inhale 4s →"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="32dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:alpha="0.4"/>
+
+        <!-- Box Breathing: Custom Progress Box View -->
+        <com.mindease.mindeaseapp.ui.breathing.ProgressBoxView
+            android:id="@+id/breathing_progress_box"
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_gravity="center"
-            android:background="@drawable/bg_breathing_rounded_box"
-            android:scaleX="1.0"
-            android:scaleY="1.0"
-            android:contentDescription="@string/breathing_exercise"
-            android:padding="8dp"/>
+            android:visibility="gone"
+            tools:visibility="visible"/>
 
+        <!-- 4-7-8 Breathing: Custom Progress Triangle View -->
+        <com.mindease.mindeaseapp.ui.breathing.ProgressTriangleView
+            android:id="@+id/breathing_progress_triangle"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+
+        <!-- Cyclic Sighing: Fixed Circle Container dengan Icon (DIPERBESAR) -->
+        <FrameLayout
+            android:id="@+id/cyclic_circle_container"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_breathing_circle"
+            android:visibility="gone">
+
+            <!-- Icon Paru-paru (diperbesar: 130dp, scale 0.7 → 1.3) -->
+            <ImageView
+                android:id="@+id/cyclic_lungs_icon"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_lungs"
+                android:contentDescription="Lungs Icon"
+                android:scaleType="fitCenter"/>
+        </FrameLayout>
+
+        <!-- Countdown Timer (di tengah) -->
         <TextView
             android:id="@+id/tv_timer_countdown"
             android:layout_width="wrap_content"
@@ -48,72 +90,80 @@
             android:textSize="48sp"
             android:textStyle="bold"
             android:textColor="?attr/colorPrimary"
+            android:visibility="visible"
             tools:text="4"/>
 
         <TextView
-            android:id="@+id/tv_instruction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ready_inhale"
-            android:layout_gravity="center_horizontal|top"
-            android:layout_marginTop="16dp"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"/>
-
-        <TextView
-            android:id="@+id/tv_cycle_counter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/cycle_format"
-            android:layout_gravity="top|end"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp"
-            android:textSize="14sp"
-            android:textColor="?attr/colorOnSurface"
-            tools:visibility="visible"/>
-
-        <TextView
-            android:id="@+id/tv_cycle_top"
-            style="@style/CycleTextStyle"
-            android:text="@string/breathing_box_inhale"
-            android:layout_gravity="center_horizontal|top"
-            android:layout_marginTop="80dp"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:textColor="?attr/colorOnSurface"/>
-
-        <TextView
             android:id="@+id/tv_cycle_left"
-            style="@style/CycleTextStyle"
-            android:text="@string/breathing_box_hold_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="↑ Hold 4s"
             android:layout_gravity="center_vertical|start"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="12dp"
             android:visibility="gone"
             tools:visibility="visible"
-            android:textColor="?attr/colorOnSurface"/>
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:alpha="0.4"/>
 
         <TextView
             android:id="@+id/tv_cycle_right"
-            style="@style/CycleTextStyle"
-            android:text="@string/breathing_box_hold_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hold 4s ↓"
             android:layout_gravity="center_vertical|end"
-            android:layout_marginEnd="40dp"
+            android:layout_marginEnd="12dp"
             android:visibility="gone"
             tools:visibility="visible"
-            android:textColor="?attr/colorOnSurface"/>
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:alpha="0.4"/>
 
+        <!-- Text Panah Bottom (untuk 4-7-8: Hold) -->
         <TextView
             android:id="@+id/tv_cycle_bottom"
-            style="@style/CycleTextStyle"
-            android:text="@string/breathing_box_exhale"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="← Exhale 4s"
             android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="80dp"
+            android:layout_marginBottom="16dp"
             android:visibility="gone"
             tools:visibility="visible"
-            android:textColor="?attr/colorOnSurface"/>
-
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:alpha="0.4"/>
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_instruction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ready_inhale"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorPrimary"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/animation_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="Inhale"/>
+
+    <TextView
+        android:id="@+id/tv_cycle_counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cycle 1/5"
+        android:textSize="16sp"
+        android:textColor="?attr/colorOnSurface"
+        android:alpha="0.7"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_instruction"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="Cycle 1/2"/>
 
     <LinearLayout
         android:id="@+id/session_controls"
@@ -172,7 +222,6 @@
                 android:tint="?attr/colorPrimary"/>
 
         </LinearLayout>
-
 
         <Button
             android:id="@+id/btn_start_session"
