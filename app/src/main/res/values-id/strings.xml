@@ -49,6 +49,9 @@
     <string name="mood_sad_name">Sedih</string>
     <string name="mood_very_sad_name">Sangat Sedih</string>
 
+    <string name="default_quote_text">"Setiap hari adalah awal yang baru."</string>
+    <string name="default_quote_author">- Anonim</string>
+
     <string name="mood_very_bad">Sangat Buruk</string>
     <string name="mood_bad">Buruk</string>
     <string name="mood_neutral">Netral</string>
@@ -235,6 +238,16 @@
     <string name="select_language_title">Pilih Bahasa</string>
 
     <string name="placeholder_quote">Tarik napas dalam-dalam dan tenangkan pikiranmu</string>
+
+    <string name="dashboard_mood_prompt_morning">Bagaimana perasaanmu hari ini? Luangkan sebentar untuk mengecek dirimu.</string>
+    <string name="dashboard_mood_prompt_afternoon">Bagaimana harimu sejauh ini? Luangkan sebentar untuk mencatat mood siangmu.</string>
+    <string name="dashboard_mood_prompt_evening">Luangkan waktu sebentar untuk refleksi. Bagaimana rasanya harimu sejauh ini?</string>
+    <string name="dashboard_mood_prompt_night">Sebelum beristirahat, coba rasakan bagaimana akhir harimu.</string>
+
+    <string name="dashboard_mood_logged_morning">Cek pagi selesai. Kamu memulai hari dengan perasaan %1$s.</string>
+    <string name="dashboard_mood_logged_afternoon">Mood siang berhasil dicatat. Kamu merasa %1$s di siang ini.</string>
+    <string name="dashboard_mood_logged_evening">Mood sore berhasil dicatat. Saat ini kamu merasa %1$s.</string>
+    <string name="dashboard_mood_logged_night">Cek malam selesai. Kamu mengakhiri hari dengan perasaan %1$s.</string>
 
     <string name="greeting_format">%1$s, %2$s %3$s</string>
     <string name="how_feeling_today">Bagaimana perasaanmu hari ini?</string>

@@ -225,6 +225,19 @@
 
     <string name="placeholder_quote">Take a deep breath and calm your mind</string>
 
+    <string name="dashboard_mood_prompt_morning">How are you feeling today? Take a moment to check in with yourself.</string>
+    <string name="dashboard_mood_prompt_afternoon">How’s your day going? Pause a moment to log your midday mood.</string>
+    <string name="dashboard_mood_prompt_evening">Take a moment to reflect. How has the day felt so far?</string>
+    <string name="dashboard_mood_prompt_night">Before you rest, check in with how your day ends.</string>
+
+    <string name="dashboard_mood_logged_morning">Morning check-in complete. You’re starting the day feeling %1$s.</string>
+    <string name="dashboard_mood_logged_afternoon">Midday mood recorded. This afternoon you’re feeling %1$s.</string>
+    <string name="dashboard_mood_logged_evening">Evening mood noted. Right now you’re feeling %1$s.</string>
+    <string name="dashboard_mood_logged_night">Night check-in complete. You’re ending the day feeling %1$s.</string>
+
+    <string name="default_quote_text">"Every day is a new beginning."</string>
+    <string name="default_quote_author">- Anonim</string>
+
     <string name="greeting_format">%1$s, %2$s %3$s</string>
     <string name="how_feeling_today">How are you feeling today?</string>
     <string name="write_about_day">Write a Little Bit About Your Day…</string>

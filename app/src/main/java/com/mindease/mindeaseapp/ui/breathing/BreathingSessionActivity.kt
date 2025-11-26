@@ -239,7 +239,7 @@ class BreathingSessionActivity : AppCompatActivity() {
                 binding.tvTimerCountdown.visibility = View.GONE
 
                 // Set icon paru-paru
-                binding.cyclicLungsIcon.setImageResource(R.drawable.ic_lungs)
+                binding.cyclicLungsIcon.setImageResource(R.drawable.ic_lungs2)
                 binding.cyclicLungsIcon.setColorFilter(ContextCompat.getColor(this, R.color.mindease_primary))
             }
             "4-7-8 Breathing" -> {
@@ -267,7 +267,7 @@ class BreathingSessionActivity : AppCompatActivity() {
         }
 
         binding.tvSessionDuration.text = formatDurationSeconds(sessionDurationSeconds)
-        binding.tvInstruction.text = "Tekan 'Start Session' untuk memulai $type."
+        binding.tvInstruction.text = "Press ‘Start Session’ to begin $type."
         binding.tvCycleCounter.text = "Cycle $currentCycle/$totalCycles"
 
         binding.btnDurationMinus.isEnabled = sessionDurationSeconds > MIN_DURATION_SECONDS
@@ -303,7 +303,7 @@ class BreathingSessionActivity : AppCompatActivity() {
         }
         currentAnimator?.cancel()
         isRunning = false
-        binding.tvInstruction.text = "Sesi dihentikan."
+        binding.tvInstruction.text = "The session has been terminated."
         binding.btnStartSession.text = "Start Session"
 
         currentCycle = 1
@@ -540,7 +540,7 @@ class BreathingSessionActivity : AppCompatActivity() {
 
         AnalyticsHelper.logBreathingSessionCompleted(exerciseType, sessionDurationSeconds)
 
-        binding.tvInstruction.text = "Sesi Latihan Pernapasan Selesai!"
+        binding.tvInstruction.text = "Breathing Exercise Session Complete!"
         binding.btnStartSession.text = "Start Session"
 
         // Reset animations
@@ -560,7 +560,7 @@ class BreathingSessionActivity : AppCompatActivity() {
         binding.tvTimerCountdown.text = ""
 
         val durationText = formatDurationSeconds(sessionDurationSeconds)
-        Toast.makeText(this, "Latihan selesai! Anda telah menyelesaikan $totalCycles siklus dalam $durationText.", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "The exercise is complete! You have finished $totalCycles cycle in $durationText.", Toast.LENGTH_LONG).show()
 
         currentCycle = 1
         currentPhaseIndex = 0

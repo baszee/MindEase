@@ -26,7 +26,7 @@
         android:id="@+id/tv_breathing_subheader"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Pilih latihan pernapasan yang sesuai dengan kebutuhan Anda."
+        android:text="Choose breathing exercises that suit your needs."
         android:textSize="16sp"
         android:textColor="?attr/colorOnSurface"
         android:alpha="0.7"

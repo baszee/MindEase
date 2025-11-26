@@ -1,5 +1,3 @@
-// baszee/mindease/MindEase-4e8b5bcc941bcf8b2f040d5689f753109d558dca/app/build.gradle.kts
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,19 +16,33 @@ android {
         applicationId = "com.mindease.mindeaseapp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
 
+    // ==================== SIGNING CONFIG ====================
+    signingConfigs {
+        create("release") {
+            storeFile = file("E:\\Abbas Abdurrahman\\AndroidKeystore\\MindEase.jks")
+            storePassword = "Basze1234"  // 🔴 Ganti ini!
+            keyAlias = "release_key"
+            keyPassword = "Basze1234"    // 🔴 Ganti ini!
+        }
     }
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")  // 🔥 Tambah ini
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+
+        debug {
+            // Debug menggunakan debug keystore default
         }
     }
 
@@ -48,7 +60,6 @@ android {
     // FIX KRITIS: Menangani duplikasi file META-INF
     packaging {
         resources {
-
             excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
     }
